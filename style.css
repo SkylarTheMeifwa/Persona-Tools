@@ -16,20 +16,30 @@ body::before {
   content: "";
   position: absolute;
   inset: 0;
-  background-image: 
+  background-image:
+    url('p5-star.png'),
+    url('p5-star.png'),
+    url('p5-star.png'),
+    url('p5-star.png'),
+    url('p5-star.png'),
     url('p5-star.png'),
     url('p5-star.png'),
     url('p5-star.png'),
     url('p5-star.png'),
     url('p5-star.png');
   background-repeat: no-repeat;
-  background-size: 40px, 60px, 30px, 50px, 70px;
-  background-position: 
-    10% 20%, 
-    50% 10%, 
-    80% 60%, 
-    30% 70%, 
-    70% 40%;
+  background-size: 40px, 60px, 30px, 50px, 70px, 55px, 35px, 65px, 45px, 38px;
+  background-position:
+    10% 20%,
+    50% 10%,
+    80% 60%,
+    30% 70%,
+    70% 40%,
+    20% 80%,
+    90% 30%,
+    60% 90%,
+    40% 50%,
+    75% 75%;
   animation: rotateStars 30s linear infinite;
   opacity: 0.2;
   z-index: 0;
@@ -42,6 +52,7 @@ body::before {
 
 /* Keep app content above stars */
 .container {
+  background-attachment: fixed;
   position: relative;
   z-index: 1;
   padding: 20px;
