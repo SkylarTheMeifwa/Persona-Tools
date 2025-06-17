@@ -43,6 +43,14 @@ body::before {
 .container {
   position: relative;
   z-index: 1;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  max-height: 100vh;
+  overflow-y: auto;
+  scroll-behavior: smooth;
 }
 
 .container {
@@ -140,4 +148,105 @@ button.add-xp:hover {
     transform: translateY(0) scale(1);
     opacity: 1;
   }
+}
+
+/* Base styles for settings panel and gear icon */
+#settings-panel {
+  position: fixed;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 500px;
+  background: black;
+  border: 4px solid white;
+  color: white;
+  font-family: 'Press Start 2P', cursive;
+  padding: 1rem;
+  z-index: 1000;
+  overflow-y: auto;
+  max-height: 80vh;
+  box-shadow: 0 0 10px white;
+}
+
+#settings-panel h2 {
+  color: #ff0000;
+  text-shadow: 2px 2px white;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+}
+
+#settings-panel input {
+  background: black;
+  color: white;
+  border: 2px solid white;
+  padding: 0.3rem;
+  width: 60px;
+  font-family: inherit;
+  margin-right: 0.5rem;
+  margin-bottom: 0.3rem;
+}
+
+#settings-panel button {
+  background: red;
+  color: white;
+  border: none;
+  font-family: 'Press Start 2P', cursive;
+  padding: 0.5rem 1rem;
+  margin-top: 1rem;
+  margin-right: 1rem;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+}
+
+#settings-panel button:hover {
+  background: white;
+  color: black;
+}
+
+#settings-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  font-size: 2rem;
+  background: black;
+  color: white;
+  border: 3px solid white;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  cursor: pointer;
+  font-family: 'Press Start 2P', cursive;
+  z-index: 999;
+}
+
+.animated-settings {
+  animation: slideIn 0.4s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-20%) scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+/* XP Bars */
+.xp-bar {
+  height: 16px;
+  background: #440000;
+  border: 2px solid white;
+  position: relative;
+  margin: 0.5rem 0;
+}
+
+.xp-fill {
+  height: 100%;
+  background: red;
+  width: 0;
+  transition: width 0.4s ease-in-out;
 }
