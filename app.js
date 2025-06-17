@@ -122,6 +122,8 @@ function openSettings() {
       </div><br>`).join("")}
     <button onclick='saveSettings()'>Save</button>
     <button onclick='closeSettings()'>Cancel</button>`;
+  settings.style.overflowY = "auto";
+  settings.style.maxHeight = "90vh";
   document.body.appendChild(settings);
 }
 
@@ -145,5 +147,10 @@ function saveSettings() {
 }
 
 window.onload = () => {
+  const gear = document.createElement("button");
+  gear.id = "settings-button";
+  gear.innerHTML = "⚙"; // Gear symbol
+  gear.onclick = openSettings;
+  document.body.appendChild(gear);
   Object.keys(skills).forEach(updateUI);
 };
