@@ -126,3 +126,18 @@ button.add-xp:hover {
     font-size: 12px;
   }
 }
+
+.animated-settings {
+  animation: slideIn 0.4s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-20%) scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
