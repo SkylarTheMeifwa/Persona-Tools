@@ -6,8 +6,9 @@ body {
   font-family: 'Press Start 2P', cursive;
   background-color: #ff0000;
   color: #fff;
-  overflow: hidden;
+  overflow-y: auto;
   position: relative;
+  min-height: 100vh;
 }
 
 /* Star background layer */
@@ -48,8 +49,8 @@ body::before {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  max-height: 100vh;
-  overflow-y: auto;
+  min-height: 100vh;
+  box-sizing: border-box;
   scroll-behavior: smooth;
 }
 
@@ -165,7 +166,7 @@ button.add-xp:hover {
   padding: 1rem;
   z-index: 1000;
   overflow-y: auto;
-  max-height: 80vh;
+  max-height: 90vh;
   box-shadow: 0 0 10px white;
 }
 
