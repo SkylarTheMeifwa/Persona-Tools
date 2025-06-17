@@ -1,0 +1,130 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Press Start 2P', cursive;
+  background-color: #ff0000;
+  color: #fff;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Star background layer */
+body::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: 
+    url('p5-star.png'),
+    url('p5-star.png'),
+    url('p5-star.png'),
+    url('p5-star.png'),
+    url('p5-star.png');
+  background-repeat: no-repeat;
+  background-size: 40px, 60px, 30px, 50px, 70px;
+  background-position: 
+    10% 20%, 
+    50% 10%, 
+    80% 60%, 
+    30% 70%, 
+    70% 40%;
+  animation: rotateStars 30s linear infinite;
+  opacity: 0.2;
+  z-index: 0;
+}
+
+@keyframes rotateStars {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Keep app content above stars */
+.container {
+  position: relative;
+  z-index: 1;
+}
+
+}
+
+.container {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.skill-card {
+  background-color: #1a1a1a;
+  border: 3px solid #ff0000;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 15px 0;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 0 15px #ff0000;
+  transition: transform 0.3s ease;
+}
+
+.skill-card:hover {
+  transform: scale(1.02);
+}
+
+.skill-title {
+  font-size: 18px;
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+.xp-bar {
+  height: 20px;
+  background-color: #444;
+  border: 2px solid #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.xp-fill {
+  height: 100%;
+  background-color: #ff0000;
+  width: 0%;
+  transition: width 0.5s ease-in-out;
+}
+
+.rank-label {
+  font-size: 14px;
+  color: #ffd700;
+  text-shadow: 1px 1px 0 #000;
+}
+
+button.add-xp {
+  margin-top: 10px;
+  padding: 8px 12px;
+  background-color: #fff;
+  color: #000;
+  border: none;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button.add-xp:hover {
+  background-color: #ff0000;
+  color: #fff;
+}
+
+/* Responsive for mobile */
+@media (max-width: 600px) {
+  .skill-card {
+    padding: 15px;
+  }
+  .skill-title {
+    font-size: 16px;
+  }
+  .rank-label {
+    font-size: 12px;
+  }
+}
