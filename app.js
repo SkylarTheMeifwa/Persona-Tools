@@ -113,6 +113,7 @@ function playXPCollectSound() {
 function openSettings() {
   const settings = document.createElement("div");
   settings.id = "settings-panel";
+  settings.classList.add("animated-settings");
   settings.innerHTML = `<h2>XP Threshold Settings</h2>
     ${Object.keys(skills).map(skill => `
       <div><strong>${skill.replace(/-/g, ' ')}</strong>
