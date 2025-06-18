@@ -25,7 +25,6 @@ const rankNames = {
 
 let currentSkill = null;
 
-// Completed tasks stored by skill
 let completedTasks = JSON.parse(localStorage.getItem("completedTasks")) || {
   physics: [],
   "self-care": [],
@@ -98,20 +97,19 @@ function showNotes(skill, xp) {
   container.style.gap = "10px";
 
   const count = xp >= 6 ? 3 : xp >= 3 ? 2 : 1;
-  const amountPerNote = xp / count;
+  const note = document.createElement("img");
+  note.src = "music-note.png";
+  note.className = "note";
+  note.style.height = `${skillCard.offsetHeight * 0.9}px`;
+  note.style.cursor = "pointer";
+  note.onclick = () => {
+    collectXP(skill, xp);
+    container.remove();
+    maybeShowRankUp(skill);
+  };
 
   for (let i = 0; i < count; i++) {
-    const note = document.createElement("img");
-    note.src = "music-note.png";
-    note.className = "note";
-    note.style.height = `${skillCard.offsetHeight * 0.9}px`;
-    note.style.cursor = "pointer";
-    note.onclick = () => {
-      collectXP(skill, xp);
-      container.remove();
-      maybeShowRankUp(skill);
-    };
-    container.appendChild(note);
+    container.appendChild(note.cloneNode());
   }
 
   document.body.appendChild(container);
@@ -124,10 +122,11 @@ function collectXP(skill, amount) {
   const s = skills[skill];
   s.xp += Math.round(amount);
 
-  const nextRank = s.rank + 1;
-  if (nextRank <= 5 && s.xp >= rankThresholds[skill][nextRank]) {
+  let nextRank = s.rank + 1;
+  while (nextRank <= 5 && s.xp >= rankThresholds[skill][nextRank]) {
     s.rank = nextRank;
     skills[skill].__rankedUp = true;
+    nextRank++;
   }
 
   updateUI(skill);
@@ -143,8 +142,8 @@ function showRankUp(skill) {
   popup.style.left = `${skillCard.offsetLeft}px`;
   popup.style.width = `${skillCard.offsetWidth}px`;
   popup.style.height = `${skillCard.offsetHeight}px`;
+  popup.style.zIndex = 10000;
   popup.style.display = "block";
-
   popup.innerHTML = '<img src="Rank-Up.png" alt="Rank Up" style="width: 90%; transform: rotate(-10deg); margin: auto; display: block;">';
 
   new Audio("Rank-Up.wav").play();
@@ -152,8 +151,10 @@ function showRankUp(skill) {
 
 function acknowledgeRankUp() {
   const popup = document.getElementById("rankup-popup");
+  const skill = popup.dataset.skill;
   popup.style.display = "none";
   popup.dataset.skill = "";
+  updateUI(skill);
 }
 
 function updateUI(skill) {
@@ -187,6 +188,7 @@ function openSettings() {
   settings.id = "settings-panel";
   settings.classList.add("animated-settings");
   settings.innerHTML = `<h2>XP Threshold Settings</h2>
+    <button id='settings-close' onclick='closeSettings()'>✖</button>
     ${Object.keys(skills).map(skill => `
       <div><strong>${skill.replace(/-/g, ' ')}</strong>
         ${rankThresholds[skill].slice(1).map((v, i) => `
@@ -197,6 +199,14 @@ function openSettings() {
     <button onclick='closeSettings()'>Cancel</button>`;
   settings.style.overflowY = "auto";
   settings.style.maxHeight = "90vh";
+  settings.style.position = "fixed";
+  settings.style.top = "10%";
+  settings.style.left = "10%";
+  settings.style.background = "#111";
+  settings.style.color = "white";
+  settings.style.padding = "1rem";
+  settings.style.border = "2px solid white";
+  settings.style.zIndex = 9999;
   document.body.appendChild(settings);
 }
 
@@ -234,7 +244,6 @@ function toggleCompletedTasks() {
 window.onload = () => {
   const gear = document.getElementById("settings-button");
   if (gear) gear.onclick = openSettings;
-
   Object.keys(skills).forEach(updateUI);
   renderCompletedTasks();
 };
