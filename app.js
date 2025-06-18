@@ -122,10 +122,6 @@ function showNotes(skill, xp) {
   audio.play();
 }
 
-  const audio = new Audio(xp >= 6 ? "Three-Music-Notes.wav" : xp >= 3 ? "Two-Music-Notes.wav" : "One-Music-Note.wav");
-  audio.play();
-}
-
 function collectXP(skill, amount) {
   const s = skills[skill];
   s.xp += Math.round(amount);
@@ -153,7 +149,6 @@ function showRankUp(skill) {
 
   popup.innerHTML = '<img src="Rank-Up.png" alt="Rank Up" style="width: 90%; transform: rotate(-10deg); margin: auto; display: block;">';
 
-  new Audio("Rank-Up.wav").play();
   new Audio("Rank-Up.wav").play();
 }
 
@@ -233,12 +228,14 @@ function maybeShowRankUp(skill) {
   }
 }
 
+function toggleCompletedTasks() {
+  const panel = document.getElementById("completed-tasks-panel");
+  panel.style.display = panel.style.display === "none" ? "block" : "none";
+}
+
 window.onload = () => {
-  const gear = document.createElement("button");
-  gear.id = "settings-button";
-  gear.innerHTML = "⚙";
-  gear.onclick = openSettings;
-  document.body.appendChild(gear);
+  const gear = document.getElementById("settings-button");
+  if (gear) gear.onclick = openSettings;
 
   Object.keys(skills).forEach(updateUI);
   renderCompletedTasks();
