@@ -155,3 +155,43 @@ window.onload = () => {
   document.body.appendChild(gear);
   Object.keys(skills).forEach(updateUI);
 };
+
+let currentSkill = null;
+let completedTasks = [];
+
+function openTaskInput(skill) {
+  currentSkill = skill;
+  document.getElementById('task-desc').value = '';
+  document.getElementById('task-xp').value = '';
+  document.getElementById('task-overlay').style.display = 'flex';
+}
+
+function closeTaskInput() {
+  document.getElementById('task-overlay').style.display = 'none';
+}
+
+function toggleCompletedTasks() {
+  const panel = document.getElementById('completed-tasks-panel');
+  panel.style.display = (panel.style.display === 'none' || panel.style.display === '') ? 'block' : 'none';
+}
+
+function submitTask() {
+  const desc = document.getElementById('task-desc').value.trim();
+  const xp = parseInt(document.getElementById('task-xp').value);
+
+  if (!desc || isNaN(xp) || xp <= 0 || !currentSkill) return;
+
+  // Add to completed tasks
+  const taskItem = `${desc} (+${xp} XP) → ${currentSkill}`;
+  completedTasks.push(taskItem);
+
+  const taskList = document.getElementById('completed-tasks-list');
+  const li = document.createElement('li');
+  li.textContent = taskItem;
+  taskList.appendChild(li);
+
+  // You can also trigger XP effects here if you have them
+  // addXP(currentSkill, xp); // if you already have this
+
+  closeTaskInput();
+}
