@@ -1,10 +1,10 @@
 // Skill data
 const skills = {
-  physics: { xp: 0, rank: 1 },
-  "self-care": { xp: 0, rank: 1 },
-  entertainment: { xp: 0, rank: 1 },
-  socialization: { xp: 0, rank: 1 },
-  chores: { xp: 0, rank: 1 }
+  physics: { xp: 0, rank: 0 },
+  "self-care": { xp: 0, rank: 0 },
+  entertainment: { xp: 0, rank: 0 },
+  socialization: { xp: 0, rank: 0 },
+  chores: { xp: 0, rank: 0 },
 };
 
 const rankThresholds = {
@@ -12,15 +12,15 @@ const rankThresholds = {
   "self-care": [0, 10, 25, 50, 100, 200],
   entertainment: [0, 10, 25, 50, 100, 200],
   socialization: [0, 10, 25, 50, 100, 200],
-  chores: [0, 10, 25, 50, 100, 200]
+  chores: [0, 10, 25, 50, 100, 200],
 };
 
 const rankNames = {
-  physics: ["", "1 - Curious", "2 - Studious", "3 - Analytical", "4 - Theorist", "5 - Physicist"],
-  "self-care": ["", "1 - Neglected", "2 - Aware", "3 - Healthy", "4 - Thriving", "5 - Zen"],
-  entertainment: ["", "1 - Bored", "2 - Amused", "3 - Engaged", "4 - Enthralled", "5 - Ecstatic"],
-  socialization: ["", "1 - Shy", "2 - Chatterbox", "3 - Connector", "4 - Charismatic", "5 - Social Star"],
-  chores: ["", "1 - Messy", "2 - Tidy", "3 - Reliable", "4 - Responsible", "5 - Domestic Pro"]
+  physics: ["0 - Clueless", "1 - Curious", "2 - Studious", "3 - Analytical", "4 - Theorist", "5 - Physicist"],
+  "self-care": ["0 -Burnt Out", "1 - Neglected", "2 - Aware", "3 - Healthy", "4 - Thriving", "5 - Zen"],
+  entertainment: ["0 - Uninterested", "1 - Bored", "2 - Amused", "3 - Engaged", "4 - Enthralled", "5 - Ecstatic"],
+  socialization: ["0 - Loner", "1 - Shy", "2 - Chatterbox", "3 - Connector", "4 - Charismatic", "5 - Social Star"],
+  chores: ["0 - Slob", "1 - Messy", "2 - Tidy", "3 - Reliable", "4 - Responsible", "5 - Domestic Pro"],
 };
 
 let currentSkill = null;
@@ -30,7 +30,7 @@ let completedTasks = JSON.parse(localStorage.getItem("completedTasks")) || {
   "self-care": [],
   entertainment: [],
   socialization: [],
-  chores: []
+  chores: [],
 };
 
 function openTaskInput(skill) {
@@ -63,13 +63,13 @@ function submitTask() {
 function renderCompletedTasks() {
   const container = document.getElementById("completed-tasks-list");
   container.innerHTML = "";
-  Object.keys(completedTasks).forEach(skill => {
+  Object.keys(completedTasks).forEach((skill) => {
     if (completedTasks[skill].length > 0) {
       const group = document.createElement("li");
       group.innerHTML = `<strong>${skill}</strong><ul style="padding-left: 1rem;"></ul>`;
       const sublist = group.querySelector("ul");
 
-      completedTasks[skill].forEach(task => {
+      completedTasks[skill].forEach((task) => {
         const item = document.createElement("li");
         item.textContent = `${task.desc} (+${task.xp} XP) — ${task.time}`;
         sublist.appendChild(item);
@@ -97,24 +97,30 @@ function showNotes(skill, xp) {
   container.style.gap = "10px";
 
   const count = xp >= 6 ? 3 : xp >= 3 ? 2 : 1;
-  const note = document.createElement("img");
-  note.src = "music-note.png";
-  note.className = "note";
-  note.style.height = `${skillCard.offsetHeight * 0.9}px`;
-  note.style.cursor = "pointer";
-  note.onclick = () => {
-    collectXP(skill, xp);
-    container.remove();
-    maybeShowRankUp(skill);
-  };
 
   for (let i = 0; i < count; i++) {
-    container.appendChild(note.cloneNode());
+    const note = document.createElement("img");
+    note.src = "music-note.png";
+    note.className = "note";
+    note.style.height = `${skillCard.offsetHeight * 0.9}px`;
+    note.style.cursor = "pointer";
+    note.onclick = () => {
+      collectXP(skill, xp);
+      container.remove();
+      maybeShowRankUp(skill);
+    };
+    container.appendChild(note);
   }
 
   document.body.appendChild(container);
 
-  const audio = new Audio(xp >= 6 ? "Three-Music-Notes.wav" : xp >= 3 ? "Two-Music-Notes.wav" : "One-Music-Note.wav");
+  const audio = new Audio(
+    xp >= 6
+      ? "Three-Music-Notes.wav"
+      : xp >= 3
+      ? "Two-Music-Notes.wav"
+      : "One-Music-Note.wav"
+  );
   audio.play();
 }
 
@@ -144,7 +150,8 @@ function showRankUp(skill) {
   popup.style.height = `${skillCard.offsetHeight}px`;
   popup.style.zIndex = 10000;
   popup.style.display = "block";
-  popup.innerHTML = '<img src="Rank-Up.png" alt="Rank Up" style="width: 90%; transform: rotate(-10deg); margin: auto; display: block;">';
+  popup.innerHTML =
+    '<img src="Rank-Up.png" alt="Rank Up" style="width: 90%; transform: rotate(-10deg); margin: auto; display: block;">';
 
   new Audio("Rank-Up.wav").play();
 }
@@ -163,7 +170,9 @@ function updateUI(skill) {
   const rank = document.getElementById(`${skill}-rank`);
 
   const current = s.rank;
-  const max = rankThresholds[skill][current + 1] || rankThresholds[skill][rankThresholds[skill].length - 1];
+  const max =
+    rankThresholds[skill][current + 1] ||
+    rankThresholds[skill][rankThresholds[skill].length - 1];
   const prev = rankThresholds[skill][current] || 0;
   const pct = ((s.xp - prev) / (max - prev)) * 100;
 
@@ -189,12 +198,23 @@ function openSettings() {
   settings.classList.add("animated-settings");
   settings.innerHTML = `<h2>XP Threshold Settings</h2>
     <button id='settings-close' onclick='closeSettings()'>✖</button>
-    ${Object.keys(skills).map(skill => `
-      <div><strong>${skill.replace(/-/g, ' ')}</strong>
-        ${rankThresholds[skill].slice(1).map((v, i) => `
-          <input type='number' data-skill='${skill}' data-rank='${i + 1}' value='${v}' min='0' /> Rank ${i + 1}
-        `).join("<br>")}
-      </div><br>`).join("")}
+    ${Object.keys(skills)
+      .map(
+        (skill) => `
+      <div><strong>${skill.replace(/-/g, " ")}</strong>
+        ${rankThresholds[skill]
+          .slice(1)
+          .map(
+            (v, i) => `
+          <input type='number' data-skill='${skill}' data-rank='${
+              i + 1
+            }' value='${v}' min='0' /> Rank ${i + 1}
+        `
+          )
+          .join("<br>")}
+      </div><br>`
+      )
+      .join("")}
     <button onclick='saveSettings()'>Save</button>
     <button onclick='closeSettings()'>Cancel</button>`;
   settings.style.overflowY = "auto";
@@ -217,7 +237,7 @@ function closeSettings() {
 
 function saveSettings() {
   const inputs = document.querySelectorAll("#settings-panel input");
-  inputs.forEach(input => {
+  inputs.forEach((input) => {
     const skill = input.dataset.skill;
     const rank = parseInt(input.dataset.rank);
     const value = parseInt(input.value);
