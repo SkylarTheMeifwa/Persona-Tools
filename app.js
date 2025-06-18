@@ -1,295 +1,157 @@
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+const skills = {Add commentMore actions
+  physics: { xp: 0, rank: 1 },
+  "self-care": { xp: 0, rank: 1 },
+  entertainment: { xp: 0, rank: 1 },
+  socialization: { xp: 0, rank: 1 },
+  chores: { xp: 0, rank: 1 },
+};
 
-body {
-  margin: 0;
-  padding: 0;
-  font-family: 'Press Start 2P', cursive;
-  background-color: #ff0000;
-  color: #fff;
-  overflow-y: auto;
-  position: relative;
-  min-height: 100vh;
+const rankThresholds = {
+  physics: [0, 10, 25, 50, 100, 200],
+  "self-care": [0, 10, 25, 50, 100, 200],
+  entertainment: [0, 10, 25, 50, 100, 200],
+  socialization: [0, 10, 25, 50, 100, 200],
+  chores: [0, 10, 25, 50, 100, 200]
+};
+const rankNames = {
+  physics: ["", "1 - Curious", "2 - Studious", "3 - Analytical", "4 - Theorist", "5 - Physicist"],
+  "self-care": ["", "1 - Neglected", "2 - Aware", "3 - Healthy", "4 - Thriving", "5 - Zen"],
+  entertainment: ["", "1 - Bored", "2 - Amused", "3 - Engaged", "4 - Enthralled", "5 - Ecstatic"],
+  socialization: ["", "1 - Shy", "2 - Chatterbox", "3 - Connector", "4 - Charismatic", "5 - Social Star"],
+  chores: ["", "1 - Messy", "2 - Tidy", "3 - Reliable", "4 - Responsible", "5 - Domestic Pro"]
+};
+let currentSkill = null;
+
+function openTaskInput(skill) {
+  currentSkill = skill;
+  document.getElementById("task-overlay").style.display = "block";
 }
 
-/* Task Popup Overlay */
-#task-overlay {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: black;
-  border: 4px solid white;
-  padding: 1.5rem;
-  z-index: 1001;
-  box-shadow: 0 0 10px red;
-  color: white;
-  font-family: 'Press Start 2P', cursive;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  min-width: 300px;
-  max-width: 90vw;
-  text-align: center;
-  display: none;
+function closeTaskInput() {
+  document.getElementById("task-overlay").style.display = "none";
+  currentSkill = null;
 }
 
-#task-overlay input, #task-overlay select {
-  background: black;
-  color: white;
-  border: 2px solid white;
-  padding: 0.5rem;
-  font-family: inherit;
-  text-align: center;
+function submitTask() {
+  const desc = document.getElementById("task-desc").value;
+  const xp = parseInt(document.getElementById("task-xp").value);
+  if (!desc || isNaN(xp) || !currentSkill) return;
+
+  showNotes(currentSkill, xp);
+  closeTaskInput();
 }
 
-#task-overlay button {
-  background: red;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  font-family: 'Press Start 2P', cursive;
-  cursor: pointer;
-  transition: background 0.3s;
-}
+function showNotes(skill, xp) {
+  const container = document.getElementById("note-container");
+  container.innerHTML = "";
+  let count = xp >= 6 ? 3 : xp >= 3 ? 2 : 1;
 
-#task-overlay button:hover {
-  background: white;
-  color: black;
-}
-
-/* Star background layer */
-body::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image:
-    url('p5-star.png'),
-    url('p5-star.png'),
-    url('p5-star.png'),
-    url('p5-star.png'),
-    url('p5-star.png'),
-    url('p5-star.png'),
-    url('p5-star.png'),
-    url('p5-star.png'),
-    url('p5-star.png'),
-    url('p5-star.png');
-  background-repeat: no-repeat;
-  background-size: 40px, 60px, 30px, 50px, 70px, 55px, 35px, 65px, 45px, 38px;
-  background-position:
-    10% 20%,
-    50% 10%,
-    80% 60%,
-    30% 70%,
-    70% 40%,
-    20% 80%,
-    90% 30%,
-    60% 90%,
-    40% 50%,
-    75% 75%;
-  animation: rotateStars 30s linear infinite;
-  opacity: 0.2;
-  z-index: 0;
-}
-
-@keyframes rotateStars {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* Keep app content above stars */
-.container {
-  background-attachment: fixed;
-  position: relative;
-  z-index: 1;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  min-height: 100vh;
-  box-sizing: border-box;
-  scroll-behavior: smooth;
-}
-
-.container {
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.skill-card {
-  background-color: #1a1a1a;
-  border: 3px solid #ff0000;
-  border-radius: 12px;
-  padding: 20px;
-  margin: 15px 0;
-  width: 90%;
-  max-width: 400px;
-  box-shadow: 0 0 15px #ff0000;
-  transition: transform 0.3s ease;
-}
-
-.skill-card:hover {
-  transform: scale(1.02);
-}
-
-.skill-title {
-  font-size: 18px;
-  color: #fff;
-  margin-bottom: 10px;
-}
-
-.xp-bar {
-  height: 20px;
-  background-color: #444;
-  border: 2px solid #fff;
-  border-radius: 10px;
-  overflow: hidden;
-  margin-bottom: 10px;
-}
-
-.xp-fill {
-  height: 100%;
-  background-color: #ff0000;
-  width: 0%;
-  transition: width 0.5s ease-in-out;
-}
-
-.rank-label {
-  font-size: 14px;
-  color: #ffd700;
-  text-shadow: 1px 1px 0 #000;
-}
-
-button.add-xp {
-  margin-top: 10px;
-  padding: 8px 12px;
-  background-color: #fff;
-  color: #000;
-  border: none;
-  font-weight: bold;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-button.add-xp:hover {
-  background-color: #ff0000;
-  color: #fff;
-}
-
-/* Responsive for mobile */
-@media (max-width: 600px) {
-  .skill-card {
-    padding: 15px;
+  for (let i = 0; i < count; i++) {
+    const note = document.createElement("img");
+    note.src = "music-note.png";
+    note.className = "note";
+    note.style.top = `${Math.random() * 80 + 10}%`;
+    note.style.left = `${Math.random() * 80 + 10}%`;
+    note.onclick = () => collectXP(skill, xp / count);
+    container.appendChild(note);
   }
-  .skill-title {
-    font-size: 16px;
+
+  const audio = new Audio(xp >= 6 ? "Three-Music-Notes.wav" : xp >= 3 ? "Two-Music-Notes.wav" : "One-Music-Note.wav");
+  audio.play();
+}
+
+function collectXP(skill, amount) {
+  const s = skills[skill];
+  s.xp += Math.round(amount);
+  
+  const nextRank = s.rank + 1;
+  if (nextRank <= 5 && s.xp >= rankThresholds[skill][nextRank]) {
+    s.rank = nextRank;
+    showRankUp(skill);
   }
-  .rank-label {
-    font-size: 12px;
-  }
+
+  updateUI(skill);
+  playXPCollectSound();
 }
 
-.animated-settings {
-  animation: slideIn 0.4s ease-out;
+function showRankUp(skill) {
+  const popup = document.getElementById("rankup-popup");
+  popup.dataset.skill = skill;
+  popup.style.display = "block";
+  new Audio("Rank-Up.wav").play();
 }
 
-@keyframes slideIn {
-  from {
-    transform: translateY(-20%) scale(0.9);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0) scale(1);
-    opacity: 1;
-  }
+function acknowledgeRankUp() {
+  const popup = document.getElementById("rankup-popup");
+  popup.style.display = "none";
 }
 
-/* Base styles for settings panel and gear icon */
-#settings-panel {
-  position: fixed;
-  top: 10%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 90%;
-  max-width: 500px;
-  background: black;
-  border: 4px solid white;
-  color: white;
-  font-family: 'Press Start 2P', cursive;
-  padding: 1rem;
-  z-index: 1000;
-  overflow-y: auto;
-  max-height: 90vh;
-  box-shadow: 0 0 10px white;
+function updateUI(skill) {
+  const s = skills[skill];
+  const fill = document.getElementById(`${skill}-fill`);
+  const rank = document.getElementById(`${skill}-rank`);
+  
+  const current = s.rank;
+  const max = rankThresholds[skill][current + 1] || rankThresholds[skill][rankThresholds[skill].length - 1];
+  const prev = rankThresholds[skill][current] || 0;
+  const pct = ((s.xp - prev) / (max - prev)) * 100;
+  
+  fill.style.width = `${Math.min(100, pct)}%`;
+  rank.textContent = `Rank: ${rankNames[skill][s.rank]}`;
 }
 
-#settings-panel h2 {
-  color: #ff0000;
-  text-shadow: 2px 2px white;
-  font-size: 1.2rem;
-  margin-bottom: 1rem;
+function resetSkill(skill) {
+  skills[skill] = { xp: 0, rank: 1 };
+  updateUI(skill);
 }
 
-#settings-panel input {
-  background: black;
-  color: white;
-  border: 2px solid white;
-  padding: 0.3rem;
-  width: 60px;
-  font-family: inherit;
-  margin-right: 0.5rem;
-  margin-bottom: 0.3rem;
+function playXPCollectSound() {
+  new Audio("Point-Up.wav").play();
 }
 
-#settings-panel button {
-  background: red;
-  color: white;
-  border: none;
-  font-family: 'Press Start 2P', cursive;
-  padding: 0.5rem 1rem;
-  margin-top: 1rem;
-  margin-right: 1rem;
-  cursor: pointer;
-  transition: background 0.2s ease-in-out;
+// Load state from localStorage (optional)
+function openSettings() {
+  const settings = document.createElement("div");
+  settings.id = "settings-panel";
+  settings.classList.add("animated-settings");
+  settings.innerHTML = `<h2>XP Threshold Settings</h2>
+    ${Object.keys(skills).map(skill => `
+      <div><strong>${skill.replace(/-/g, ' ')}</strong>
+        ${rankThresholds[skill].slice(1).map((v, i) => `
+          <input type='number' data-skill='${skill}' data-rank='${i + 1}' value='${v}' min='0' /> Rank ${i + 1}
+        `).join("<br>")}
+      </div><br>`).join("")}
+    <button onclick='saveSettings()'>Save</button>
+    <button onclick='closeSettings()'>Cancel</button>`;
+  settings.style.overflowY = "auto";
+  settings.style.maxHeight = "90vh";
+  document.body.appendChild(settings);
 }
 
-#settings-panel button:hover {
-  background: white;
-  color: black;
+function closeSettings() {
+  const panel = document.getElementById("settings-panel");
+  if (panel) panel.remove();
 }
 
-#settings-button {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  font-size: 2rem;
-  background: black;
-  color: white;
-  border: 3px solid white;
-  border-radius: 50%;
-  width: 60px;
-  height: 60px;
-  cursor: pointer;
-  font-family: 'Press Start 2P', cursive;
-  z-index: 999;
+function saveSettings() {
+  const inputs = document.querySelectorAll("#settings-panel input");
+  inputs.forEach(input => {
+    const skill = input.dataset.skill;
+    const rank = parseInt(input.dataset.rank);
+    const value = parseInt(input.value);
+    if (!isNaN(value)) {
+      rankThresholds[skill][rank] = value;
+    }
+  });
+  Object.keys(skills).forEach(updateUI);
+  closeSettings();
 }
 
-/* XP Bars */
-.xp-bar {
-  height: 16px;
-  background: #440000;
-  border: 2px solid white;
-  position: relative;
-  margin: 0.5rem 0;
-}
-
-.xp-fill {
-  height: 100%;
-  background: red;
-  width: 0;
-  transition: width 0.4s ease-in-out;
-}
+window.onload = () => {
+  const gear = document.createElement("button");
+  gear.id = "settings-button";
+  gear.innerHTML = "⚙"; // Gear symbol
+  gear.onclick = openSettings;
+  document.body.appendChild(gear);
+  Object.keys(skills).forEach(updateUI);
+};
