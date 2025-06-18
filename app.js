@@ -8,11 +8,11 @@ const skills = {
 };
 
 const rankThresholds = {
-  physics: [0, 10, 25, 50, 100, 200],
-  "self-care": [0, 10, 25, 50, 100, 200],
-  entertainment: [0, 10, 25, 50, 100, 200],
-  socialization: [0, 10, 25, 50, 100, 200],
-  chores: [0, 10, 25, 50, 100, 200],
+  physics: [0, 20, 50, 90, 130, 200],
+  "self-care": [0, 50, 125, 225, 325, 450],
+  entertainment: [0, 15, 30, 50, 70, 90],
+  socialization: [0, 25, 50, 80, 120, 175],
+  chores: [0, 20, 45, 75, 100, 150],
 };
 
 const rankNames = {
