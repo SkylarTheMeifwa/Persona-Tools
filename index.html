@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Persona 5 Skill Tracker</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    #rankup-popup {
+      position: absolute;
+      display: none;
+      z-index: 10000;
+      pointer-events: none;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
@@ -80,7 +88,7 @@
   <div id="note-container"></div>
 
   <!-- Rank Up Message -->
-  <div id="rankup-popup" style="position: absolute; display: none;"></div>
+  <div id="rankup-popup"></div>
 
   <!-- Task Input Overlay -->
   <div id="task-overlay" style="display: none;">
