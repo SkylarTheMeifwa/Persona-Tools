@@ -82,19 +82,45 @@ function renderCompletedTasks() {
 }
 
 function showNotes(skill, xp) {
-  const container = document.getElementById("note-container");
-  container.innerHTML = "";
+  const skillCard = document.getElementById(skill);
+  const container = document.createElement("div");
+  container.className = "note-container";
+  container.style.position = "absolute";
+  container.style.top = `${skillCard.offsetTop}px`;
+  container.style.left = `${skillCard.offsetLeft}px`;
+  container.style.width = `${skillCard.offsetWidth}px`;
+  container.style.height = `${skillCard.offsetHeight}px`;
+  container.style.pointerEvents = "none";
+  container.style.zIndex = 1000;
+
   let count = xp >= 6 ? 3 : xp >= 3 ? 2 : 1;
+  let notesClicked = 0;
 
   for (let i = 0; i < count; i++) {
     const note = document.createElement("img");
     note.src = "music-note.png";
     note.className = "note";
+    note.style.position = "absolute";
     note.style.top = `${Math.random() * 80 + 10}%`;
     note.style.left = `${Math.random() * 80 + 10}%`;
-    note.onclick = () => collectXP(skill, xp / count);
+    note.style.cursor = "pointer";
+    note.onclick = () => {
+      collectXP(skill, xp / count);
+      note.remove();
+      notesClicked++;
+      if (notesClicked === count) {
+        container.remove();
+        maybeShowRankUp(skill);
+      }
+    };
     container.appendChild(note);
   }
+
+  document.body.appendChild(container);
+
+  const audio = new Audio(xp >= 6 ? "Three-Music-Notes.wav" : xp >= 3 ? "Two-Music-Notes.wav" : "One-Music-Note.wav");
+  audio.play();
+}
 
   const audio = new Audio(xp >= 6 ? "Three-Music-Notes.wav" : xp >= 3 ? "Two-Music-Notes.wav" : "One-Music-Note.wav");
   audio.play();
@@ -107,7 +133,7 @@ function collectXP(skill, amount) {
   const nextRank = s.rank + 1;
   if (nextRank <= 5 && s.xp >= rankThresholds[skill][nextRank]) {
     s.rank = nextRank;
-    showRankUp(skill);
+    skills[skill].__rankedUp = true; // Flag to show rank up after notes
   }
 
   updateUI(skill);
@@ -115,15 +141,26 @@ function collectXP(skill, amount) {
 }
 
 function showRankUp(skill) {
+  const skillCard = document.getElementById(skill);
   const popup = document.getElementById("rankup-popup");
   popup.dataset.skill = skill;
+  popup.style.position = "absolute";
+  popup.style.top = `${skillCard.offsetTop}px`;
+  popup.style.left = `${skillCard.offsetLeft}px`;
+  popup.style.width = `${skillCard.offsetWidth}px`;
+  popup.style.height = `${skillCard.offsetHeight}px`;
   popup.style.display = "block";
+
+  popup.innerHTML = '<img src="Rank-Up.png" alt="Rank Up" style="width: 90%; transform: rotate(-10deg); margin: auto; display: block;">';
+
+  new Audio("Rank-Up.wav").play();
   new Audio("Rank-Up.wav").play();
 }
 
 function acknowledgeRankUp() {
   const popup = document.getElementById("rankup-popup");
   popup.style.display = "none";
+  popup.dataset.skill = "";
 }
 
 function updateUI(skill) {
@@ -187,6 +224,13 @@ function saveSettings() {
   });
   Object.keys(skills).forEach(updateUI);
   closeSettings();
+}
+
+function maybeShowRankUp(skill) {
+  if (skills[skill].__rankedUp) {
+    skills[skill].__rankedUp = false;
+    showRankUp(skill);
+  }
 }
 
 window.onload = () => {
