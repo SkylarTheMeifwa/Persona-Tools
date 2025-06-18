@@ -90,28 +90,26 @@ function showNotes(skill, xp) {
   container.style.left = `${skillCard.offsetLeft}px`;
   container.style.width = `${skillCard.offsetWidth}px`;
   container.style.height = `${skillCard.offsetHeight}px`;
-  container.style.pointerEvents = "none";
+  container.style.pointerEvents = "auto";
   container.style.zIndex = 1000;
+  container.style.display = "flex";
+  container.style.alignItems = "center";
+  container.style.justifyContent = "center";
+  container.style.gap = "10px";
 
-  let count = xp >= 6 ? 3 : xp >= 3 ? 2 : 1;
-  let notesClicked = 0;
+  const count = xp >= 6 ? 3 : xp >= 3 ? 2 : 1;
+  const amountPerNote = xp / count;
 
   for (let i = 0; i < count; i++) {
     const note = document.createElement("img");
     note.src = "music-note.png";
     note.className = "note";
-    note.style.position = "absolute";
-    note.style.top = `${Math.random() * 80 + 10}%`;
-    note.style.left = `${Math.random() * 80 + 10}%`;
+    note.style.height = `${skillCard.offsetHeight * 0.9}px`;
     note.style.cursor = "pointer";
     note.onclick = () => {
-      collectXP(skill, xp / count);
-      note.remove();
-      notesClicked++;
-      if (notesClicked === count) {
-        container.remove();
-        maybeShowRankUp(skill);
-      }
+      collectXP(skill, xp);
+      container.remove();
+      maybeShowRankUp(skill);
     };
     container.appendChild(note);
   }
@@ -129,7 +127,7 @@ function collectXP(skill, amount) {
   const nextRank = s.rank + 1;
   if (nextRank <= 5 && s.xp >= rankThresholds[skill][nextRank]) {
     s.rank = nextRank;
-    skills[skill].__rankedUp = true; // Flag to show rank up after notes
+    skills[skill].__rankedUp = true;
   }
 
   updateUI(skill);
