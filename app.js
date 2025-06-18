@@ -182,7 +182,7 @@ function updateUI(skill) {
 }
 
 function resetSkill(skill) {
-  skills[skill] = { xp: 0, rank: 1 };
+  skills[skill] = { xp: 0, rank: 0 };
   completedTasks[skill] = [];
   localStorage.setItem("completedTasks", JSON.stringify(completedTasks));
   updateUI(skill);
