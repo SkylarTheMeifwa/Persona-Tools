@@ -137,6 +137,7 @@ function collectXP(skill, amount) {
 
   updateUI(skill);
   playXPCollectSound();
+  localStorage.setItem("skills", JSON.stringify(skills));
 }
 
 function showRankUp(skill) {
@@ -264,6 +265,15 @@ function toggleCompletedTasks() {
 window.onload = () => {
   const gear = document.getElementById("settings-button");
   if (gear) gear.onclick = openSettings;
+  const savedSkills = JSON.parse(localStorage.getItem("skills"));
+  if (savedSkills) {
+    Object.keys(skills).forEach(skill => {
+      if (savedSkills[skill]) {
+        skills[skill].xp = savedSkills[skill].xp;
+        skills[skill].rank = savedSkills[skill].rank;
+      }
+    });
+  }
   Object.keys(skills).forEach(updateUI);
   renderCompletedTasks();
 };
