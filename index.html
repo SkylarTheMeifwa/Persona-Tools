@@ -66,6 +66,9 @@
     </div>
   </div>
 
+  <!-- Settings Gear -->
+  <button id="settings-button" onclick="openSettings()">⚙</button>
+
   <!-- Completed Tasks Menu -->
   <button id="completed-tasks-button" onclick="toggleCompletedTasks()">📝 Completed Tasks</button>
   <div id="completed-tasks-panel" style="display: none;">
@@ -77,14 +80,17 @@
   <div id="note-container"></div>
 
   <!-- Rank Up Message -->
-  <div id="rankup-popup" onclick="acknowledgeRankUp()">Rank Up!</div>
+  <div id="rankup-popup" onclick="acknowledgeRankUp()"></div>
 
   <!-- Task Input Overlay -->
   <div id="task-overlay" style="display: none;">
+    <h3>Add Task</h3>
     <input type="text" id="task-desc" placeholder="Task Description" />
     <input type="number" id="task-xp" placeholder="XP Earned" min="1" />
-    <button onclick="submitTask()">Submit</button>
-    <button onclick="closeTaskInput()">Cancel</button>
+    <div>
+      <button onclick="submitTask()">Submit</button>
+      <button onclick="closeTaskInput()">Cancel</button>
+    </div>
   </div>
 
   <script src="app.js"></script>
