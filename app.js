@@ -16,11 +16,11 @@ const rankThresholds = {
 };
 
 const rankNames = {
-  physics: ["", "0 - Clueless", "1 - Curious", "2 - Studious", "3 - Analytical", "4 - Theorist", "5 - Physicist"],
-  "self-care": ["", "0 - Burnt Out", "1 - Neglected", "2 - Aware", "3 - Healthy", "4 - Thriving", "5 - Zen"],
-  entertainment: ["", "0 - Uninterested", "1 - Bored", "2 - Amused", "3 - Engaged", "4 - Enthralled", "5 - Ecstatic"],
-  socialization: ["", "0 - Loner", "1 - Shy", "2 - Chatterbox", "3 - Connector", "4 - Charismatic", "5 - Social Star"],
-  chores: ["", "0 - Slob", "1 - Messy", "2 - Tidy", "3 - Reliable", "4 - Responsible", "5 - Domestic Pro"],
+  physics: ["0 - Clueless", "1 - Curious", "2 - Studious", "3 - Analytical", "4 - Theorist", "5 - Physicist"],
+  "self-care": ["0 - Burnt Out", "1 - Neglected", "2 - Aware", "3 - Healthy", "4 - Thriving", "5 - Zen"],
+  entertainment: ["0 - Uninterested", "1 - Bored", "2 - Amused", "3 - Engaged", "4 - Enthralled", "5 - Ecstatic"],
+  socialization: ["0 - Loner", "1 - Shy", "2 - Chatterbox", "3 - Connector", "4 - Charismatic", "5 - Social Star"],
+  chores: ["0 - Slob", "1 - Messy", "2 - Tidy", "3 - Reliable", "4 - Responsible", "5 - Domestic Pro"],
 };
 
 let currentSkill = null;
