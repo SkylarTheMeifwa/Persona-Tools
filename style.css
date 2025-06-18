@@ -275,8 +275,18 @@ button.add-xp:hover {
   height: 60px;
   cursor: pointer;
   font-family: 'Press Start 2P', cursive;
-  z-index: 999;
+  z-index: 99999; /* Increased for visibility */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 10px white;
 }
+
+#settings-button:hover {
+  background-color: white;
+  color: black;
+}
+
 
 .animated-settings {
   animation: slideIn 0.4s ease-out;
