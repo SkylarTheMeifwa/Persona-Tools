@@ -10,64 +10,71 @@
   <div class="container">
     <h1>Skill Rank-Up Tracker</h1>
 
-    <!-- Skill Cards -->
+    <!-- Physics Stat -->
     <div class="skill-card" id="physics">
       <div class="skill-title">Physics</div>
-      <div class="xp-bar"><div class="xp-fill" id="physics-fill"></div></div>
+      <div class="xp-bar">
+        <div class="xp-fill" id="physics-fill"></div>
+      </div>
       <div class="rank-label" id="physics-rank">Rank </div>
       <button class="add-xp" onclick="openTaskInput('physics')">Add Task</button>
       <button class="reset-skill" onclick="resetSkill('physics')">Reset</button>
     </div>
 
+    <!-- Self Care Stat -->
     <div class="skill-card" id="self-care">
       <div class="skill-title">Self Care</div>
-      <div class="xp-bar"><div class="xp-fill" id="self-care-fill"></div></div>
+      <div class="xp-bar">
+        <div class="xp-fill" id="self-care-fill"></div>
+      </div>
       <div class="rank-label" id="self-care-rank">Rank </div>
       <button class="add-xp" onclick="openTaskInput('self-care')">Add Task</button>
       <button class="reset-skill" onclick="resetSkill('self-care')">Reset</button>
     </div>
 
+    <!-- Entertainment Stat -->
     <div class="skill-card" id="entertainment">
       <div class="skill-title">Entertainment</div>
-      <div class="xp-bar"><div class="xp-fill" id="entertainment-fill"></div></div>
+      <div class="xp-bar">
+        <div class="xp-fill" id="entertainment-fill"></div>
+      </div>
       <div class="rank-label" id="entertainment-rank">Rank </div>
       <button class="add-xp" onclick="openTaskInput('entertainment')">Add Task</button>
       <button class="reset-skill" onclick="resetSkill('entertainment')">Reset</button>
     </div>
 
+    <!-- Socialization Stat -->
     <div class="skill-card" id="socialization">
       <div class="skill-title">Socialization</div>
-      <div class="xp-bar"><div class="xp-fill" id="socialization-fill"></div></div>
+      <div class="xp-bar">
+        <div class="xp-fill" id="socialization-fill"></div>
+      </div>
       <div class="rank-label" id="socialization-rank">Rank </div>
       <button class="add-xp" onclick="openTaskInput('socialization')">Add Task</button>
       <button class="reset-skill" onclick="resetSkill('socialization')">Reset</button>
     </div>
 
+    <!-- Chores Stat -->
     <div class="skill-card" id="chores">
       <div class="skill-title">Chores</div>
-      <div class="xp-bar"><div class="xp-fill" id="chores-fill"></div></div>
+      <div class="xp-bar">
+        <div class="xp-fill" id="chores-fill"></div>
+      </div>
       <div class="rank-label" id="chores-rank">Rank </div>
       <button class="add-xp" onclick="openTaskInput('chores')">Add Task</button>
       <button class="reset-skill" onclick="resetSkill('chores')">Reset</button>
-    </div>
-  </div>
-
-  <!-- Dynamic Music Notes -->
-  <div id="note-container"></div>
-
-  <!-- Rank Up Message -->
-  <div id="rankup-popup" onclick="acknowledgeRankUp()">Rank Up!</div>
+@@ -74,12 +60,22 @@
 
   <!-- Task Input Overlay -->
   <div id="task-overlay" style="display: none;">
-    <h2>Add a Task</h2>
+
     <input type="text" id="task-desc" placeholder="Task Description" />
     <input type="number" id="task-xp" placeholder="XP Earned" min="1" />
     <button onclick="submitTask()">Submit</button>
     <button onclick="closeTaskInput()">Cancel</button>
   </div>
 
-  <!-- Gear Button for Settings -->
+ <!-- Gear Button for Settings -->Add commentMore actions
   <button id="settings-button" onclick="toggleSettings()">⚙️</button>
 
   <!-- Settings Panel -->
