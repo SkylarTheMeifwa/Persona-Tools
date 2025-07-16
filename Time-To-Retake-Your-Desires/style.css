@@ -7,8 +7,10 @@
   padding: 1rem;
   margin-bottom: 1.5rem;
   width: 100%;
-  max-width: 600px;
+  max-width: 95vw;
   animation: slideIn 0.4s ease-out;
+  position: relative;
+  z-index: 1;
 }
 
 /* Category Header */
@@ -66,7 +68,7 @@
 #reset-btn {
   margin-top: 2rem;
   padding: 10px 20px;
-  font-family: 'ZCOOL KuaiLe', cursive;
+  font-family: "Press Start 2P", cursive;
   background-color: white;
   color: black;
   border: 3px solid red;
@@ -74,6 +76,8 @@
   border-radius: 8px;
   cursor: pointer;
   transition: 0.3s;
+  z-index: 1;
+  position: relative;
 }
 
 #reset-btn:hover {
@@ -86,17 +90,18 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: 'ZCOOL KuaiLe', cursive;
+  font-family: "Press Start 2P", cursive;
   background-color: #ff0000;
   color: #fff;
   overflow-y: auto;
   position: relative;
   min-height: 100vh;
+  z-index: 0;
 }
 
 body::before {
   content: "";
-  position: absolute;
+  position: fixed;
   inset: 0;
   background-image: url("p5-star.png"), url("p5-star.png"), url("p5-star.png"),
     url("p5-star.png"), url("p5-star.png"), url("p5-star.png"),
@@ -108,7 +113,8 @@ body::before {
     90% 30%, 60% 90%, 40% 50%, 75% 75%;
   animation: rotateStars 30s linear infinite;
   opacity: 0.2;
-  z-index: 0;
+  z-index: -1;
+  pointer-events: none;
 }
 
 @keyframes rotateStars {
