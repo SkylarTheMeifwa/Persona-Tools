@@ -119,3 +119,13 @@ body::before {
     transform: rotate(360deg);
   }
 }
+
+.page-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  z-index: 1;
+  position: relative;
+}
