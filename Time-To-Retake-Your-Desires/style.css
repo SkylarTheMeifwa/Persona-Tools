@@ -28,16 +28,38 @@
   padding: 0.4rem 0;
   font-size: 12px;
   line-height: 1.5;
+  position: relative;
+  padding-left: 32px; /* Space for bullet */
+  font-family: "Futura", sans-serif;
+}
+
+/* Bullet point using p5-star.png for each task */
+.task::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  background-image: url("p5-star.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  pointer-events: none;
+  opacity: 0.8;
 }
 
 /* Checkbox Styling */
 .task input[type="checkbox"] {
-  margin-right: 0.75rem;
+  margin-right: 0.5rem;
   width: 16px;
   height: 16px;
   accent-color: red;
   transform: scale(1.2);
   cursor: pointer;
+  position: relative;
+  left: -8px;
 }
 
 /* Reset Button */
@@ -60,45 +82,40 @@
   box-shadow: 0 0 15px white;
 }
 
-/* Bullet point using p5-star.png for each task */
-.task {
-  display: flex;
-  align-items: center;
-  padding: 0.4rem 0;
-  font-size: 12px;
-  line-height: 1.5;
+/* Animated background stars */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Press Start 2P", cursive;
+  background-color: #ff0000;
+  color: #fff;
+  overflow-y: auto;
   position: relative;
-  padding-left: 32px; /* Space for bullet */
-  font-family: "Futura", sans-serif;
+  min-height: 100vh;
 }
 
-.task::before {
+body::before {
   content: "";
   position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 20px;
-  height: 20px;
-  background-image: url("p5-star.png");
-  background-size: contain;
+  inset: 0;
+  background-image: url("p5-star.png"), url("p5-star.png"), url("p5-star.png"),
+    url("p5-star.png"), url("p5-star.png"), url("p5-star.png"),
+    url("p5-star.png"), url("p5-star.png"), url("p5-star.png"),
+    url("p5-star.png");
   background-repeat: no-repeat;
-  background-position: center;
-  pointer-events: none;
-  opacity: 0.8;
+  background-size: 40px, 60px, 30px, 50px, 70px, 55px, 35px, 65px, 45px, 38px;
+  background-position: 10% 20%, 50% 10%, 80% 60%, 30% 70%, 70% 40%, 20% 80%,
+    90% 30%, 60% 90%, 40% 50%, 75% 75%;
+  animation: rotateStars 30s linear infinite;
+  opacity: 0.2;
+  z-index: 0;
 }
 
-.task input[type="checkbox"] {
-  margin-right: 0.5rem;
-  width: 16px;
-  height: 16px;
-  accent-color: red;
-  transform: scale(1.2);
-  cursor: pointer;
-}
-
-/* Adjust spacing so checkbox aligns with the new bullet */
-.task input[type="checkbox"] {
-  position: relative;
-  left: -8px;
+@keyframes rotateStars {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
