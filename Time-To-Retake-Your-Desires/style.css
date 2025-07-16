@@ -5,26 +5,26 @@
   box-shadow: 0 0 10px #ff0000;
   border-radius: 12px;
   padding: 1rem;
-  margin: 0 auto 1.5rem auto;
-  width: 90%;
-  max-width: 380px;
+  margin: 0 auto 1.5rem auto; /* Center horizontally, keep bottom margin */
+  width: 90%; /* Responsive width */
+  max-width: 380px; /* Max width for larger screens */
   animation: slideIn 0.4s ease-out;
   position: relative;
   z-index: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: left;
 }
 
 /* Category Header */
 .category h2 {
   font-size: 14px;
   color: #ff0000;
-  text-shadow: 2px 2px 0 black;
+  text-shadow: 2px 2px 0 Pictures/black;
   margin-top: 0;
   border-bottom: 2px solid #ff0000;
   padding-bottom: 0.5rem;
-  text-align: center;
+  text-align: left;
 }
 
 /* Task Row */
@@ -35,25 +35,25 @@
   font-size: 12px;
   line-height: 1.5;
   position: relative;
-  padding-left: 32px;
+  padding-left: 32px; /* space for bullet */
   font-family: "Futura", sans-serif;
 }
 
-/* Bullet point using p5-star.png for each task */
+/* Bullet point using Pictures/black-p5-star.png for each task */
 .task::before {
   content: "";
   position: absolute;
-  left: 0;
+  left: 4px; /* Adjusted for better alignment */
   top: 50%;
   transform: translateY(-50%);
-  width: 20px;
-  height: 20px;
-  background-image: url("p5-star.png");
+  width: 25px;
+  height: 25px;
+  background-image: url("Pictures/red-p5-star.png");
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
   pointer-events: none;
-  opacity: 0.8;
+  opacity: 1;
 }
 
 /* Checkbox Styling */
@@ -64,17 +64,17 @@
   accent-color: red;
   transform: scale(1.2);
   cursor: pointer;
-  position: relative;
-  left: -8px;
+  position: static; /* changed from relative */
+  left: auto; /* reset left positioning */
 }
 
 /* Reset Button */
 #reset-btn {
   margin-top: 2rem;
   padding: 10px 20px;
-  font-family: 'ZCOOL KuaiLe', cursive;
+  font-family: "ZCOOL KuaiLe", cursive;
   background-color: white;
-  color: black;
+  color: Pictures/black;
   border: 3px solid red;
   box-shadow: 0 0 10px red;
   border-radius: 8px;
@@ -95,7 +95,7 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: 'ZCOOL KuaiLe', cursive;
+  font-family: "ZCOOL KuaiLe", cursive;
   background-color: #ff0000;
   color: #fff;
   overflow-y: auto;
@@ -108,14 +108,16 @@ body::before {
   content: "";
   position: fixed;
   inset: 0;
-  background-image: url("p5-star.png"), url("p5-star.png"), url("p5-star.png"),
-    url("p5-star.png"), url("p5-star.png"), url("p5-star.png"),
-    url("p5-star.png"), url("p5-star.png"), url("p5-star.png"),
-    url("p5-star.png");
+  background-image: url("Pictures/black-p5-star.png"),
+    url("Pictures/black-p5-star.png"), url("Pictures/black-p5-star.png"),
+    url("Pictures/black-p5-star.png"), url("Pictures/black-p5-star.png"),
+    url("Pictures/black-p5-star.png"), url("Pictures/black-p5-star.png"),
+    url("Pictures/black-p5-star.png"), url("Pictures/black-p5-star.png"),
+    url("Pictures/black-p5-star.png");
   background-repeat: no-repeat;
   background-size: 40px, 60px, 30px, 50px, 70px, 55px, 35px, 65px, 45px, 38px;
-  background-position: 5% 15%, 50% 5%, 95% 70%, 20% 75%, 75% 30%, 10% 90%,
-    100% 20%, 65% 95%, 35% 45%, 85% 85%;
+  background-position: 10% 20%, 50% 10%, 80% 60%, 30% 70%, 70% 40%, 20% 80%,
+    90% 30%, 60% 90%, 40% 50%, 75% 75%;
   animation: rotateStars 30s linear infinite;
   opacity: 0.2;
   z-index: -1;
@@ -139,11 +141,11 @@ body::before {
   padding: 2rem;
   z-index: 1;
   position: relative;
-  text-align: center;
+  text-align: left;
 }
 
 .page-wrapper h1,
 .page-wrapper h2 {
   margin: 0.5rem 0;
-  text-align: center;
+  text-align: left;
 }
