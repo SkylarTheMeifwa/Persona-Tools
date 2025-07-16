@@ -14,4 +14,4 @@ const dailyTasks = [
     name: "Free item in shop"
     categories: ["Login Rewards"]
   }
-]
+];
