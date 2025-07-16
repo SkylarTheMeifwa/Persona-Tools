@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const container = document.getElementById("daily-categories");
+  const container = document.getElementById("categories");
   const grouped = {};
 
   // Group tasks by category
