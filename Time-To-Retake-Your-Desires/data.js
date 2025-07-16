@@ -73,7 +73,7 @@ const dailyTasks = [
   },
   {
     id: "wonder-ren",
-    name: "Have Wonder longingly stare at Ren in Leblanc for at least 30 minutes",
+    name: "Have Wonder longingly stare at Ren in Leblanc for at least a year without any breaks",
     categories: ["Leblanc"],
   },
 
