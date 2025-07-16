@@ -11,6 +11,9 @@
   animation: slideIn 0.4s ease-out;
   position: relative;
   z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 /* Category Header */
@@ -21,6 +24,7 @@
   margin-top: 0;
   border-bottom: 2px solid #ff0000;
   padding-bottom: 0.5rem;
+  text-align: center;
 }
 
 /* Task Row */
@@ -68,7 +72,7 @@
 #reset-btn {
   margin-top: 2rem;
   padding: 10px 20px;
-  font-family: "Press Start 2P", cursive;
+  font-family: 'ZCOOL KuaiLe', cursive;
   background-color: white;
   color: black;
   border: 3px solid red;
@@ -78,6 +82,7 @@
   transition: 0.3s;
   z-index: 1;
   position: relative;
+  align-self: center;
 }
 
 #reset-btn:hover {
@@ -90,7 +95,7 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: "Press Start 2P", cursive;
+  font-family: 'ZCOOL KuaiLe', cursive;
   background-color: #ff0000;
   color: #fff;
   overflow-y: auto;
@@ -134,4 +139,11 @@ body::before {
   padding: 2rem;
   z-index: 1;
   position: relative;
+  text-align: center;
+}
+
+.page-wrapper h1,
+.page-wrapper h2 {
+  margin: 0.5rem 0;
+  text-align: center;
 }
