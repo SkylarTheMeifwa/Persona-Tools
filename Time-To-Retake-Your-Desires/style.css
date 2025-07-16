@@ -1,0 +1,44 @@
+/* Add this section to your existing style.css */
+
+/* Bullet point using p5-star.png for each task */
+.task {
+  display: flex;
+  align-items: center;
+  padding: 0.4rem 0;
+  font-size: 12px;
+  line-height: 1.5;
+  position: relative;
+  padding-left: 32px; /* Space for bullet */
+  font-family: "Futura", sans-serif;
+}
+
+.task::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  background-image: url("p5-star.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+.task input[type="checkbox"] {
+  margin-right: 0.5rem;
+  width: 16px;
+  height: 16px;
+  accent-color: red;
+  transform: scale(1.2);
+  cursor: pointer;
+}
+
+/* Adjust spacing so checkbox aligns with the new bullet */
+.task input[type="checkbox"] {
+  position: relative;
+  left: -8px;
+}
