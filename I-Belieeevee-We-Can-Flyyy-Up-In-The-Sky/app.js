@@ -100,7 +100,7 @@ function showNotes(skill, xp) {
 
   for (let i = 0; i < count; i++) {
     const note = document.createElement("img");
-    note.src = "music-note.png";
+    note.src = "Pictures/music-note.png";
     note.className = "note";
     note.style.height = `${skillCard.offsetHeight * 0.9}px`;
     note.style.cursor = "pointer";
@@ -116,10 +116,10 @@ function showNotes(skill, xp) {
 
   const audio = new Audio(
     xp >= 6
-      ? "Three-Music-Notes.wav"
+      ? "Audio/Three-Music-Notes.wav"
       : xp >= 3
-      ? "Two-Music-Notes.wav"
-      : "One-Music-Note.wav"
+      ? "Audio/Two-Music-Notes.wav"
+      : "Audio/One-Music-Note.wav"
   );
   audio.play();
 }
@@ -152,9 +152,9 @@ function showRankUp(skill) {
   popup.style.zIndex = 10000;
   popup.style.display = "block";
   popup.innerHTML =
-    '<img src="Rank-Up.png" alt="Rank Up" style="width: 90%; transform: rotate(-10deg); margin: auto; display: block;">';
+    '<img src="Pictures/Rank-Up.png" alt="Rank Up" style="width: 90%; transform: rotate(-10deg); margin: auto; display: block;">';
 
-  new Audio("Rank-Up.wav").play();
+  new Audio("Audio/Rank-Up.wav").play();
 }
 
 function acknowledgeRankUp() {
@@ -190,7 +190,7 @@ function resetSkill(skill) {
 }
 
 function playXPCollectSound() {
-  new Audio("Point-Up.wav").play();
+  new Audio("Audio/Point-Up.wav").play();
 }
 
 function openSettings() {
