@@ -1,25 +1,79 @@
+const dailyTasks = [
+  // Thieves Den
+  {
+    id: "visitor-xp",
+    name: "Collect Visitor XP",
+    categories: ["Thieves Den"]
+  },
+  {
+    id: "coins-info",
+    name: "Collect Coins in Info",
+    categories: ["Thieves Den"]
+  },
 
-Theives Den: 
-Collect Visitor XP
-Collect Coins in Info
+  // Login Rewards
+  {
+    id: "daily-loot",
+    name: "Daily loot",
+    categories: ["Login Rewards"]
+  },
+  {
+    id: "shop-item",
+    name: "Free item in shop",
+    categories: ["Login Rewards"]
+  },
+  {
+    id: "login-bonus",
+    name: "Log in bonus (Spin to win raffle)",
+    categories: ["Login Rewards", "Spin to win raffle"]
+  },
+  {
+    id: "coffee-aid",
+    name: "Coffee aid in Awakening Avenue",
+    categories: ["Login Rewards"]
+  },
 
-Login Rewards: 
-daily loot
-Free item in shop
-Log in bonus (Spin to win raffle) 
-Coffee aid in Awakening Avenue
+  // Spin to Win Raffle
+  {
+    id: "metro-clear",
+    name: "Clear a platform in Metro of Desire",
+    categories: ["Spin to win raffle"]
+  },
+  {
+    id: "stamina-120",
+    name: "Use 120 stamina in Realm of Repression",
+    categories: ["Spin to win raffle", "Goals"]
+  },
+  {
+    id: "city-action-3",
+    name: "Use 3 city action points",
+    categories: ["Spin to win raffle", "Goals"]
+  },
 
-Spin to win raffle: 
-Log in bonus (Spin to win raffle) 
-Clear a platform in metro of desire
-Use 120 stamina in realm of repression
-Use 3 city action points
-
-Goals: 
-Use 3 city action points
-Clear realm of repression: enlightenment
-Clear realm of repression: personas
-Complete trials from the sea of souls
-Fuse a persona
-Train a persona's skills
-Use 120 stamina in realm of repression 
+  // Goals
+  {
+    id: "enlightenment-clear",
+    name: "Clear Realm of Repression: Enlightenment",
+    categories: ["Goals"]
+  },
+  {
+    id: "personas-clear",
+    name: "Clear Realm of Repression: Personas",
+    categories: ["Goals"]
+  },
+  {
+    id: "sea-trials",
+    name: "Complete trials from the Sea of Souls",
+    categories: ["Goals"]
+  },
+  {
+    id: "fuse-persona",
+    name: "Fuse a persona",
+    categories: ["Goals"]
+  },
+  {
+    id: "train-persona",
+    name: "Train a persona's skills",
+    categories: ["Goals"]
+  }
+];
