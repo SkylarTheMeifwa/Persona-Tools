@@ -49,7 +49,7 @@ Guides for **P5R**, **P4G**, and **P3P** based on real walkthroughs:
 ## Links
 
 ### Persona 5 Themed Stat Tracker
-- [With Knowledge Stat](https://skylarthemeifwa.github.io/Persona-Tools/I-Belieeeeeeveeeeee-We-Can-Flyyyy-Up-In-The-Sky/] - Currently Down
+- [With Knowledge Stat](https://skylarthemeifwa.github.io/Persona-Tools/I-Belieeevee-We-Can-Flyyy-Up-In-The-Sky/]
 - [Without Knowledge Stat](https://skylarthemeifwa.github.io/Persona-Tools/You'll-Never-See-It-Comiiingggg/) 
 
 ### Persona 5 Themed Social Link Tracker
