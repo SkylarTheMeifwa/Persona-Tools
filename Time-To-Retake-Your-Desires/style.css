@@ -1,4 +1,64 @@
-/* Add this section to your existing style.css */
+/* Category Section */
+.category {
+  background-color: #1a1a1a;
+  border: 3px solid white;
+  box-shadow: 0 0 10px #ff0000;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  width: 100%;
+  max-width: 600px;
+  animation: slideIn 0.4s ease-out;
+}
+
+/* Category Header */
+.category h2 {
+  font-size: 14px;
+  color: #ff0000;
+  text-shadow: 2px 2px 0 black;
+  margin-top: 0;
+  border-bottom: 2px solid #ff0000;
+  padding-bottom: 0.5rem;
+}
+
+/* Task Row */
+.task {
+  display: flex;
+  align-items: center;
+  padding: 0.4rem 0;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* Checkbox Styling */
+.task input[type="checkbox"] {
+  margin-right: 0.75rem;
+  width: 16px;
+  height: 16px;
+  accent-color: red;
+  transform: scale(1.2);
+  cursor: pointer;
+}
+
+/* Reset Button */
+#reset-btn {
+  margin-top: 2rem;
+  padding: 10px 20px;
+  font-family: "Press Start 2P", cursive;
+  background-color: white;
+  color: black;
+  border: 3px solid red;
+  box-shadow: 0 0 10px red;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+#reset-btn:hover {
+  background-color: red;
+  color: white;
+  box-shadow: 0 0 15px white;
+}
 
 /* Bullet point using p5-star.png for each task */
 .task {
