@@ -1,4 +1,4 @@
-const dailyTasks = [
+const dailyTasks = [ 
   // Login Rewards
   {
     id: "daily-loot",
@@ -76,7 +76,7 @@ const dailyTasks = [
     name: "Have Wonder longingly stare at Ren in Leblanc for at least 30 minutes",
     categories: ["Leblanc"]
   },
-  
+
   // Spin to Win Raffle
   {
     id: "metro-clear",
