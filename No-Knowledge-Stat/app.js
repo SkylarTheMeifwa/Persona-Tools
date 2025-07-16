@@ -1,6 +1,5 @@
 // Skill data
 const skills = {
-  physics: { xp: 0, rank: 0 },
   "self-care": { xp: 0, rank: 0 },
   entertainment: { xp: 0, rank: 0 },
   socialization: { xp: 0, rank: 0 },
@@ -8,7 +7,6 @@ const skills = {
 };
 
 const rankThresholds = {
-  physics: [0, 20, 50, 90, 130, 200],
   "self-care": [0, 50, 125, 225, 325, 450],
   entertainment: [0, 15, 30, 50, 70, 90],
   socialization: [0, 25, 50, 80, 120, 175],
@@ -16,7 +14,6 @@ const rankThresholds = {
 };
 
 const rankNames = {
-  physics: ["0 - Clueless", "1 - Curious", "2 - Studious", "3 - Analytical", "4 - Theorist", "5 - Physicist"],
   "self-care": ["0 - Burnt Out", "1 - Neglected", "2 - Aware", "3 - Healthy", "4 - Thriving", "5 - Zen"],
   entertainment: ["0 - Uninterested", "1 - Bored", "2 - Amused", "3 - Engaged", "4 - Enthralled", "5 - Ecstatic"],
   socialization: ["0 - Loner", "1 - Shy", "2 - Chatterbox", "3 - Connector", "4 - Charismatic", "5 - Social Star"],
@@ -26,7 +23,6 @@ const rankNames = {
 let currentSkill = null;
 
 let completedTasks = JSON.parse(localStorage.getItem("completedTasks")) || {
-  physics: [],
   "self-care": [],
   entertainment: [],
   socialization: [],
@@ -100,7 +96,7 @@ function showNotes(skill, xp) {
 
   for (let i = 0; i < count; i++) {
     const note = document.createElement("img");
-    note.src = "music-note.png";
+    note.src = "Pictures/music-note.png";
     note.className = "note";
     note.style.height = `${skillCard.offsetHeight * 0.9}px`;
     note.style.cursor = "pointer";
@@ -116,10 +112,10 @@ function showNotes(skill, xp) {
 
   const audio = new Audio(
     xp >= 6
-      ? "Three-Music-Notes.wav"
+      ? "Audio/Three-Music-Notes.wav"
       : xp >= 3
-      ? "Two-Music-Notes.wav"
-      : "One-Music-Note.wav"
+      ? "Audio/Two-Music-Notes.wav"
+      : "Audio/One-Music-Note.wav"
   );
   audio.play();
 }
@@ -152,9 +148,9 @@ function showRankUp(skill) {
   popup.style.zIndex = 10000;
   popup.style.display = "block";
   popup.innerHTML =
-    '<img src="Rank-Up.png" alt="Rank Up" style="width: 90%; transform: rotate(-10deg); margin: auto; display: block;">';
+    '<img src="Pictures/Rank-Up.png" alt="Rank Up" style="width: 90%; transform: rotate(-10deg); margin: auto; display: block;">';
 
-  new Audio("Rank-Up.wav").play();
+  new Audio("Audio/Rank-Up.wav").play();
 }
 
 function acknowledgeRankUp() {
@@ -190,7 +186,7 @@ function resetSkill(skill) {
 }
 
 function playXPCollectSound() {
-  new Audio("Point-Up.wav").play();
+  new Audio("Audio/Point-Up.wav").play();
 }
 
 function openSettings() {
