@@ -62,10 +62,10 @@ body::before {
   content: "";
   position: absolute;
   inset: 0;
-  background-image: url("p5-star.png"), url("p5-star.png"), url("p5-star.png"),
-    url("p5-star.png"), url("p5-star.png"), url("p5-star.png"),
-    url("p5-star.png"), url("p5-star.png"), url("p5-star.png"),
-    url("p5-star.png");
+  background-image: url("Pictures/p5-star.png"), url("Pictures/p5-star.png"), url("Pictures/p5-star.png"),
+    url("Pictures/p5-star.png"), url("Pictures/p5-star.png"), url("Pictures/p5-star.png"),
+    url("Pictures/p5-star.png"), url("Pictures/p5-star.png"), url("Pictures/p5-star.png"),
+    url("Pictures/p5-star.png");
   background-repeat: no-repeat;
   background-size: 40px, 60px, 30px, 50px, 70px, 55px, 35px, 65px, 45px, 38px;
   background-position: 10% 20%, 50% 10%, 80% 60%, 30% 70%, 70% 40%, 20% 80%,
