@@ -1,16 +1,4 @@
 const dailyTasks = [
-  // Thieves Den
-  {
-    id: "visitor-xp",
-    name: "Collect Visitor XP",
-    categories: ["Thieves Den"]
-  },
-  {
-    id: "coins-info",
-    name: "Collect Coins in Info",
-    categories: ["Thieves Den"]
-  },
-
   // Login Rewards
   {
     id: "daily-loot",
@@ -33,21 +21,16 @@ const dailyTasks = [
     categories: ["Login Rewards"]
   },
 
-  // Spin to Win Raffle
+  // Thieves Den
   {
-    id: "metro-clear",
-    name: "Clear a platform in Metro of Desire",
-    categories: ["Spin to win raffle"]
+    id: "visitor-xp",
+    name: "Collect Visitor XP",
+    categories: ["Thieves Den"]
   },
   {
-    id: "stamina-120",
-    name: "Use 120 stamina in Realm of Repression",
-    categories: ["Spin to win raffle", "Goals"]
-  },
-  {
-    id: "city-action-3",
-    name: "Use 3 city action points",
-    categories: ["Spin to win raffle", "Goals"]
+    id: "coins-info",
+    name: "Collect Coins in Info",
+    categories: ["Thieves Den"]
   },
 
   // Goals
@@ -75,5 +58,39 @@ const dailyTasks = [
     id: "train-persona",
     name: "Train a persona's skills",
     categories: ["Goals"]
+  },
+
+  // Leblanc
+  {
+    id: "ann",
+    name: "Convince Ann to finally talk to me for the third time",
+    categories: ["Leblanc"]
+  },
+  {
+    id: "sojiro",
+    name: "Wish that Sojiro was also in Leblanc",
+    categories: ["Leblanc"]
+  },
+  {
+    id: "wonder-ren",
+    name: "Have Wonder longingly stare at Ren in Leblanc for at least 30 minutes",
+    categories: ["Leblanc"]
+  },
+  
+  // Spin to Win Raffle
+  {
+    id: "metro-clear",
+    name: "Clear a platform in Metro of Desire",
+    categories: ["Spin to win raffle"]
+  },
+  {
+    id: "stamina-120",
+    name: "Use 120 stamina in Realm of Repression",
+    categories: ["Spin to win raffle", "Goals"]
+  },
+  {
+    id: "city-action-3",
+    name: "Use 3 city action points",
+    categories: ["Spin to win raffle", "Goals"]
   }
 ];
