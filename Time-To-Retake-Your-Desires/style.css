@@ -5,9 +5,9 @@
   box-shadow: 0 0 10px #ff0000;
   border-radius: 12px;
   padding: 1rem;
-  margin-bottom: 1.5rem;
-  width: 100%;
-  max-width: 95vw;
+  margin: 0 auto 1.5rem auto; /* Center horizontally, keep bottom margin */
+  width: 90%; /* Responsive width */
+  max-width: 380px; /* Max width for larger screens */
   animation: slideIn 0.4s ease-out;
   position: relative;
   z-index: 1;
