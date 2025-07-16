@@ -1,17 +1,29 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const container = document.getElementById("categories");
+  const container = document.getElementById("daily-categories");
   const grouped = {};
 
   // Group tasks by category
-  dailyTasks.forEach(task => {
-    task.categories.forEach(cat => {
+  dailyTasks.forEach((task) => {
+    task.categories.forEach((cat) => {
       if (!grouped[cat]) grouped[cat] = [];
       grouped[cat].push(task);
     });
   });
 
-  // Render each category section
-  Object.entries(grouped).forEach(([category, tasks]) => {
+  // Specify the desired order of categories
+  const categoryOrder = [
+    "Login Rewards",
+    "Thieves Den",
+    "Goals",
+    "Leblanc",
+    "Spin to win raffle",
+  ];
+
+  // Render each category section in the specified order
+  categoryOrder.forEach((category) => {
+    const tasks = grouped[category];
+    if (!tasks) return; // Skip if category has no tasks
+
     const section = document.createElement("div");
     section.className = "category";
 
@@ -19,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
     heading.textContent = category;
     section.appendChild(heading);
 
-    tasks.forEach(task => {
+    tasks.forEach((task) => {
       const wrapper = document.createElement("label");
       wrapper.className = "task";
       wrapper.innerHTML = `
@@ -37,7 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.target.type === "checkbox") {
       const id = e.target.dataset.id;
       const checked = e.target.checked;
-      document.querySelectorAll(`input[data-id="${id}"]`).forEach(cb => {
+      document.querySelectorAll(`input[data-id="${id}"]`).forEach((cb) => {
         cb.checked = checked;
       });
     }
@@ -45,7 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Reset all checkboxes
   document.getElementById("reset-btn").addEventListener("click", () => {
-    document.querySelectorAll("input[type='checkbox']").forEach(cb => {
+    document.querySelectorAll("input[type='checkbox']").forEach((cb) => {
       cb.checked = false;
     });
   });
