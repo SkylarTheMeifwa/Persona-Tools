@@ -10,19 +10,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Specify the desired order of categories
-  const categoryOrder = [
-    "Login Rewards",
-    "Thieves Den",
-    "Goals",
-    "Leblanc",
-    "Spin to win raffle",
-  ];
+  // Define the custom category order
+  const categoryOrder = ["Login Rewards", "Thieves Den", "Goals", "Leblanc", "Spin to win raffle"];
 
-  // Render each category section in the specified order
+  // Sort and render categories in desired order
   categoryOrder.forEach((category) => {
-    const tasks = grouped[category];
-    if (!tasks) return; // Skip if category has no tasks
+    if (!grouped[category]) return;
 
     const section = document.createElement("div");
     section.className = "category";
@@ -31,11 +24,13 @@ document.addEventListener("DOMContentLoaded", () => {
     heading.textContent = category;
     section.appendChild(heading);
 
-    tasks.forEach((task) => {
+    grouped[category].forEach((task) => {
       const wrapper = document.createElement("label");
       wrapper.className = "task";
+      const isChecked = localStorage.getItem(`task-${task.id}`) === "true";
+
       wrapper.innerHTML = `
-        <input type="checkbox" data-id="${task.id}" />
+        <input type="checkbox" data-id="${task.id}" ${isChecked ? "checked" : ""} />
         ${task.name}
       `;
       section.appendChild(wrapper);
@@ -44,11 +39,14 @@ document.addEventListener("DOMContentLoaded", () => {
     container.appendChild(section);
   });
 
-  // Sync checkboxes with the same task ID
+  // Sync checkboxes and store state
   container.addEventListener("change", (e) => {
     if (e.target.type === "checkbox") {
       const id = e.target.dataset.id;
       const checked = e.target.checked;
+      localStorage.setItem(`task-${id}`, checked);
+
+      // Sync all checkboxes with same ID
       document.querySelectorAll(`input[data-id="${id}"]`).forEach((cb) => {
         cb.checked = checked;
       });
@@ -59,6 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("reset-btn").addEventListener("click", () => {
     document.querySelectorAll("input[type='checkbox']").forEach((cb) => {
       cb.checked = false;
+      localStorage.setItem(`task-${cb.dataset.id}`, false);
     });
   });
 });
