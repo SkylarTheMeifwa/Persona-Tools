@@ -56,7 +56,8 @@ Guides for **P5R**, **P4G**, and **P3P** based on real walkthroughs:
 - In progress
 
 ### Game Guides
-- In Progress (Calendars, Dailies, Contact Guide)
+- [Persona 5: The Phantom X Daily Tracker](https://skylarthemeifwa.github.io/Persona-Tools/Time-To-Retake-Your-Desires/)
+- In Progress (Calendars, Contact Guide)
 
 ---
 
