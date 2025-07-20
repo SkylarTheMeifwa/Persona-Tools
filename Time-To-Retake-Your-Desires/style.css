@@ -144,7 +144,11 @@ body::before {
   text-align: left;
 }
 
-.page-wrapper h1,
+.page-wrapper h1 {
+  margin: 0.5rem 0;
+  text-align: center;
+}
+
 .page-wrapper h2 {
   margin: 0.5rem 0;
   text-align: left;
