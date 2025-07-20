@@ -32,7 +32,7 @@ Guides for **P5R**, **P4G**, and **P3P** based on real walkthroughs:
 - Progress trackers for each stat and confidant  
 - Includes links to fusion calculators
 
-### P5X Dailies Tracker (WIP)
+### P5X Dailies Tracker
 - Dynamic list of daily activities in Persona 5: The Phantom X  
 - Categorized by reward location  
 - Checks off duplicates automatically  
