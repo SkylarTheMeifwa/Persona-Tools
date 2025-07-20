@@ -7,9 +7,9 @@ function parseDueDate(dueStr) {
   if (!dueStr) return null;
   const parts = dueStr.trim().split(" ");
   if (parts.length !== 3) return null;
-  const [time, ampm, date] = parts;
-  const [hh, mm] = time.split(":").map(Number);
+  const [date, time, ampm] = parts;
   const [month, day] = date.split("/").map(Number);
+  const [hh, mm] = time.split(":").map(Number);
   let hours = hh;
   if (ampm.toUpperCase() === "PM" && hours !== 12) hours += 12;
   if (ampm.toUpperCase() === "AM" && hours === 12) hours = 0;
@@ -22,16 +22,27 @@ function openTaskInput(editTask = null) {
   document.getElementById("task-category").value = editTask
     ? editTask.category
     : "";
+
   if (editTask && editTask.due) {
-    const [time, ampm, date] = editTask.due.split(" ");
-    document.getElementById("task-time").value = time;
-    document.getElementById("task-ampm").value = ampm;
-    document.getElementById("task-date").value = date;
+    const parts = editTask.due.split(" ");
+    if (parts.length === 3) {
+      const [time, ampm, date] = parts;
+      const [month, day] = date.split("/");
+      const [hour, min] = time.split(":");
+      document.getElementById("task-month").value = month;
+      document.getElementById("task-day").value = day;
+      document.getElementById("task-hour").value = hour;
+      document.getElementById("task-min").value = min;
+      document.getElementById("task-ampm").value = ampm;
+    }
   } else {
-    document.getElementById("task-time").value = "";
-    document.getElementById("task-ampm").value = "AM";
-    document.getElementById("task-date").value = "";
+    document.getElementById("task-month").value = "";
+    document.getElementById("task-day").value = "";
+    document.getElementById("task-hour").value = "";
+    document.getElementById("task-min").value = "";
+    document.getElementById("task-ampm").value = "";
   }
+
   editingTaskId = editTask ? editTask.id : null;
   document.getElementById("task-overlay").style.display = "flex";
   document.getElementById("submit-task-btn").textContent = editTask
@@ -48,17 +59,23 @@ function closeTaskInput() {
 function submitTask() {
   const desc = document.getElementById("task-desc").value.trim();
   const category = document.getElementById("task-category").value.trim();
-  const date = document.getElementById("task-date").value.trim();
-  const time = document.getElementById("task-time").value.trim();
+  const month = document.getElementById("task-month").value.trim();
+  const day = document.getElementById("task-day").value.trim();
+  const hour = document.getElementById("task-hour").value.trim();
+  const min = document.getElementById("task-min").value.trim();
   const ampm = document.getElementById("task-ampm").value.trim();
 
   let due = "";
-  if (date || time || ampm) {
-    if (!date || !time || !ampm) {
-      alert("Please fill out all date/time fields or leave all blank.");
-      return;
-    }
-    due = `${time} ${ampm} ${date}`;
+  const hasPartialInput = month || day || hour || min || ampm;
+  const hasAllDateTime = month && day && hour && min && ampm;
+
+  if (hasPartialInput && !hasAllDateTime) {
+    alert("Please fill out all date/time fields or leave them all blank.");
+    return;
+  }
+
+  if (hasAllDateTime) {
+    due = `${hour}:${min} ${ampm} ${month}/${day}`;
   }
 
   if (!desc || !category) {
