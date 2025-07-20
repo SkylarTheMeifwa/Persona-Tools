@@ -26,12 +26,17 @@
     <div id="task-overlay">
       <input type="text" id="task-category" placeholder="Category" />
       <input type="text" id="task-desc" placeholder="Task Description" />
+      <label for="task-month" class="month-label">Date (Optional):</label>
       <div class="date-time-row">
-        <label for="task-date" class="date-label">Date (Optional):</label>
-        <input type="text" id="task-date" placeholder="MM/DD" />
-        <input type="text" id="task-time" placeholder="HH:MM" />
+        <input type="text" id="task-month" placeholder="MM" />
+        <label for="task-day" class="day-label">/</label>
+        <input type="text" id="task-day" placeholder="DD" />
+        <label for="task-hour" class="hour-label"> at </label>
+        <input type="text" id="task-hour" placeholder="HH" />
+        <label for="task-min" class="min-label">:</label>
+        <input type="text" id="task-min" placeholder="MM" />
         <select id="task-ampm">
-          <option value="">--</option> <!-- This is the new blank option -->
+          <option value=""></option>
           <option value="AM">AM</option>
           <option value="PM">PM</option>
         </select>
