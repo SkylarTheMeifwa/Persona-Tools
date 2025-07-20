@@ -240,7 +240,7 @@ body::before {
   z-index: 1001;
   box-shadow: 0 0 10px red;
   color: white;
-  font-family: "Press Start 2P", cursive;
+  font-family: "Futura", sans-serif;
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -287,7 +287,7 @@ body::before {
   color: white;
   border: none;
   padding: 0.5rem 1rem;
-  font-family: "Press Start 2P", cursive;
+  font-family: "Futura", sans-serif;
   cursor: pointer;
   transition: background 0.3s;
 }
