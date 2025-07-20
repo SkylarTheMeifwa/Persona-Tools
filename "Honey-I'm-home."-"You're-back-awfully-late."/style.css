@@ -260,12 +260,11 @@ body::before {
   text-align: center;
 }
 
-#task-date {
-  width: 60px;
-}
-
-#task-time {
-  width: 60px;
+#task-day,
+#task-min,
+#task-month,
+#task-hour {
+  width: 24px;
 }
 
 #task-ampm {
