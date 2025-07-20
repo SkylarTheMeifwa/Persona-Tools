@@ -1,0 +1,298 @@
+/* Category Section */
+.category {
+  background-color: #1a1a1a;
+  border: 3px solid white;
+  box-shadow: 0 0 10px #ff0000;
+  border-radius: 12px;
+  padding: 1rem;
+  margin: 0 auto 1.5rem auto;
+  width: 90%;
+  max-width: 380px;
+  animation: slideIn 0.4s ease-out;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+/* Category Header with Delete Button */
+.category-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #ff0000;
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.category h2 {
+  font-size: 14px;
+  color: #ff0000;
+  text-shadow: 2px 2px 0 black;
+  margin-top: 0;
+  text-align: left;
+}
+
+.delete-completed-btn {
+  font-size: 10px;
+  background: red;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.edit-mode .delete-completed-btn {
+  display: inline-block;
+}
+
+/* Task Row */
+.task {
+  display: flex;
+  align-items: center; /* vertically center checkbox, text, due date */
+  justify-content: flex-start;
+  padding: 0.4rem 0;
+  font-size: 12px;
+  line-height: 1.5;
+  position: relative;
+  padding-left: 32px;
+  font-family: "Futura", sans-serif;
+  text-align: left;
+  gap: 0.3rem; /* space between task text and due date */
+}
+
+.task::before {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 25px;
+  height: 25px;
+  background-image: url("Pictures/red-p5-star.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  pointer-events: none;
+  opacity: 1;
+}
+
+.task input[type="checkbox"] {
+  margin-right: 0.5rem;
+  width: 16px;
+  height: 16px;
+  accent-color: red;
+  transform: scale(1.2);
+  cursor: pointer;
+  position: static;
+  left: auto;
+}
+
+.task small {
+  color: grey;
+  margin-left: 0.5rem;
+  white-space: nowrap; /* prevent line break */
+  font-size: 11px; /* smaller font for due date */
+  align-self: center; /* vertical center in flex */
+  line-height: 1; /* tighter line height */
+  /* Optional tweak to nudge vertical alignment */
+  /* transform: translateY(1px); */
+}
+
+.task.completed span,
+.task.completed small {
+  text-decoration: line-through;
+  color: grey;
+}
+
+.task .delete-task-btn {
+  font-size: 10px;
+  margin-left: auto;
+  background: red;
+  color: white;
+  border: none;
+  padding: 2px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: none;
+}
+
+.edit-mode .task.completed .delete-task-btn {
+  display: inline-block;
+}
+
+.edit-mode .task:not(.completed) .edit-task-btn {
+  font-size: 10px;
+  margin-left: auto;
+  background: red;
+  color: white;
+  border: none;
+  padding: 2px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-block;
+}
+
+/* Control Buttons */
+.controls {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+#edit-btn,
+#add-task-btn {
+  padding: 10px 20px;
+  font-family: "ZCOOL KuaiLe", cursive;
+  background-color: white;
+  color: black;
+  border: 3px solid red;
+  box-shadow: 0 0 10px red;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+  z-index: 1;
+  position: relative;
+}
+
+#edit-btn:hover,
+#add-task-btn:hover {
+  background-color: red;
+  color: white;
+  box-shadow: 0 0 15px white;
+}
+
+/* Animated background stars */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "ZCOOL KuaiLe", cursive;
+  background-color: #ff0000;
+  color: #fff;
+  overflow-y: auto;
+  position: relative;
+  min-height: 100vh;
+  z-index: 0;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: url("Pictures/black-p5-star.png"),
+    url("Pictures/black-p5-star.png"), url("Pictures/black-p5-star.png"),
+    url("Pictures/black-p5-star.png"), url("Pictures/black-p5-star.png"),
+    url("Pictures/black-p5-star.png"), url("Pictures/black-p5-star.png"),
+    url("Pictures/black-p5-star.png"), url("Pictures/black-p5-star.png"),
+    url("Pictures/black-p5-star.png");
+  background-repeat: no-repeat;
+  background-size: 40px, 60px, 30px, 50px, 70px, 55px, 35px, 65px, 45px, 38px;
+  background-position: 10% 20%, 50% 10%, 80% 60%, 30% 70%, 70% 40%, 20% 80%,
+    90% 30%, 60% 90%, 40% 50%, 75% 75%;
+  animation: rotateStars 30s linear infinite;
+  opacity: 0.2;
+  z-index: -1;
+  pointer-events: none;
+}
+
+@keyframes rotateStars {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.page-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  z-index: 1;
+  position: relative;
+  text-align: right;
+}
+
+.page-wrapper h1 {
+  margin: 0.5rem 0;
+  text-align: right;
+}
+
+.page-wrapper h2 {
+  margin: 0.5rem 0;
+  text-align: left;
+}
+
+/* Task Popup Overlay */
+#task-overlay {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: black;
+  border: 4px solid white;
+  padding: 1.5rem;
+  z-index: 1001;
+  box-shadow: 0 0 10px red;
+  color: white;
+  font-family: "Press Start 2P", cursive;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 300px;
+  max-width: 90vw;
+  text-align: center;
+  display: none;
+}
+
+#task-overlay input,
+#task-overlay select {
+  background: black;
+  color: white;
+  border: 2px solid white;
+  padding: 0.5rem;
+  font-family: inherit;
+  text-align: center;
+}
+
+#task-date {
+  width: 60px;
+}
+
+#task-time {
+  width: 60px;
+}
+
+#task-ampm {
+  width: 60px;
+}
+
+#task-overlay .button-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+#task-overlay .button-row button {
+  flex: 1;
+}
+
+#task-overlay button {
+  background: red;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  font-family: "Press Start 2P", cursive;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+#task-overlay button:hover {
+  background: white;
+  color: black;
+}
