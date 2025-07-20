@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>P5 To Do List</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="page-wrapper">
+      <h1>Persona 5:</h1>
+      <h2>The To-Do List</h2>
+      <div id="daily-categories"></div>
+      <div class="controls">
+        <button id="add-task-btn">Add Task</button>
+        <button id="edit-btn">Edit List</button>
+      </div>
+    </div>
+
+    <div id="task-overlay">
+      <input type="text" id="task-category" placeholder="Category" />
+      <input type="text" id="task-desc" placeholder="Task Description" />
+      <div class="date-time-row">
+        <label for="task-date" class="date-label">Date (Optional):</label>
+        <input type="text" id="task-date" placeholder="MM/DD" />
+        <input type="text" id="task-time" placeholder="HH:MM" />
+        <select id="task-ampm">
+          <option value="AM">AM</option>
+          <option value="PM">PM</option>
+        </select>
+      </div>
+      <div style="display: flex; justify-content: center; gap: 1rem">
+        <button onclick="submitTask()">Add Task</button>
+        <button onclick="closeTaskInput()">Cancel</button>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
