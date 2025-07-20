@@ -96,60 +96,9 @@ body {
   margin: 0;
   padding: 0;
   font-family: "ZCOOL KuaiLe", cursive;
-  background-color: #ff0000;
   color: #fff;
   overflow-y: auto;
   position: relative;
   min-height: 100vh;
   z-index: 0;
-}
-
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background-image: url("Pictures/black-p5-star.png"),
-    url("Pictures/black-p5-star.png"), url("Pictures/black-p5-star.png"),
-    url("Pictures/black-p5-star.png"), url("Pictures/black-p5-star.png"),
-    url("Pictures/black-p5-star.png"), url("Pictures/black-p5-star.png"),
-    url("Pictures/black-p5-star.png"), url("Pictures/black-p5-star.png"),
-    url("Pictures/black-p5-star.png");
-  background-repeat: no-repeat;
-  background-size: 40px, 60px, 30px, 50px, 70px, 55px, 35px, 65px, 45px, 38px;
-  background-position: 10% 20%, 50% 10%, 80% 60%, 30% 70%, 70% 40%, 20% 80%,
-    90% 30%, 60% 90%, 40% 50%, 75% 75%;
-  animation: rotateStars 30s linear infinite;
-  opacity: 0.2;
-  z-index: -1;
-  pointer-events: none;
-}
-
-@keyframes rotateStars {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-.page-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-  z-index: 1;
-  position: relative;
-  text-align: left;
-}
-
-.page-wrapper h1 {
-  margin: 0.5rem 0;
-  text-align: center;
-}
-
-.page-wrapper h2 {
-  margin: 0.5rem 0;
-  text-align: left;
 }
