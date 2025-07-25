@@ -6,6 +6,17 @@
     <title>Persona Tools</title>
     <link rel="stylesheet" href="style.css" />
   </head>
+  <script>
+  const colors = ['#000000', '#555555', '#FFFFFF'];
+  const target = document.querySelector('.color-randomize');
+  if (target) {
+    const text = target.textContent.trim();
+    target.innerHTML = [...text].map(char => {
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      return `<span style="color:${color}">${char}</span>`;
+    }).join('');
+  }
+</script>
   <body>
     <!-- Background Stars -->
     <iframe
@@ -28,7 +39,7 @@
     </header>
 
     <main>
-      <p>
+      <p class="color-randomize">
         A fan-made collection of interactive tools inspired by the Persona
         series — designed to enhance your gameplay experience and even help in
         real life. This multi-page web project includes dynamic trackers,
