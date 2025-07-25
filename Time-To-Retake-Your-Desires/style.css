@@ -37,6 +37,7 @@
   position: relative;
   padding-left: 32px; /* space for bullet */
   font-family: "Futura", sans-serif;
+  text-align: left;
 }
 
 /* Bullet point using Pictures/black-p5-star.png for each task */
