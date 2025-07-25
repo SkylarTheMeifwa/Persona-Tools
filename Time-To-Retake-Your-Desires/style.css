@@ -17,7 +17,7 @@
 }
 
 /* Category Header */
-.category h2 {
+.category h3 {
   font-size: 14px;
   color: #ff0000;
   text-shadow: 2px 2px 0 Pictures/black;
@@ -101,4 +101,11 @@ body {
   position: relative;
   min-height: 100vh;
   z-index: 0;
+}
+
+/* Title Header */
+.page-wrapper h1,
+.page-wrapper h2,
+.page-wrapper {
+  text-align: center;
 }
