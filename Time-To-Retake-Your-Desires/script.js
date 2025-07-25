@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "Goals", 
     "Leblanc", 
     "Start Rewards",
-    "Revelation Cards".
+    "Revelation Cards",
     "Lufel's Plans",
     "Kamoshita's Arc"
   ];
