@@ -6,17 +6,6 @@
     <title>Persona Tools</title>
     <link rel="stylesheet" href="style.css" />
   </head>
-  <script>
-  const colors = ['#000000', '#555555', '#FFFFFF'];
-  const target = document.querySelector('.color-randomize');
-  if (target) {
-    const text = target.textContent.trim();
-    target.innerHTML = [...text].map(char => {
-      const color = colors[Math.floor(Math.random() * colors.length)];
-      return `<span style="color:${color}">${char}</span>`;
-    }).join('');
-  }
-</script>
   <body>
     <!-- Background Stars -->
     <iframe
@@ -41,10 +30,8 @@
     <main>
       <p class="color-randomize">
         A fan-made collection of interactive tools inspired by the Persona
-        series — designed to enhance your gameplay experience and even help in
-        real life. This multi-page web project includes dynamic trackers,
-        calendars, and guides tailored for games like Persona 5 Royal, P4G, P3P,
-        P5X, and more.
+        series. Enjoy a small collection of dynamic trackers and guides inspired
+        by Persona 5!
       </p>
 
       <section>
@@ -53,12 +40,16 @@
         <h3>Persona 5 Inspired Social Stat Tracker</h3>
         <ul>
           <li>
-            <a href="I-Belieeevee-We-Can-Flyyy-Up-In-The-Sky/index.html"
+            <a
+              href="I-Belieeevee-We-Can-Flyyy-Up-In-The-Sky/index.html"
+              class="color-randomize"
               >With Knowledge Stat</a
             >
           </li>
           <li>
-            <a href="You'll-Never-See-It-Comiiingggg/index.html"
+            <a
+              href="You'll-Never-See-It-Comiiingggg/index.html"
+              class="color-randomize"
               >Without Knowledge Stat</a
             >
           </li>
@@ -67,7 +58,9 @@
         <h3>Persona 5 Inspired To-Do List</h3>
         <ul>
           <li>
-            <a href="Honey-I'm-home.-You're-back-awfully-late./index.html"
+            <a
+              href="'Honey-I'm-home.'-'You're-back-awfully-late.'/index.html"
+              class="color-randomize"
               >To-Do List</a
             >
           </li>
@@ -78,12 +71,30 @@
         <h2>Game Guides</h2>
         <ul>
           <li>
-            <a href="Time-To-Retake-Your-Desires/index.html"
+            <a
+              href="Time-To-Retake-Your-Desires/index.html"
+              class="color-randomize"
               >Persona 5: The Phantom X Daily Tracker</a
             >
           </li>
         </ul>
       </section>
     </main>
+
+    <script>
+      window.addEventListener("DOMContentLoaded", () => {
+        const colors = ["#d3d3d3", "#555555", "#ffffff"];
+        document.querySelectorAll(".color-randomize").forEach((element) => {
+          const text = element.textContent;
+          element.innerHTML = [...text]
+            .map((char) => {
+              if (char.trim() === "") return char;
+              const color = colors[Math.floor(Math.random() * colors.length)];
+              return `<span style="color:${color}">${char}</span>`;
+            })
+            .join("");
+        });
+      });
+    </script>
   </body>
 </html>
