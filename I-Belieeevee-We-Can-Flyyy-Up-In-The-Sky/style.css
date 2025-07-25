@@ -1,5 +1,7 @@
+/* Import Font */
 @import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
 
+/* Base Styles */
 body {
   margin: 0;
   padding: 0;
@@ -7,11 +9,139 @@ body {
   background-color: #ff0000;
   color: #fff;
   overflow-y: auto;
-  position: relative;
   min-height: 100vh;
 }
 
-/* Task Popup Overlay */
+h1,
+h2 {
+  text-align: center;
+}
+
+button,
+input,
+select {
+  font-family: "Press Start 2P", cursive;
+}
+
+/* Container */
+.container {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* Skill Card */
+.skill-card {
+  position: relative;
+  background-color: #1a1a1a;
+  border: 3px solid #ff0000;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 1rem 0;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 0 15px #ff0000;
+  transition: transform 0.3s ease;
+  color: white;
+  overflow: visible;
+}
+.skill-card:hover {
+  transform: scale(1.02);
+}
+
+/* Skill Header (Title + Settings Button) */
+.skill-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+.skill-title {
+  font-size: 22px;
+  color: white;
+  margin: 0;
+}
+
+/* Settings Button on Skill Card */
+.skill-settings-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+  z-index: 20;
+}
+.skill-settings-btn:hover {
+  opacity: 1;
+}
+.skill-settings-btn .icon {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* XP Bar */
+.xp-bar {
+  height: 16px;
+  background: #440000;
+  border: 2px solid white;
+  margin: 0.5rem 0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.xp-fill {
+  height: 100%;
+  background: red;
+  width: 0;
+  transition: width 0.4s ease-in-out;
+}
+
+/* Rank Label */
+.rank-label {
+  font-size: 20px;
+  color: #ffd700;
+  text-shadow: 1px 1px 0 #000;
+  font-family: "Futura", sans-serif;
+  margin: 0.5rem 0 1rem 0;
+}
+
+/* Buttons */
+button.add-xp,
+button.completed,
+button.completed-tasks {
+  padding: 8px 12px;
+  background-color: #fff;
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 12px;
+  transition: background-color 0.3s;
+}
+button.add-xp:hover,
+button.completed:hover,
+button.completed-tasks:hover {
+  background-color: #ff0000;
+  color: #fff;
+}
+/* Note: .completed and .completed-tasks are absolutely positioned buttons, remove if not needed */
+button.completed,
+button.completed-tasks {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+}
+
+/* Task Overlay */
 #task-overlay {
   position: fixed;
   top: 50%;
@@ -22,184 +152,101 @@ body {
   padding: 1.5rem;
   z-index: 1001;
   box-shadow: 0 0 10px red;
-  color: white;
-  font-family: "Press Start 2P", cursive;
-  display: flex;
+  display: none;
   flex-direction: column;
   gap: 1rem;
   min-width: 300px;
   max-width: 90vw;
   text-align: center;
-  display: none;
 }
-
 #task-overlay input,
 #task-overlay select {
   background: black;
   color: white;
   border: 2px solid white;
   padding: 0.5rem;
-  font-family: inherit;
   text-align: center;
 }
-
 #task-overlay button {
   background: red;
   color: white;
   border: none;
   padding: 0.5rem 1rem;
-  font-family: "Press Start 2P", cursive;
-  cursor: pointer;
   transition: background 0.3s;
+  cursor: pointer;
 }
-
 #task-overlay button:hover {
   background: white;
   color: black;
 }
 
-body::before {
+/* Completed Tasks List */
+.completed-tasks-list {
+  margin-top: 10px;
+  padding-left: 1.5em;
+  font-family: "Futura", sans-serif;
+  color: #fff;
+  list-style: none;
+}
+.completed-tasks-list li {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 0.4em;
+  position: relative;
+  padding-left: 30px;
+  line-height: 1.5;
+}
+.completed-tasks-list li::before {
   content: "";
   position: absolute;
-  inset: 0;
-  background-image: url("Pictures/p5-star.png"), url("Pictures/p5-star.png"), url("Pictures/p5-star.png"),
-    url("Pictures/p5-star.png"), url("Pictures/p5-star.png"), url("Pictures/p5-star.png"),
-    url("Pictures/p5-star.png"), url("Pictures/p5-star.png"), url("Pictures/p5-star.png"),
-    url("Pictures/p5-star.png");
-  background-repeat: no-repeat;
-  background-size: 40px, 60px, 30px, 50px, 70px, 55px, 35px, 65px, 45px, 38px;
-  background-position: 10% 20%, 50% 10%, 80% 60%, 30% 70%, 70% 40%, 20% 80%,
-    90% 30%, 60% 90%, 40% 50%, 75% 75%;
-  animation: rotateStars 30s linear infinite;
-  opacity: 0.2;
-  z-index: 0;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 25px;
+  height: 25px;
+  background: url("Pictures/red-p5-star.png") no-repeat center center;
+  background-size: contain;
+}
+.completed-tasks-list li span {
+  display: inline-block;
+  line-height: 1.2;
 }
 
-@keyframes rotateStars {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+/* Popup and Notes */
+#rankup-popup {
+  z-index: 10000;
+  position: absolute;
+  display: none;
 }
-
-.container {
-  background-attachment: fixed;
-  position: relative;
-  z-index: 1;
-  padding: 20px;
+.note-container {
+  z-index: 10001;
+  position: absolute;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  min-height: 100vh;
-  box-sizing: border-box;
-  scroll-behavior: smooth;
-}
-
-.container {
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 10px;
+  pointer-events: auto;
 }
-
-.skill-card {
-  background-color: #1a1a1a;
-  border: 3px solid #ff0000;
-  border-radius: 12px;
-  padding: 20px;
-  margin: 15px 0;
-  width: 90%;
-  max-width: 400px;
-  box-shadow: 0 0 15px #ff0000;
-  transition: transform 0.3s ease;
-}
-
-.skill-card:hover {
-  transform: scale(1.02);
-}
-
-.skill-title {
-  font-size: 18px;
-  color: #fff;
-  margin-bottom: 10px;
-}
-
-.xp-bar {
-  height: 16px;
-  background: #440000;
-  border: 2px solid white;
-  position: relative;
-  margin: 0.5rem 0;
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-.xp-fill {
-  height: 100%;
-  background: red;
-  width: 0;
-  transition: width 0.4s ease-in-out;
-}
-
-.rank-label {
-  font-size: 14px;
-  color: #ffd700;
-  text-shadow: 1px 1px 0 #000;
-}
-
-button.add-xp {
-  margin-top: 10px;
-  padding: 8px 12px;
-  background-color: #fff;
-  color: #000;
-  border: none;
-  font-weight: bold;
-  border-radius: 8px;
+.note-container img {
+  pointer-events: auto;
   cursor: pointer;
-  transition: background-color 0.3s;
+  z-index: 10002;
 }
 
-button.add-xp:hover {
-  background-color: #ff0000;
-  color: #fff;
+/* Settings Panel */
+#settings-panel {
+  overflow-y: auto;
+  max-height: 90vh;
+  position: fixed;
+  top: 10%;
+  left: 10%;
+  background: #111;
+  color: white;
+  padding: 1rem;
+  border: 2px solid white;
+  z-index: 9999;
 }
-
-@media (max-width: 600px) {
-  .skill-card {
-    padding: 15px;
-  }
-  .skill-title {
-    font-size: 16px;
-  }
-  .rank-label {
-    font-size: 12px;
-  }
-}
-
-.animated-settings {
-  animation: slideIn 0.4s ease-out;
-}
-
-@keyframes slideIn {
-  from {
-    transform: translateY(-20%) scale(0.9);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0) scale(1);
-    opacity: 1;
-  }
-}
-
-#settings-panel strong {
-  display: block;
-  margin: 1rem 0 0.5rem;
-}
-
 #settings-close {
   position: absolute;
   top: 8px;
@@ -210,56 +257,69 @@ button.add-xp:hover {
   font-size: 1.2rem;
   cursor: pointer;
 }
-
-#rankup-popup {
-  z-index: 10000;
-  position: absolute;
-  display: none;
+#settings-panel strong {
+  display: block;
+  margin: 1rem 0 0.5rem;
 }
 
-.note-container {
-  z-index: 10001;
-  position: absolute;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  pointer-events: auto;
-}
-
-.note-container img {
-  pointer-events: auto;
-  cursor: pointer;
-  z-index: 10002;
-}
-
-#settings-button {
+/* Skill Settings Popup */
+#skill-settings-popup {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background: black;
-  border: 4px solid red;
-  box-shadow: 0 0 0 4px white; /* Outer white ring */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 99999;
-  padding: 0;
-}
-
-#settings-button::before {
-  content: "\2699"; /* Unicode gear */
-  font-size: 32px;   /* Slightly smaller for balance */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #1a1a1a;
+  border: 2px solid #ff0000;
+  border-radius: 10px;
   color: white;
-  font-family: "Press Start 2P", cursive;
-  line-height: 1;
+  padding: 20px;
+  width: 320px;
+  max-width: 90vw;
+  z-index: 10001;
+  box-shadow: 0 0 15px #ff0000;
+  display: none;
+  font-family: "Futura", sans-serif;
+}
+#skill-settings-content {
+  position: relative;
+}
+#skill-settings-close {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  color: #ff0000;
+  font-size: 1.5rem;
+  cursor: pointer;
 }
 
-#settings-button:hover {
-  background-color: red;
-  color: black;
+/* Form inside skill settings popup */
+#skill-settings-body label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+#skill-settings-body input[type="number"] {
+  width: 100%;
+  padding: 4px 6px;
+  margin-top: 4px;
+  border-radius: 4px;
+  border: 1px solid #555;
+  background: #222;
+  color: white;
+  font-family: "Futura", sans-serif;
+}
+#skill-settings-body button {
+  margin-top: 12px;
+  background: #ff0000;
+  border: none;
+  padding: 8px 16px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.3s ease;
+}
+#skill-settings-body button:hover {
+  background: #cc0000;
 }
