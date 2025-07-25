@@ -6,7 +6,7 @@
 
 @font-face {
   font-family: "Persona5Main";
-  src: url("./fonts/Persona5main.ttf") format("truetype");
+  src: url("./fonts/Persona5Main.ttf") format("truetype");
 }
 
 @font-face {
@@ -20,12 +20,14 @@
 }
 
 /* Global Styles */
-body {
+body,
+a {
   margin: 0;
   padding: 2rem;
   color: white;
   font-family: "ExposeRegular", sans-serif;
   text-shadow: 1px 1px 2px black;
+  font-size: 1.3rem;
 }
 
 /* Headers */
@@ -39,17 +41,18 @@ h1 {
   font-size: 3rem;
   color: white;
   text-transform: uppercase;
-  letter-spacing: 2px;
+  letter-spacing: -5px;
   text-shadow: 2px 2px 0 black;
   margin: 0;
 }
 
 h2 {
   font-family: "Persona5Main", sans-serif;
-  color: white;
-  text-shadow: 1px 1px 1px black;
+  color: #555555;
   margin-top: 1.5rem;
   margin-bottom: 0.75rem;
+  font-size: 1.8rem;
+  text-align: center;
 }
 
 h3 {
@@ -58,13 +61,15 @@ h3 {
   text-shadow: 1px 1px 1px black;
   margin-top: 1.5rem;
   margin-bottom: 0.75rem;
+  text-align: center;
 }
 
 /* Text & Lists */
 p {
   max-width: 700px;
   margin: 0 auto 2rem auto;
-  font-size: 1.1rem;
+  font-size: 1.3rem;
+  letter-spacing: 1px;
   line-height: 1.6;
   text-align: center;
 }
@@ -82,15 +87,12 @@ li {
 
 /* Links */
 a {
-  font-family: "P5Hatty", sans-serif;
-  color: white;
-  background-color: red;
   padding: 0.5rem 1rem;
   border-radius: 0.25rem;
   text-decoration: none;
-  font-weight: bold;
   transition: background-color 0.3s ease, transform 0.2s ease;
   display: inline-block;
+  letter-spacing: 1px;
 }
 
 a:hover {
