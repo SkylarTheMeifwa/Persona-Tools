@@ -11,7 +11,16 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Define the custom category order
-  const categoryOrder = ["Login Rewards", "Thieves Den", "Goals", "Leblanc", "Spin to win raffle"];
+  const categoryOrder = [
+    "Login Rewards", 
+    "Thieves Den", 
+    "Goals", 
+    "Leblanc", 
+    "Start Rewards",
+    "Revelation Cards".
+    "Lufel's Plans",
+    "Kamoshita's Arc"
+  ];
 
   // Sort and render categories in desired order
   categoryOrder.forEach((category) => {
