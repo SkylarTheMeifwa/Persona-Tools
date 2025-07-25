@@ -2,137 +2,320 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Persona 5 Skill Tracker</title>
-    <link rel="stylesheet" href="p5-style.css" />
-    <style>
-      #rankup-popup {
-        position: absolute;
-        display: none;
-        z-index: 10000;
-        pointer-events: auto;
-      }
-      #settings-close {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        background: transparent;
-        color: white;
-        font-size: 1.2rem;
-        border: none;
-        cursor: pointer;
-        z-index: 1001;
-      }
-      #settings-panel div > strong {
-        display: block;
-        margin-top: 1rem;
-      }
-      #settings-panel h2 {
-        margin-top: 2rem;
-      }
-      .note-container {
-        pointer-events: auto;
-      }
-      .note-container img.note {
-        pointer-events: auto;
-        cursor: pointer;
-      }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>P5 Skill Tracker</title>
+    <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <div class="container">
-      <h1>Skill Rank-Up Tracker</h1>
+    <!-- Background Stars -->
+    <iframe
+      src="p5-background.html"
+      style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        border: none;
+        z-index: -1;
+        pointer-events: none;
+      "
+      aria-hidden="true"
+    ></iframe>
 
-      <!-- Self Care Stat -->
-      <div class="skill-card" id="self-care">
-        <div class="skill-title">Self Care</div>
-        <div class="xp-bar">
-          <div class="xp-fill" id="self-care-fill"></div>
-        </div>
-        <div class="rank-label" id="self-care-rank">Rank</div>
-        <button class="add-xp" onclick="openTaskInput('self-care')">
-          Add Task
-        </button>
-        <button class="reset-skill" onclick="resetSkill('self-care')">
-          Reset
-        </button>
-      </div>
+    <main
+      class="container"
+      role="main"
+      aria-label="Persona 5 Social Stat Tracker"
+    >
+      <header>
+        <h1>Persona 5:</h1>
+        <h2>The Social Stat Tracker</h2>
+      </header>
 
-      <!-- Entertainment Stat -->
-      <div class="skill-card" id="entertainment">
-        <div class="skill-title">Entertainment</div>
-        <div class="xp-bar">
-          <div class="xp-fill" id="entertainment-fill"></div>
-        </div>
-        <div class="rank-label" id="entertainment-rank">Rank</div>
-        <button class="add-xp" onclick="openTaskInput('entertainment')">
-          Add Task
-        </button>
-        <button class="reset-skill" onclick="resetSkill('entertainment')">
-          Reset
-        </button>
-      </div>
+      <!-- Skill Cards -->
+      <section id="skills">
+        <!-- Repeat for each skill -->
+        <article class="skill-card" id="self-care">
+          <div class="skill-header">
+            <h3 class="skill-title">Self Care</h3>
+            <button
+              class="skill-settings-btn"
+              title="Settings"
+              onclick="openSkillSettings('self-care', this)"
+              aria-label="Open settings for Self Care"
+              type="button"
+            >
+              <img
+                src="Pictures/settings-icon.png"
+                alt="Settings Icon"
+                class="icon"
+              />
+            </button>
+          </div>
 
-      <!-- Socialization Stat -->
-      <div class="skill-card" id="socialization">
-        <div class="skill-title">Socialization</div>
-        <div class="xp-bar">
-          <div class="xp-fill" id="socialization-fill"></div>
-        </div>
-        <div class="rank-label" id="socialization-rank">Rank</div>
-        <button class="add-xp" onclick="openTaskInput('socialization')">
-          Add Task
-        </button>
-        <button class="reset-skill" onclick="resetSkill('socialization')">
-          Reset
-        </button>
-      </div>
+          <div
+            class="xp-bar"
+            role="progressbar"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="0"
+            aria-label="Experience progress bar for Self Care"
+          >
+            <div class="xp-fill" id="self-care-fill"></div>
+          </div>
+          <p class="rank-label" id="self-care-rank">Rank</p>
+          <button
+            class="add-xp"
+            onclick="openTaskInput('self-care')"
+            type="button"
+          >
+            Add
+          </button>
+          <button
+            class="add-xp"
+            onclick="resetSkill('self-care')"
+            type="button"
+          >
+            Reset
+          </button>
+          <button
+            class="add-xp"
+            onclick="toggleCompletedTasks('self-care', this)"
+            type="button"
+          >
+            Show Tasks
+          </button>
+          <ul class="completed-tasks-list" id="completed-self-care" hidden></ul>
+        </article>
 
-      <!-- Chores Stat -->
-      <div class="skill-card" id="chores">
-        <div class="skill-title">Chores</div>
-        <div class="xp-bar">
-          <div class="xp-fill" id="chores-fill"></div>
-        </div>
-        <div class="rank-label" id="chores-rank">Rank</div>
-        <button class="add-xp" onclick="openTaskInput('chores')">
-          Add Task
+        <article class="skill-card" id="entertainment">
+          <div class="skill-header">
+            <h3 class="skill-title">Entertainment</h3>
+            <button
+              class="skill-settings-btn"
+              title="Settings"
+              onclick="openSkillSettings('entertainment', this)"
+              aria-label="Open settings for Entertainment"
+              type="button"
+            >
+              <img
+                src="Pictures/settings-icon.png"
+                alt="Settings Icon"
+                class="icon"
+              />
+            </button>
+          </div>
+
+          <div
+            class="xp-bar"
+            role="progressbar"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="0"
+            aria-label="Experience progress bar for Entertainment"
+          >
+            <div class="xp-fill" id="entertainment-fill"></div>
+          </div>
+          <p class="rank-label" id="entertainment-rank">Rank</p>
+          <button
+            class="add-xp"
+            onclick="openTaskInput('entertainment')"
+            type="button"
+          >
+            Add
+          </button>
+          <button
+            class="add-xp"
+            onclick="resetSkill('entertainment')"
+            type="button"
+          >
+            Reset
+          </button>
+          <button
+            class="add-xp"
+            onclick="toggleCompletedTasks('entertainment', this)"
+            type="button"
+          >
+            Show Tasks
+          </button>
+          <ul
+            class="completed-tasks-list"
+            id="completed-entertainment"
+            hidden
+          ></ul>
+        </article>
+
+        <article class="skill-card" id="socialization">
+          <div class="skill-header">
+            <h3 class="skill-title">Socialization</h3>
+            <button
+              class="skill-settings-btn"
+              title="Settings"
+              onclick="openSkillSettings('socialization', this)"
+              aria-label="Open settings for Socialization"
+              type="button"
+            >
+              <img
+                src="Pictures/settings-icon.png"
+                alt="Settings Icon"
+                class="icon"
+              />
+            </button>
+          </div>
+
+          <div
+            class="xp-bar"
+            role="progressbar"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="0"
+            aria-label="Experience progress bar for Socialization"
+          >
+            <div class="xp-fill" id="socialization-fill"></div>
+          </div>
+          <p class="rank-label" id="socialization-rank">Rank</p>
+          <button
+            class="add-xp"
+            onclick="openTaskInput('socialization')"
+            type="button"
+          >
+            Add
+          </button>
+          <button
+            class="add-xp"
+            onclick="resetSkill('socialization')"
+            type="button"
+          >
+            Reset
+          </button>
+          <button
+            class="add-xp"
+            onclick="toggleCompletedTasks('socialization', this)"
+            type="button"
+          >
+            Show Tasks
+          </button>
+          <ul
+            class="completed-tasks-list"
+            id="completed-socialization"
+            hidden
+          ></ul>
+        </article>
+
+        <article class="skill-card" id="chores">
+          <div class="skill-header">
+            <h3 class="skill-title">Chores</h3>
+            <button
+              class="skill-settings-btn"
+              title="Settings"
+              onclick="openSkillSettings('chores', this)"
+              aria-label="Open settings for Chores"
+              type="button"
+            >
+              <img
+                src="Pictures/settings-icon.png"
+                alt="Settings Icon"
+                class="icon"
+              />
+            </button>
+          </div>
+
+          <div
+            class="xp-bar"
+            role="progressbar"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="0"
+            aria-label="Experience progress bar for Chores"
+          >
+            <div class="xp-fill" id="chores-fill"></div>
+          </div>
+          <p class="rank-label" id="chores-rank">Rank</p>
+          <button
+            class="add-xp"
+            onclick="openTaskInput('chores')"
+            type="button"
+          >
+            Add
+          </button>
+          <button class="add-xp" onclick="resetSkill('chores')" type="button">
+            Reset
+          </button>
+          <button
+            class="add-xp"
+            onclick="toggleCompletedTasks('chores', this)"
+            type="button"
+          >
+            Show Tasks
+          </button>
+          <ul class="completed-tasks-list" id="completed-chores" hidden></ul>
+        </article>
+      </section>
+    </main>
+
+    <!-- Settings Popup -->
+    <div
+      id="skill-settings-popup"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="skill-settings-title"
+    >
+      <div id="skill-settings-content">
+        <button
+          id="skill-settings-close"
+          aria-label="Close settings"
+          onclick="closeSkillSettings()"
+          type="button"
+        >
+          &times;
         </button>
-        <button class="reset-skill" onclick="resetSkill('chores')">
-          Reset
-        </button>
+        <h3 id="skill-settings-title">Settings</h3>
+        <div id="skill-settings-body"></div>
       </div>
     </div>
 
-    <!-- Settings Gear -->
-    <button id="settings-button" onclick="openSettings()">⚙</button>
-
-    <!-- Completed Tasks Menu -->
-    <button id="completed-tasks-button" onclick="toggleCompletedTasks()">
-      📝 Completed Tasks
-    </button>
-    <div id="completed-tasks-panel" style="display: none">
-      <h2>Completed Tasks</h2>
-      <ul id="completed-tasks-list"></ul>
-    </div>
-
-    <!-- Dynamic Music Notes -->
+    <!-- Floating Elements -->
     <div id="note-container"></div>
+    <div
+      id="rankup-popup"
+      onclick="acknowledgeRankUp()"
+      role="button"
+      tabindex="0"
+      aria-label="Acknowledge rank up"
+    ></div>
 
-    <!-- Rank Up Message -->
-    <div id="rankup-popup" onclick="acknowledgeRankUp()"></div>
-
-    <!-- Task Input Overlay -->
-    <div id="task-overlay" style="display: none">
-      <h3>Add Task</h3>
-      <input type="text" id="task-desc" placeholder="Task Description" />
-      <input type="number" id="task-xp" placeholder="XP Earned" min="1" />
+    <!-- Task Overlay -->
+    <div
+      id="task-overlay"
+      style="display: none"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="task-overlay-title"
+    >
+      <h3 id="task-overlay-title">Add Task</h3>
+      <input
+        type="text"
+        id="task-desc"
+        placeholder="Task Description"
+        aria-label="Task Description"
+      />
+      <input
+        type="number"
+        id="task-xp"
+        placeholder="XP Earned"
+        min="1"
+        aria-label="XP Earned"
+      />
       <div>
-        <button onclick="submitTask()">Submit</button>
-        <button onclick="closeTaskInput()">Cancel</button>
+        <button onclick="submitTask()" type="button">Submit</button>
+        <button onclick="closeTaskInput()" type="button">Cancel</button>
       </div>
     </div>
 
+    <!-- Scripts -->
+    <script src="background.js"></script>
     <script src="app.js"></script>
+    <script src="extra.js"></script>
   </body>
 </html>
