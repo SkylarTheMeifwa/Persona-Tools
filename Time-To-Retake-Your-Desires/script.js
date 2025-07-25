@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Define the custom category order
+  // Manually define the custom category order
   const categoryOrder = [
     "Login Rewards", 
     "Thieves Den", 
