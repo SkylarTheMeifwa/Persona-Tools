@@ -16,7 +16,7 @@ const dailyTasks = [
     categories: ["Login Rewards"],
   },
   {
-    id: "shop-item".
+    id: "shop-item",
     name: "Free item in shop",
     categories: ["Login Rewards"],
   },
