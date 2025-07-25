@@ -1,111 +1,111 @@
-/* Category Section */
-.category {
-  background-color: #1a1a1a;
-  border: 3px solid white;
-  box-shadow: 0 0 10px #ff0000;
-  border-radius: 12px;
-  padding: 1rem;
-  margin: 0 auto 1.5rem auto; /* Center horizontally, keep bottom margin */
-  width: 90%; /* Responsive width */
-  max-width: 380px; /* Max width for larger screens */
-  animation: slideIn 0.4s ease-out;
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: left;
-}
+document.addEventListener("DOMContentLoaded", () => {
+  const container = document.getElementById("daily-categories");
+  const grouped = {};
 
-/* Category Header */
-.category h3 {
-  font-size: 14px;
-  color: #ff0000;
-  text-shadow: 2px 2px 0 Pictures/black;
-  margin-top: 0;
-  border-bottom: 2px solid #ff0000;
-  padding-bottom: 0.5rem;
-  text-align: left;
-}
+  // Group tasks by category
+  dailyTasks.forEach((task) => {
+    task.categories.forEach((cat) => {
+      if (!grouped[cat]) grouped[cat] = [];
+      grouped[cat].push(task);
+    });
+  });
 
-/* Task Row */
-.task {
-  display: flex;
-  align-items: center;
-  padding: 0.4rem 0;
-  font-size: 12px;
-  line-height: 1.5;
-  position: relative;
-  padding-left: 32px; /* space for bullet */
-  font-family: "Futura", sans-serif;
-}
+  // Define the custom category order
+  const categoryOrder = [
+    "Login Rewards",
+    "Thieves Den",
+    "Goals",
+    "Leblanc",
+    "Start Rewards",
+    "Revelation Cards",
+    "Lufel's Plans",
+    "Kamoshita's Arc",
+  ];
 
-/* Bullet point using Pictures/black-p5-star.png for each task */
-.task::before {
-  content: "";
-  position: absolute;
-  left: 4px; /* Adjusted for better alignment */
-  top: 50%;
-  transform: translateY(-50%);
-  width: 25px;
-  height: 25px;
-  background-image: url("Pictures/red-p5-star.png");
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  pointer-events: none;
-  opacity: 1;
-}
+  // Sort and render categories in desired order
+  categoryOrder.forEach((category) => {
+    if (!grouped[category]) return;
 
-/* Checkbox Styling */
-.task input[type="checkbox"] {
-  margin-right: 0.5rem;
-  width: 16px;
-  height: 16px;
-  accent-color: red;
-  transform: scale(1.2);
-  cursor: pointer;
-  position: static; /* changed from relative */
-  left: auto; /* reset left positioning */
-}
+    // Sort tasks: unchecked before checked
+    grouped[category].sort((a, b) => {
+      const aChecked = localStorage.getItem(`task-${a.id}`) === "true";
+      const bChecked = localStorage.getItem(`task-${b.id}`) === "true";
+      return aChecked - bChecked;
+    });
 
-/* Reset Button */
-#reset-btn {
-  margin-top: 2rem;
-  padding: 10px 20px;
-  font-family: "ZCOOL KuaiLe", cursive;
-  background-color: white;
-  color: Pictures/black;
-  border: 3px solid red;
-  box-shadow: 0 0 10px red;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: 0.3s;
-  z-index: 1;
-  position: relative;
-  align-self: center;
-}
+    const section = document.createElement("div");
+    section.className = "category";
 
-#reset-btn:hover {
-  background-color: red;
-  color: white;
-  box-shadow: 0 0 15px white;
-}
+    const heading = document.createElement("h3");
+    heading.textContent = category;
+    section.appendChild(heading);
 
-/* Animated background stars */
-body {
-  margin: 0;
-  padding: 0;
-  font-family: "ZCOOL KuaiLe", cursive;
-  color: #fff;
-  overflow-y: auto;
-  position: relative;
-  min-height: 100vh;
-  z-index: 0;
-}
+    grouped[category].forEach((task) => {
+      const wrapper = document.createElement("label");
+      wrapper.className = "task";
+      const isChecked = localStorage.getItem(`task-${task.id}`) === "true";
 
-/* Title Header */
-.page-wrapper h1,
-.page-wrapper h2,
-.page-wrapper {
-  text-align: center;
-}
+      wrapper.innerHTML = `
+          <input type="checkbox" data-id="${task.id}" ${
+        isChecked ? "checked" : ""
+      } />
+          <span class="task-text">${task.name}</span>
+        `;
+
+      if (isChecked) {
+        wrapper.style.opacity = "0.4";
+        const textSpan = wrapper.querySelector(".task-text");
+        if (textSpan) textSpan.style.textDecoration = "line-through";
+      }
+
+      section.appendChild(wrapper);
+    });
+
+    container.appendChild(section);
+  });
+
+  // Sync checkboxes and store state
+  container.addEventListener("change", (e) => {
+    if (e.target.type === "checkbox") {
+      const id = e.target.dataset.id;
+      const checked = e.target.checked;
+      localStorage.setItem(`task-${id}`, checked);
+
+      // Sync all checkboxes with same ID
+      document.querySelectorAll(`input[data-id="${id}"]`).forEach((cb) => {
+        cb.checked = checked;
+      });
+
+      // Optionally update opacity and strikethrough dynamically
+      document.querySelectorAll(`input[data-id="${id}"]`).forEach((input) => {
+        const label = input.closest("label.task");
+        if (label) {
+          if (checked) {
+            label.style.opacity = "0.4";
+            const span = label.querySelector(".task-text");
+            if (span) span.style.textDecoration = "line-through";
+          } else {
+            label.style.opacity = "1";
+            const span = label.querySelector(".task-text");
+            if (span) span.style.textDecoration = "none";
+          }
+        }
+      });
+    }
+  });
+
+  // Reset all checkboxes
+  document.getElementById("reset-btn").addEventListener("click", () => {
+    document.querySelectorAll("input[type='checkbox']").forEach((cb) => {
+      cb.checked = false;
+      localStorage.setItem(`task-${cb.dataset.id}`, false);
+
+      const label = cb.closest("label.task");
+      if (label) {
+        label.style.opacity = "1";
+        const span = label.querySelector(".task-text");
+        if (span) span.style.textDecoration = "none";
+      }
+    });
+  });
+});
