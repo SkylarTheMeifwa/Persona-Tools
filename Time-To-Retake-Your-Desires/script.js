@@ -10,16 +10,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Manually define the custom category order
+  // Define the custom category order
   const categoryOrder = [
-    "Login Rewards", 
-    "Thieves Den", 
-    "Goals", 
-    "Leblanc", 
+    "Login Rewards",
+    "Thieves Den",
+    "Goals",
+    "Leblanc",
     "Start Rewards",
     "Revelation Cards",
     "Lufel's Plans",
-    "Kamoshita's Arc"
+    "Kamoshita's Arc",
   ];
 
   // Sort and render categories in desired order
@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const section = document.createElement("div");
     section.className = "category";
 
-    const heading = document.createElement("h2");
+    const heading = document.createElement("h3");
     heading.textContent = category;
     section.appendChild(heading);
 
@@ -39,9 +39,11 @@ document.addEventListener("DOMContentLoaded", () => {
       const isChecked = localStorage.getItem(`task-${task.id}`) === "true";
 
       wrapper.innerHTML = `
-        <input type="checkbox" data-id="${task.id}" ${isChecked ? "checked" : ""} />
-        ${task.name}
-      `;
+          <input type="checkbox" data-id="${task.id}" ${
+        isChecked ? "checked" : ""
+      } />
+          ${task.name}
+        `;
       section.appendChild(wrapper);
     });
 
