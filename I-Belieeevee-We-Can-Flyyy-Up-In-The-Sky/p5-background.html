@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>P5 Background</title>
+    <style>
+      body {
+        background-color: #ff0000;
+        margin: 0;
+        padding: 0;
+        position: relative;
+        min-height: 100vh;
+        overflow: hidden;
+      }
+
+      #star-orbit {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        pointer-events: none;
+        z-index: -1;
+      }
+
+      .star {
+        position: absolute;
+        background-image: url("Pictures/black-p5-star.png");
+        background-repeat: no-repeat;
+        background-size: contain;
+        filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.3));
+        will-change: transform;
+        transform-origin: center center;
+        opacity: 0.15;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="star-orbit"></div>
+
+    <script>
+      const starOrbit = document.getElementById("star-orbit");
+      const totalStars = 30;
+      const stars = [];
+
+      function randomRange(min, max) {
+        return Math.random() * (max - min) + min;
+      }
+
+      function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+      }
+
+      function generateAngles(count) {
+        const baseAngles = [];
+        for (let i = 0; i < count; i++) {
+          baseAngles.push((360 / count) * i);
+        }
+        shuffle(baseAngles);
+        return baseAngles.map((angle) => {
+          let offset = randomRange(-10, 10);
+          let newAngle = angle + offset;
+          if (newAngle < 0) newAngle += 360;
+          else if (newAngle >= 360) newAngle -= 360;
+          return newAngle;
+        });
+      }
+
+      const minRadius = 30;
+      let maxRadius;
+
+      const angles = generateAngles(totalStars);
+
+      for (let i = 0; i < totalStars; i++) {
+        const star = document.createElement("div");
+        star.classList.add("star");
+        starOrbit.appendChild(star);
+
+        stars.push({
+          el: star,
+          radiusRatio: i / (totalStars - 1),
+          radius: 0,
+          angle: angles[i],
+          speed: randomRange(5, 12),
+          direction: Math.random() < 0.5 ? 1 : -1,
+        });
+      }
+
+      function updateRadiiAndStyles() {
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        const diag = Math.sqrt(vw * vw + vh * vh);
+        maxRadius = (diag / 2) * 0.85;
+
+        stars.forEach((star) => {
+          star.radius =
+            minRadius + Math.sqrt(star.radiusRatio) * (maxRadius - minRadius);
+
+          const size = 60 - star.radiusRatio * 30;
+          star.el.style.width = size + "px";
+          star.el.style.height = size + "px";
+
+          const opacity = 0.25 - star.radiusRatio * 0.15;
+          star.el.style.opacity = opacity;
+        });
+      }
+
+      updateRadiiAndStyles();
+      window.addEventListener("resize", updateRadiiAndStyles);
+
+      let lastTimestamp = null;
+
+      function animate(timestamp) {
+        if (!lastTimestamp) lastTimestamp = timestamp;
+        const delta = (timestamp - lastTimestamp) / 1000;
+        lastTimestamp = timestamp;
+
+        stars.forEach((star) => {
+          star.angle += star.speed * delta * star.direction;
+          if (star.angle >= 360) star.angle -= 360;
+          else if (star.angle < 0) star.angle += 360;
+
+          const rad = (star.angle * Math.PI) / 180;
+          const x = star.radius * Math.cos(rad);
+          const y = star.radius * Math.sin(rad);
+
+          star.el.style.transform = `translate(${x}px, ${y}px)`;
+        });
+
+        requestAnimationFrame(animate);
+      }
+
+      requestAnimationFrame(animate);
+    </script>
+  </body>
+</html>
