@@ -1,0 +1,93 @@
+/* Font Definitions */
+@font-face {
+  font-family: "Persona5MenuFont";
+  src: url("./fonts/Persona5MenuFont.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Persona5Main";
+  src: url("./fonts/Persona5main.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "P5Hatty";
+  src: url("./fonts/p5hatty.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "ExposeRegular";
+  src: url("./fonts/Expose-Regular.otf") format("opentype");
+}
+
+/* Global Styles */
+body {
+  margin: 0;
+  padding: 2rem;
+  background-color: black;
+  color: white;
+  font-family: "ExposeRegular", sans-serif;
+  text-shadow: 1px 1px 2px black;
+}
+
+/* Headers */
+header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+h1 {
+  font-family: "Persona5MenuFont", sans-serif;
+  font-size: 3rem;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 2px 2px 0 black;
+  margin: 0;
+}
+
+h2,
+h3 {
+  font-family: "Persona5Main", sans-serif;
+  color: white;
+  text-shadow: 1px 1px 1px black;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+/* Text & Lists */
+p {
+  max-width: 700px;
+  margin: 0 auto 2rem auto;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  text-align: center;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 2rem 0;
+  text-align: center;
+}
+
+li {
+  margin: 0.5rem 0;
+}
+
+/* Links */
+a {
+  font-family: "P5Hatty", sans-serif;
+  color: white;
+  background-color: red;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  display: inline-block;
+}
+
+a:hover {
+  background-color: #b30000;
+  transform: scale(1.05);
+}
