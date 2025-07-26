@@ -76,15 +76,20 @@ function createCompletedTaskItem(task) {
   const item = document.createElement("li");
 
   const descSpan = document.createElement("span");
-  descSpan.textContent = `${task.desc} `;
+  descSpan.className = "task-desc";
+  descSpan.textContent = task.desc;
 
   const xpSpan = document.createElement("span");
-  xpSpan.textContent = `(+${task.xp} XP)`;
+  xpSpan.className = "task-xp";
+  xpSpan.textContent = ` (+${task.xp} XP)`;
   xpSpan.style.color = "#FFD700";
+  xpSpan.style.marginLeft = "4px";
 
   const dateSpan = document.createElement("span");
-  dateSpan.textContent = ` - ${formatDateTime(task.time)}`;
+  dateSpan.className = "task-date";
+  dateSpan.textContent = ` – ${formatDateTime(task.time)}`;
   dateSpan.style.color = "#999999";
+  dateSpan.style.marginLeft = "4px";
 
   item.append(descSpan, xpSpan, dateSpan);
   return item;
