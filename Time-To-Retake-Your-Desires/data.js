@@ -50,13 +50,13 @@ const dailyTasks = [
     categories: ["Goals"],
   },
   {
-    id: "enlightenment-clear",
-    name: "Clear Realm of Repression: Enlightenment",
+    id: "gear-clear",
+    name: "Clear Realm of Repression: Gear Forging",
     categories: ["Goals"],
   },
   {
-    id: "personas-clear",
-    name: "Clear Realm of Repression: Personas",
+    id: "revelation-clear",
+    name: "Clear Realm of Repression: Revelation Cards",
     categories: ["Goals"],
   },
   {
@@ -70,8 +70,13 @@ const dailyTasks = [
     categories: ["Goals"],
   },
   {
+    id: "nightmare-catcher-gate",
+    name: "Clear Gates of the Nightmare Catcher (Daily)",
+    categories: ["Goals"],
+  },
+  {
     id: "nightmare-catcher",
-    name: "Reach the 4th level point goal in the Gates of the Nightmare Catcher",
+    name: "Reach the 4th level point goal in the Gates of the Nightmare Catcher (Weekly)",
     categories: ["Goals"],
   },
 
@@ -143,38 +148,43 @@ const dailyTasks = [
 
   // Revelation Cards
   {
-    id: "rev-ann",
-    name: "Ann - Strife (4)",
-    categories: ["Revelation Cards"],
-  },
-  {
-    id: "rev-kotone",
-    name: "Kotone - Opulence (4)",
-    categories: ["Revelation Cards"],
-  },
-  {
-    id: "rev-sumi",
-    name: "Sumi - Hindrance (2)",
-    categories: ["Revelation Cards"],
-  },
-  {
-    id: "rev-lufel",
-    name: "Lufel - Love (1)",
-    categories: ["Revelation Cards"],
-  },
-  {
     id: "rev-yukimi",
-    name: "Yukimi - Peace (1)",
+    name: "Yukimi - Peace (Sun)",
     categories: ["Revelation Cards"],
   },
   {
     id: "rev-kurotani",
-    name: "Kurotani - Control (1)",
+    name: "Kurotani - Control (Moon)",
     categories: ["Revelation Cards"],
   },
   {
     id: "rev-kamiyama",
-    name: "Kamiyama - Power (1)",
+    name: "Kamiyama - Power (Sky)",
+    categories: ["Revelation Cards"],
+  },
+  {
+    id: "space-departure",
+    name: "Space: Departure - Ren",
+    categories: ["Revelation Cards"],
+  },
+  {
+    id: "space-meditation",
+    name: "Space: Meditation - Kotone, Morgana",
+    categories: ["Revelation Cards"],
+  },
+  {
+    id: "space-trust",
+    name: "Space: Trust - Kamiyama, Motoha, Tomoko",
+    categories: ["Revelation Cards"],
+  },
+  {
+    id: "space-awareness",
+    name: "Space: Awareness - Kurotani, Sumi",
+    categories: ["Revelation Cards"],
+  },
+  {
+    id: "space-acceptance",
+    name: "Space: Acceptance - Yukimi, Lufel",
     categories: ["Revelation Cards"],
   },
   
