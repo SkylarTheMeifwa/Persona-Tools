@@ -148,8 +148,8 @@ const dailyTasks = [
 
   // Revelation Cards
   {
-    id: "rev-yukimi",
-    name: "Yukimi - Peace (Sun)",
+    id: "rev-sumi",
+    name: "Sumi - Hindrance (Moon)",
     categories: ["Revelation Cards"],
   },
   {
@@ -179,7 +179,7 @@ const dailyTasks = [
   },
   {
     id: "space-awareness",
-    name: "Space: Awareness - Kurotani, Sumi",
+    name: "Space: Awareness - Kurotani",
     categories: ["Revelation Cards"],
   },
   {
@@ -189,36 +189,6 @@ const dailyTasks = [
   },
   
   // Kamoshita's Arc
-  {
-    id: "k-6",
-    name: "Kamoshita Level 6 (55%)",
-    categories: ["Kamoshita's Arc"],
-  },
-  {
-    id: "k-7",
-    name: "Kamoshita Level 7 (62%)",
-    categories: ["Kamoshita's Arc"],
-  },
-  {
-    id: "k-8",
-    name: "Kamoshita Level 8 (94%)",
-    categories: ["Kamoshita's Arc"],
-  },
-  {
-    id: "k-10",
-    name: "Kamoshita Level 10 (90%)",
-    categories: ["Kamoshita's Arc"],
-  },
-  {
-    id: "k-11",
-    name: "Kamoshita Level 11",
-    categories: ["Kamoshita's Arc"],
-  },
-  {
-    id: "k-12",
-    name: "Kamoshita Level 12",
-    categories: ["Kamoshita's Arc"],
-  },
   {
     id: "k-13",
     name: "Kamoshita Level 13",
