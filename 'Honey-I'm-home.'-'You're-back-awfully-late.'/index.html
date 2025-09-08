@@ -27,6 +27,7 @@
         pointer-events: none;
       "
     ></iframe>
+
     <div class="page-wrapper">
       <h1>Persona 5:</h1>
       <h2>The To-Do List</h2>
@@ -37,27 +38,25 @@
       </div>
     </div>
 
-    <div id="task-overlay">
-      <input type="text" id="task-category" placeholder="Category" />
+    <!-- Task Input Overlay -->
+    <div id="task-overlay" style="display: none;">
       <input type="text" id="task-desc" placeholder="Task Description" />
-      <label for="task-month" class="month-label">Date (Optional):</label>
-      <div class="date-time-row">
-        <input type="text" id="task-month" placeholder="MM" />
-        <label for="task-day" class="day-label">/</label>
-        <input type="text" id="task-day" placeholder="DD" />
-        <label for="task-hour" class="hour-label"> at </label>
-        <input type="text" id="task-hour" placeholder="HH" />
-        <label for="task-min" class="min-label">:</label>
-        <input type="text" id="task-min" placeholder="MM" />
-        <select id="task-ampm">
-          <option value=""></option>
-          <option value="AM">AM</option>
-          <option value="PM">PM</option>
-        </select>
-      </div>
-      <div style="display: flex; justify-content: center; gap: 1rem">
-        <button onclick="submitTask()">Add Task</button>
-        <button onclick="closeTaskInput()">Cancel</button>
+
+      <label for="task-category">Category</label>
+      <select id="task-category"></select>
+      <input
+        type="text"
+        id="new-category"
+        placeholder="New category..."
+        style="display: none;"
+      />
+
+      <label for="task-due">Due Date (Optional)</label>
+      <input type="datetime-local" id="task-due" />
+
+      <div style="display: flex; justify-content: center; gap: 1rem; margin-top: 1rem;">
+        <button id="submit-task-btn">Add Task</button>
+        <button id="cancel-task-btn">Cancel</button>
       </div>
     </div>
 
