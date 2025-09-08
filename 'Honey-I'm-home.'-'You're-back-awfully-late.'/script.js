@@ -7,9 +7,9 @@ function parseDueDate(dueStr) {
   if (!dueStr) return null;
   const parts = dueStr.trim().split(" ");
   if (parts.length !== 3) return null;
-  const [date, time, ampm] = parts;
-  const [month, day] = date.split("/").map(Number);
+  const [time, ampm, date] = parts;
   const [hh, mm] = time.split(":").map(Number);
+  const [month, day] = date.split("/").map(Number);
   let hours = hh;
   if (ampm.toUpperCase() === "PM" && hours !== 12) hours += 12;
   if (ampm.toUpperCase() === "AM" && hours === 12) hours = 0;
@@ -17,30 +17,52 @@ function parseDueDate(dueStr) {
   return new Date(year, month - 1, day, hours, mm);
 }
 
+function populateCategoryDropdown(selectedCategory = "") {
+  const select = document.getElementById("task-category");
+  select.innerHTML = "";
+
+  // Collect unique categories
+  const categories = [...new Set(tasks.map(t => t.category))];
+
+  // Add existing categories
+  categories.forEach(cat => {
+    const option = document.createElement("option");
+    option.value = cat;
+    option.textContent = cat;
+    if (cat === selectedCategory) option.selected = true;
+    select.appendChild(option);
+  });
+
+  // Add "New category" option
+  const newOption = document.createElement("option");
+  newOption.value = "__new__";
+  newOption.textContent = "➕ New Category";
+  select.appendChild(newOption);
+
+  // Show input if "New Category" is selected
+  select.addEventListener("change", () => {
+    const newCatInput = document.getElementById("new-category");
+    if (select.value === "__new__") {
+      newCatInput.style.display = "block";
+      newCatInput.focus();
+    } else {
+      newCatInput.style.display = "none";
+    }
+  });
+}
+
 function openTaskInput(editTask = null) {
   document.getElementById("task-desc").value = editTask ? editTask.name : "";
-  document.getElementById("task-category").value = editTask
-    ? editTask.category
-    : "";
+
+  populateCategoryDropdown(editTask ? editTask.category : "");
 
   if (editTask && editTask.due) {
-    const parts = editTask.due.split(" ");
-    if (parts.length === 3) {
-      const [time, ampm, date] = parts;
-      const [month, day] = date.split("/");
-      const [hour, min] = time.split(":");
-      document.getElementById("task-month").value = month;
-      document.getElementById("task-day").value = day;
-      document.getElementById("task-hour").value = hour;
-      document.getElementById("task-min").value = min;
-      document.getElementById("task-ampm").value = ampm;
+    const parsedDate = parseDueDate(editTask.due);
+    if (parsedDate) {
+      document.getElementById("task-due").value = parsedDate.toISOString().slice(0, 16);
     }
   } else {
-    document.getElementById("task-month").value = "";
-    document.getElementById("task-day").value = "";
-    document.getElementById("task-hour").value = "";
-    document.getElementById("task-min").value = "";
-    document.getElementById("task-ampm").value = "";
+    document.getElementById("task-due").value = "";
   }
 
   editingTaskId = editTask ? editTask.id : null;
@@ -58,24 +80,23 @@ function closeTaskInput() {
 
 function submitTask() {
   const desc = document.getElementById("task-desc").value.trim();
-  const category = document.getElementById("task-category").value.trim();
-  const month = document.getElementById("task-month").value.trim();
-  const day = document.getElementById("task-day").value.trim();
-  const hour = document.getElementById("task-hour").value.trim();
-  const min = document.getElementById("task-min").value.trim();
-  const ampm = document.getElementById("task-ampm").value.trim();
-
-  let due = "";
-  const hasPartialInput = month || day || hour || min || ampm;
-  const hasAllDateTime = month && day && hour && min && ampm;
-
-  if (hasPartialInput && !hasAllDateTime) {
-    alert("Please fill out all date/time fields or leave them all blank.");
-    return;
+  let category = document.getElementById("task-category").value;
+  const newCategoryInput = document.getElementById("new-category").value.trim();
+  if (category === "__new__") {
+    category = newCategoryInput;
   }
 
-  if (hasAllDateTime) {
-    due = `${hour}:${min} ${ampm} ${month}/${day}`;
+  const dueInput = document.getElementById("task-due").value;
+  let due = "";
+  if (dueInput) {
+    const dt = new Date(dueInput);
+    const month = dt.getMonth() + 1;
+    const day = dt.getDate();
+    const hours = dt.getHours();
+    const mins = dt.getMinutes().toString().padStart(2, "0");
+    const ampm = hours >= 12 ? "PM" : "AM";
+    const hour12 = hours % 12 || 12;
+    due = `${hour12}:${mins} ${ampm} ${month}/${day}`;
   }
 
   if (!desc || !category) {
