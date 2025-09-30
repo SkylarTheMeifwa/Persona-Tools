@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Photo Split & Multi-Pass Categorizer</title>
+<style>
+body { font-family: Arial; text-align:center; background:#f4f4f4; margin:0; padding:0; }
+h1{margin:20px;}
+#uploadInput{margin:20px;}
+#progress{font-size:18px;margin:10px;}
+#photoContainer{width:90%;height:80vh;margin:20px auto;position:relative;overflow:hidden;background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;}
+#currentPhoto{width:100%;height:100%;object-fit:contain;border:3px solid #333;border-radius:8px;transition:transform 0.3s ease, opacity 0.3s ease;}
+#controls{margin:20px;}
+button{padding:10px 20px;margin:5px;cursor:pointer;border-radius:8px;border:none;background:#333;color:#fff;}
+button:hover{background:#555;}
+#trashButton{background:#cc0000;} #trashButton:hover{background:#a00000;}
+#finishButton{background:#0066cc;} #finishButton:hover{background:#004c99;}
+#categories{margin:20px;text-align:left;}
+.category{margin-bottom:15px;}
+.category img{width:100px;margin:5px;border-radius:5px;}
+#previewGrid{display:grid;grid-template-columns:repeat(19,1fr);gap:1px;margin:20px auto;max-width:950px;}
+#previewGrid img{width:50px;height:auto;border:1px solid #ddd;}
+.resortBtn{display:inline-block;margin-left:10px;}
+</style>
+</head>
+<body>
+<h1>Photo Split & Multi-Pass Categorizer</h1>
+<input type="file" id="uploadInput" accept="image/*"><br>
+<button id="importBtn">Import JSON</button>
+<button id="exportBtn">Export JSON</button>
+
+<!-- Preview -->
+<div id="previewSection" style="display:none;">
+<h2>Preview of Split Images</h2>
+<div id="previewGrid"></div>
+<button onclick="startSorting()">Start Sorting</button>
+</div>
+
+<!-- Sorting -->
+<div id="sortingSection" style="display:none;">
+<div id="progress"></div>
+<div id="photoContainer">
+<img id="currentPhoto" src="">
+</div>
+<div id="controls">
+<select id="categorySelect"></select>
+<button onclick="assignPhoto()">Swipe Right ➡️</button>
+<button onclick="nextPhoto()">Skip ⬅️</button>
+<button onclick="undoAction()">Undo ⏪</button>
+<button id="trashButton" onclick="trashPhoto()">🗑️ Trash</button>
+<button onclick="promptNewCategory()">New Category ➕</button>
+<button id="finishButton" onclick="finishSorting()">Finish Sorting ✅</button>
+</div>
+</div>
+
+<!-- Summary -->
+<div id="summarySection" style="display:none;">
+<h2>All Categories</h2>
+<div id="categories"></div>
+<h2>Trashed Photos</h2>
+<div id="trashBin"></div>
+</div>
+
+<script>
+let allPhotos=[],remainingPhotos=[],currentIndex=0,categories={},trashed=[],historyStack=[];
+
+const uploadInput=document.getElementById("uploadInput");
+const currentPhoto=document.getElementById("currentPhoto");
+const categorySelect=document.getElementById("categorySelect");
+const categoriesDiv=document.getElementById("categories");
+const trashBin=document.getElementById("trashBin");
+const progressDiv=document.getElementById("progress");
+const previewSection=document.getElementById("previewSection");
+const previewGrid=document.getElementById("previewGrid");
+const sortingSection=document.getElementById("sortingSection");
+const summarySection=document.getElementById("summarySection");
+const importBtn=document.getElementById("importBtn");
+const exportBtn=document.getElementById("exportBtn");
+
+// 1. Upload & split image
+uploadInput.addEventListener("change",function(e){
+  const file=e.target.files[0]; if(!file) return;
+  const img=new Image();
+  img.onload=function(){
+    const cols=19,rows=16,tileWidth=img.width/cols,tileHeight=img.height/rows;
+    allPhotos=[]; previewGrid.innerHTML="";
+    const canvas=document.createElement("canvas");
+    const ctx=canvas.getContext("2d");
+    canvas.width=tileWidth; canvas.height=tileHeight;
+    for(let r=0;r<rows;r++){
+      for(let c=0;c<cols;c++){
+        ctx.clearRect(0,0,tileWidth,tileHeight);
+        ctx.drawImage(img,c*tileWidth,r*tileHeight,tileWidth,tileHeight,0,0,tileWidth,tileHeight);
+        let tile=canvas.toDataURL(); allPhotos.push(tile);
+        const thumb=document.createElement("img"); thumb.src=tile; previewGrid.appendChild(thumb);
+      }
+    }
+    previewSection.style.display="block";
+  };
+  img.src=URL.createObjectURL(file);
+});
+
+// 2. Start Sorting
+function startSorting(){
+  previewSection.style.display="none"; sortingSection.style.display="block"; summarySection.style.display="none";
+  remainingPhotos=[...allPhotos]; categories={}; trashed=[]; historyStack=[];
+  currentIndex=0; categorySelect.innerHTML=""; promptNewCategory(); showPhoto();
+}
+
+// 3. Prompt New Category
+function promptNewCategory(){
+  let name=""; while(!name || categories[name]){ name=prompt("Create a new category:"); if(name===null)return; }
+  categories[name]=[]; const option=document.createElement("option"); option.value=name; option.textContent=name;
+  categorySelect.appendChild(option); categorySelect.value=name; updateCategoriesDisplay();
+}
+
+// 4. Show Photo
+function showPhoto(){
+  if(currentIndex<remainingPhotos.length){
+    currentPhoto.src=remainingPhotos[currentIndex];
+    progressDiv.textContent=`Photo ${currentIndex+1} of ${remainingPhotos.length}`;
+    currentPhoto.style.opacity="1"; currentPhoto.style.transform="translate(0,0)";
+  } else {
+    sortingSection.style.display="none"; summarySection.style.display="block";
+    updateCategoriesDisplay(); updateTrashDisplay();
+
+    if(remainingPhotos.length>0){
+      const continueBtn=document.createElement("button");
+      continueBtn.textContent="Continue Sorting Remaining Photos ➡️";
+      continueBtn.onclick=()=>{ 
+        currentIndex=0; historyStack=[]; categorySelect.innerHTML=""; promptNewCategory();
+        summarySection.style.display="none"; sortingSection.style.display="block"; showPhoto();
+      };
+      summarySection.appendChild(continueBtn);
+    }
+  }
+}
+
+// 5. Assign Photo
+function assignPhoto(){
+  const category=categorySelect.value; if(!category){ promptNewCategory(); return; }
+  if(currentIndex<remainingPhotos.length){
+    let photo=remainingPhotos[currentIndex]; categories[category].push(photo);
+    historyStack.push({type:"assign",category,photo,index:currentIndex});
+    remainingPhotos.splice(currentIndex,1); animateSwipe("right");
+  }
+}
+
+// 6. Skip Photo
+function nextPhoto(){
+  if(currentIndex<remainingPhotos.length){
+    historyStack.push({type:"skip",photo:remainingPhotos[currentIndex],index:currentIndex});
+    currentIndex++; showPhoto();
+  }
+}
+
+// 7. Trash Photo
+function trashPhoto(){
+  if(currentIndex<remainingPhotos.length){
+    let photo=remainingPhotos[currentIndex]; trashed.push(photo);
+    historyStack.push({type:"trash",photo,index:currentIndex});
+    remainingPhotos.splice(currentIndex,1); showPhoto();
+  }
+}
+
+// 8. Undo Action
+function undoAction(){
+  let last=historyStack.pop(); if(!last) return;
+  if(last.type==="assign"){
+    let arr=categories[last.category]; arr.splice(arr.indexOf(last.photo),1);
+    remainingPhotos.splice(last.index,0,last.photo); currentIndex=last.index;
+  } else if(last.type==="skip"){ currentIndex=last.index; }
+  else if(last.type==="trash"){ trashed.splice(trashed.indexOf(last.photo),1); remainingPhotos.splice(last.index,0,last.photo); currentIndex=last.index; }
+  showPhoto(); updateCategoriesDisplay(); updateTrashDisplay();
+}
+
+// 9. Update Categories Display
+function updateCategoriesDisplay(){
+  categoriesDiv.innerHTML="";
+  for(let cat in categories){
+    const div=document.createElement("div"); div.className="category";
+    div.innerHTML=`<h3>${cat} <button class="resortBtn" onclick="resortCategory('${cat}')">Resort</button></h3>`;
+    categories[cat].forEach(photo=>{ const img=document.createElement("img"); img.src=photo; div.appendChild(img); });
+    categoriesDiv.appendChild(div);
+  }
+}
+
+// 10. Update Trash Display
+function updateTrashDisplay(){
+  trashBin.innerHTML=""; trashed.forEach(photo=>{ const img=document.createElement("img"); img.src=photo; img.style.width="100px"; img.style.margin="5px"; trashBin.appendChild(img); });
+}
+
+// 11. Animate Swipe
+function animateSwipe(dir){ currentPhoto.style.transform=(dir==="right")?"translate(150%,0) rotate(15deg)":"translate(-150%,0) rotate(-15deg)"; currentPhoto.style.opacity="0"; setTimeout(showPhoto,300); }
+
+// 12. Resort Category
+function resortCategory(catName){
+  if(!categories[catName]||categories[catName].length===0)return;
+  remainingPhotos=[...categories[catName]]; categories[catName]=[]; categorySelect.innerHTML="";
+  promptNewCategory(); sortingSection.style.display="block"; summarySection.style.display="none"; currentIndex=0; showPhoto();
+}
+
+// 13. Finish Sorting / Export
+function finishSorting(){
+  const data={remainingPhotos,categories,trashed};
+  const blob=new Blob([JSON.stringify(data)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a"); a.href=url; a.download="sorting_session.json"; a.click(); URL.revokeObjectURL(url);
+}
+
+// 14. Import JSON
+importBtn.onclick=()=>{
+  const input=document.createElement("input"); input.type="file"; input.accept="application/json";
+  input.onchange=(e)=>{
+    const file=e.target.files[0]; if(!file)return;
+    const reader=new FileReader();
+    reader.onload=(ev)=>{
+      const data=JSON.parse(ev.target.result);
+      remainingPhotos=data.remainingPhotos||[]; categories=data.categories||{}; trashed=data.trashed||[];
+      previewSection.style.display="none"; sortingSection.style.display="block"; summarySection.style.display="none";
+      categorySelect.innerHTML=""; promptNewCategory(); currentIndex=0; historyStack=[]; showPhoto();
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+};
+
+// 15. Keyboard Shortcuts
+document.addEventListener("keydown",(e)=>{
+  if(e.key==="ArrowRight") assignPhoto();
+  else if(e.key==="ArrowLeft") nextPhoto();
+  else if(e.key.toLowerCase()==="z"&&(e.ctrlKey||e.metaKey)) undoAction();
+  else if(e.key.toLowerCase()==="t") trashPhoto();
+  else if(e.key.toLowerCase()==="n") promptNewCategory();
+  else if(e.key.toLowerCase()==="f") finishSorting();
+});
+
+// 16. Swipe gestures
+let startX=0;
+currentPhoto.addEventListener("touchstart",(e)=>{startX=e.touches[0].clientX;});
+currentPhoto.addEventListener("touchend",(e)=>{
+  let endX=e.changedTouches[0].clientX; let diff=endX-startX;
+  if(diff>50) assignPhoto(); else if(diff<-50) nextPhoto();
+});
+</script>
+</body>
+</html>
