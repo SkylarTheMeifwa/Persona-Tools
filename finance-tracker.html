@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Day-by-Day Cash Flow Simulator</title>
+    <link rel="stylesheet" href="style.css" />
+    <style>
+      body {
+       
+
+      .negative {
+        background-color: #ffe0e0;
+      }
+
+      .entry {
+        display: flex;
+        justify-content: space-between;
+        margin: 4px 0;
+      }
+
+      .income {
+        color: green;
+      }
+
+      .bill {
+        color: red;
+      }
+
+      button {
+        margin: 3px;
+      }
+
+      #entryForm {
+        margin-top: 15px;
+        border-top: 1px solid #ccc;
+        padding-top: 10px;
+      }
+
+      #calendarView h4 {
+        margin-bottom: 5px;
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+<iframe
+      src="p5-background.html"
+      style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        border: none;
+        z-index: -1;
+        pointer-events: none;
+      "
+      aria-hidden="true"
+    ></iframe>
+    <h2>Day-by-Day Cash Flow</h2>
+
+    <label>Starting Balance:</label>
+    <input type="number" id="startingBalance" value="16" />
+    <button onclick="recalculate()">Reset Simulation</button>
+
+    <hr />
+
+    <button onclick="prevDay()">Previous</button>
+    <button onclick="nextDay()">Next</button>
+
+    <h3 id="currentDate"></h3>
+    <h3 id="currentBalance"></h3>
+
+    <div id="entriesList"></div>
+
+    <div id="entryForm">
+      <h4>Add Entry</h4>
+      Name:
+      <input type="text" id="entryName" />
+      Amount:
+      <input type="number" id="entryAmount" />
+      Type:
+      <select id="entryType">
+        <option value="income">Income</option>
+        <option value="bill">Bill</option>
+      </select>
+      <button onclick="saveEntry()">Save</button>
+    </div>
+
+    <div id="calendarView"></div>
+
+    <script>
+      const startDate = new Date("2026-02-26");
+      const endDate = new Date("2026-04-12");
+
+      const DAILY_DEPOSIT = 60;
+      const GAS_COST = 20;
+      const GAS_INTERVAL = 2;
+
+      let entries = {};
+      let currentDate = new Date(startDate);
+      let editIndex = null;
+
+      function formatDate(date) {
+        return date.toISOString().split("T")[0];
+      }
+
+      function daysBetween(d1, d2) {
+        return Math.floor((d2 - d1) / (1000 * 60 * 60 * 24));
+      }
+
+      function calculateBalanceUpTo(date) {
+        let balance = parseFloat(
+          document.getElementById("startingBalance").value
+        );
+
+        for (
+          let d = new Date(startDate);
+          d <= date;
+          d.setDate(d.getDate() + 1)
+        ) {
+          const dateStr = formatDate(d);
+          const dayIndex = daysBetween(startDate, d);
+
+          balance += DAILY_DEPOSIT;
+
+          if (dayIndex % GAS_INTERVAL === 0) {
+            balance -= GAS_COST;
+          }
+
+          if (entries[dateStr]) {
+            entries[dateStr].forEach((e) => {
+              balance += e.type === "income" ? e.amount : -e.amount;
+            });
+          }
+        }
+
+        return balance;
+      }
+
+      function renderDay() {
+        const dateStr = formatDate(currentDate);
+        const balance = calculateBalanceUpTo(currentDate);
+
+        document.getElementById("currentDate").innerText =
+          currentDate.toDateString();
+
+        const balanceEl = document.getElementById("currentBalance");
+        balanceEl.innerText = "Balance: $" + balance.toFixed(2);
+        balanceEl.className = balance < 0 ? "negative" : "";
+
+        const list = document.getElementById("entriesList");
+        list.innerHTML = "";
+
+        const dayIndex = daysBetween(startDate, currentDate);
+
+        const recurringInfo = document.createElement("div");
+        recurringInfo.innerHTML =
+          "<strong>Recurring:</strong> +$60  Uber" +
+          (dayIndex % GAS_INTERVAL === 0 ? " | -$20 Gas" : "");
+        list.appendChild(recurringInfo);
+
+        if (entries[dateStr]) {
+          entries[dateStr].forEach((e, index) => {
+            const div = document.createElement("div");
+            div.className = "entry";
+
+            const span = document.createElement("span");
+            span.className = e.type;
+            span.innerText =
+              (e.type === "income" ? "+" : "-") +
+              e.name +
+              " ($" +
+              e.amount +
+              ")";
+            div.appendChild(span);
+
+            const editBtn = document.createElement("button");
+            editBtn.innerText = "Edit";
+            editBtn.onclick = () => editEntry(index);
+            div.appendChild(editBtn);
+
+            const delBtn = document.createElement("button");
+            delBtn.innerText = "Delete";
+            delBtn.onclick = () => deleteEntry(index);
+            div.appendChild(delBtn);
+
+            list.appendChild(div);
+          });
+        }
+
+        renderCalendar();
+      }
+
+      function renderCalendar() {
+        const calendarDiv = document.getElementById("calendarView");
+        calendarDiv.innerHTML = "<h3>Calendar View</h3>";
+
+        let runningBalance = parseFloat(
+          document.getElementById("startingBalance").value
+        );
+
+        const totalDays = daysBetween(startDate, endDate);
+
+        // Precompute balances per day
+        const balanceMap = {};
+
+        for (let i = 0; i <= totalDays; i++) {
+          const d = new Date(startDate);
+          d.setDate(startDate.getDate() + i);
+          const dateStr = formatDate(d);
+
+          runningBalance += DAILY_DEPOSIT;
+          if (i % GAS_INTERVAL === 0) {
+            runningBalance -= GAS_COST;
+          }
+
+          if (entries[dateStr]) {
+            entries[dateStr].forEach((e) => {
+              runningBalance += e.type === "income" ? e.amount : -e.amount;
+            });
+          }
+
+          balanceMap[dateStr] = runningBalance;
+        }
+
+        // Start rendering from the first day of the first month
+        let renderDate = new Date(
+          startDate.getFullYear(),
+          startDate.getMonth(),
+          1
+        );
+
+        while (renderDate <= endDate) {
+          const month = renderDate.getMonth();
+          const year = renderDate.getFullYear();
+
+          const monthTitle = document.createElement("h4");
+          monthTitle.innerText =
+            renderDate.toLocaleString("default", { month: "long" }) +
+            " " +
+            year;
+          calendarDiv.appendChild(monthTitle);
+
+          const monthContainer = document.createElement("div");
+          monthContainer.style.display = "grid";
+          monthContainer.style.gridTemplateColumns = "repeat(7, 1fr)";
+          monthContainer.style.gap = "4px";
+          monthContainer.style.marginBottom = "20px";
+
+          const daysHeader = [
+            "Sunday",
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+          ];
+          daysHeader.forEach((day) => {
+            const header = document.createElement("div");
+            header.innerText = day;
+            header.style.fontWeight = "bold";
+            header.style.textAlign = "center";
+            monthContainer.appendChild(header);
+          });
+
+          const firstDay = new Date(year, month, 1).getDay();
+          const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+          // Blank cells before first day
+          for (let i = 0; i < firstDay; i++) {
+            monthContainer.appendChild(document.createElement("div"));
+          }
+
+          for (let day = 1; day <= daysInMonth; day++) {
+            const cellDate = new Date(year, month, day);
+            const dateStr = formatDate(cellDate);
+
+            const cell = document.createElement("div");
+            cell.style.border = "1px solid #ccc";
+            cell.style.padding = "6px";
+            cell.style.minHeight = "70px";
+            cell.style.fontSize = "12px";
+            cell.style.cursor = "pointer";
+
+            // Only show balances for dates inside simulation range
+            if (cellDate >= startDate && cellDate <= endDate) {
+              const balance = balanceMap[dateStr];
+
+              cell.innerHTML =
+                "<strong>" + day + "</strong><br>$" + balance.toFixed(2);
+
+              if (balance < 0) {
+                cell.style.backgroundColor = "#ffe0e0";
+              }
+
+              if (formatDate(cellDate) === formatDate(currentDate)) {
+                cell.style.border = "2px solid blue";
+              }
+
+              cell.addEventListener("click", function () {
+                currentDate = new Date(cellDate);
+                renderDay();
+              });
+            } else {
+              cell.innerHTML = "<strong>" + day + "</strong>";
+              cell.style.opacity = "0.3";
+            }
+
+            monthContainer.appendChild(cell);
+          }
+
+          calendarDiv.appendChild(monthContainer);
+
+          // Move to next month
+          renderDate = new Date(year, month + 1, 1);
+        }
+      }
+
+      function saveEntry() {
+        const name = document.getElementById("entryName").value;
+        const amount = parseFloat(document.getElementById("entryAmount").value);
+        const type = document.getElementById("entryType").value;
+        const dateStr = formatDate(currentDate);
+
+        if (!name || !amount) {
+          alert("Fill all fields");
+          return;
+        }
+
+        if (!entries[dateStr]) {
+          entries[dateStr] = [];
+        }
+
+        if (editIndex !== null) {
+          entries[dateStr][editIndex] = { name, amount, type };
+          editIndex = null;
+        } else {
+          entries[dateStr].push({ name, amount, type });
+        }
+
+        document.getElementById("entryName").value = "";
+        document.getElementById("entryAmount").value = "";
+
+        renderDay();
+      }
+
+      function editEntry(index) {
+        const dateStr = formatDate(currentDate);
+        const entry = entries[dateStr][index];
+        document.getElementById("entryName").value = entry.name;
+        document.getElementById("entryAmount").value = entry.amount;
+        document.getElementById("entryType").value = entry.type;
+        editIndex = index;
+      }
+
+      function deleteEntry(index) {
+        const dateStr = formatDate(currentDate);
+        entries[dateStr].splice(index, 1);
+        if (entries[dateStr].length === 0) {
+          delete entries[dateStr];
+        }
+        renderDay();
+      }
+
+      function nextDay() {
+        if (currentDate < endDate) {
+          currentDate.setDate(currentDate.getDate() + 1);
+          renderDay();
+        }
+      }
+
+      function prevDay() {
+        if (currentDate > startDate) {
+          currentDate.setDate(currentDate.getDate() - 1);
+          renderDay();
+        }
+      }
+
+      function recalculate() {
+        currentDate = new Date(startDate);
+        renderDay();
+      }
+
+      renderDay();
+    </script>
+  </body>
+</html>
