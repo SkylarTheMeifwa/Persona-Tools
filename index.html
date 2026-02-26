@@ -39,7 +39,7 @@
     </style>
   </head>
   <body>
-<iframe
+    <iframe
       src="p5-background.html"
       style="
         position: fixed;
@@ -94,16 +94,16 @@
       const GAS_INTERVAL = 2;
 
       const goals = [
-  { name: "Rent (March 1)", amount: 365, due: "2026-03-01" },
-  { name: "Rent (March 2)", amount: 368, due: "2026-03-02" },
-  { name: "PS5 Reimbursement", amount: 101.31 },
-  { name: "New Tire", amount: 130 },
-  { name: "Phoebe's Lights", amount: 40 },
-  { name: "Brandon's Cooling Pad", amount: 20 },
-  { name: "Scrapbook", amount: 40 },
-  { name: "Trip to See Brandon", amount: 140 },
-  { name: "Rent (April)", amount: 730 }
-];
+        { name: "Rent (March 1)", amount: 365, due: "2026-03-03" },
+        { name: "Rent (March 2)", amount: 368, due: "2026-03-18" },
+        { name: "PS5 Reimbursement", amount: 101.31 },
+        { name: "New Tire", amount: 130 },
+        { name: "Phoebe's Lights", amount: 40, due: "2026-03-29" },
+        { name: "Brandon's Cooling Pad", amount: 20, due: "2026-03-29" },
+        { name: "Scrapbook", amount: 40 },
+        { name: "Trip to See Brandon", amount: 140, due: "2026-04-11" },
+        { name: "Rent (April)", amount: 730, due: "2026-04-3" },
+      ];
 
       let entries = {};
       let currentDate = new Date(startDate);
@@ -147,66 +147,66 @@
       }
 
       function renderGoals() {
-  let goalsDiv = document.getElementById("goalsView");
+        let goalsDiv = document.getElementById("goalsView");
 
-  if (!goalsDiv) {
-    goalsDiv = document.createElement("div");
-    goalsDiv.id = "goalsView";
-    goalsDiv.style.marginTop = "30px";
-    document.body.appendChild(goalsDiv);
-  }
+        if (!goalsDiv) {
+          goalsDiv = document.createElement("div");
+          goalsDiv.id = "goalsView";
+          goalsDiv.style.marginTop = "30px";
+          document.body.appendChild(goalsDiv);
+        }
 
-  goalsDiv.innerHTML = "<h3>🎯 Financial Goals</h3>";
+        goalsDiv.innerHTML = "<h3>Financial Goals</h3>";
 
-  const currentBalance = calculateBalanceUpTo(currentDate);
+        const currentBalance = calculateBalanceUpTo(currentDate);
 
-  goals.forEach((goal) => {
-    const div = document.createElement("div");
-    div.style.border = "1px solid #ddd";
-    div.style.padding = "8px";
-    div.style.marginBottom = "6px";
+        goals.forEach((goal) => {
+          const div = document.createElement("div");
+          div.style.border = "1px solid #ddd";
+          div.style.padding = "8px";
+          div.style.marginBottom = "6px";
 
-    const progress = Math.min(
-      100,
-      ((currentBalance / goal.amount) * 100).toFixed(1)
-    );
+          const progress = Math.min(
+            100,
+            ((currentBalance / goal.amount) * 100).toFixed(1)
+          );
 
-    const remaining = (goal.amount - currentBalance).toFixed(2);
+          const remaining = (goal.amount - currentBalance).toFixed(2);
 
-    // Due logic
-    let dueStatus = "";
-    if (goal.due) {
-      const dueDate = new Date(goal.due);
-      if (currentDate > dueDate && currentBalance < goal.amount) {
-        div.style.backgroundColor = "#ffe0e0";
-        dueStatus = "❌ Past Due";
-      } else if (
-        dueDate - currentDate < 3 * 24 * 60 * 60 * 1000 &&
-        currentBalance < goal.amount
-      ) {
-        div.style.backgroundColor = "#fff4cc";
-        dueStatus = "⚠ Due Soon";
+          // Due logic
+          let dueStatus = "";
+          if (goal.due) {
+            const dueDate = new Date(goal.due);
+            if (currentDate > dueDate && currentBalance < goal.amount) {
+              div.style.backgroundColor = "#ffe0e0";
+              dueStatus = "❌ Past Due";
+            } else if (
+              dueDate - currentDate < 3 * 24 * 60 * 60 * 1000 &&
+              currentBalance < goal.amount
+            ) {
+              div.style.backgroundColor = "#fff4cc";
+              dueStatus = "Due Soon";
+            }
+          }
+
+          div.innerHTML =
+            "<strong>" +
+            goal.name +
+            "</strong>" +
+            (goal.due ? " (Due: " + goal.due + ")" : "") +
+            "<br>Goal: $" +
+            goal.amount.toFixed(2) +
+            "<br>Progress: " +
+            progress +
+            "%<br>" +
+            (currentBalance >= goal.amount
+              ? "Funded"
+              : "Remaining: $" + remaining) +
+            (dueStatus ? "<br><strong>" + dueStatus + "</strong>" : "");
+
+          goalsDiv.appendChild(div);
+        });
       }
-    }
-
-    div.innerHTML =
-      "<strong>" +
-      goal.name +
-      "</strong>" +
-      (goal.due ? " (Due: " + goal.due + ")" : "") +
-      "<br>Goal: $" +
-      goal.amount.toFixed(2) +
-      "<br>Progress: " +
-      progress +
-      "%<br>" +
-      (currentBalance >= goal.amount
-        ? "✅ Funded"
-        : "Remaining: $" + remaining) +
-      (dueStatus ? "<br><strong>" + dueStatus + "</strong>" : "");
-
-    goalsDiv.appendChild(div);
-  });
-}
 
       function renderDay() {
         const dateStr = formatDate(currentDate);
