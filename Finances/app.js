@@ -6,17 +6,53 @@ let currentDate = new Date(startDate);
 let editIndex = null;
 
 const goals = [
-  { name: "Rent (March Part 1)", amount: 364.66, due: "3/3", allocated: 0 },
-  { name: "Rent (March Part 2)", amount: 367.66, due: "3/18", allocated: 0 },
-  { name: "Phoebe's Lights", amount: 40, due: "3/29", allocated: 0 },
-  { name: "Brandon Cooling Pad", amount: 20, due: "03/29", allocated: 0 },
-  { name: "Scrapbook", amount: 40, due: "3/29", allocated: 0 },
-  { name: "Pillows", amount: 20, due: "4/7", allocated: 0 },
-  { name: "Rent (April)", amount: 730, due: "4/3", allocated: 0 },
-  { name: "New Tire", amount: 130, due: "4/7", allocated: 0 },
-  { name: "Trip to See Brandon", amount: 140, due: "4/11", allocated: 0 },
-  { name: "PS5 Reimbursement", amount: 101.31, allocated: 0 },  
-  { name: "Pillows", amount: 20, allocated: 0 },  
+  {
+    name: "Rent (March Part 1)",
+    amount: 364.66,
+    due: "3/3",
+    allocated: 0,
+    allocations: [],
+  },
+  {
+    name: "Rent (March Part 2)",
+    amount: 367.66,
+    due: "3/18",
+    allocated: 0,
+    allocations: [],
+  },
+  {
+    name: "Phoebe's Lights",
+    amount: 40,
+    due: "3/29",
+    allocated: 0,
+    allocations: [],
+  },
+  {
+    name: "Brandon Cooling Pad",
+    amount: 20,
+    due: "3/29",
+    allocated: 0,
+    allocations: [],
+  },
+  { name: "Scrapbook", amount: 40, due: "3/29", allocated: 0, allocations: [] },
+  {
+    name: "Rent (April)",
+    amount: 730,
+    due: "4/3",
+    allocated: 0,
+    allocations: [],
+  },
+  { name: "Pillows", amount: 20, due: "4/7", allocated: 0, allocations: [] },
+  { name: "New Tire", amount: 130, due: "4/7", allocated: 0, allocations: [] },
+  {
+    name: "Trip to See Brandon",
+    amount: 140,
+    due: "4/11",
+    allocated: 0,
+    allocations: [],
+  },
+  { name: "PS5 Reimbursement", amount: 101.31, allocated: 0, allocations: [] },
+  { name: "Pillows", amount: 20, allocated: 0, allocations: [] },
 ];
 
 /* ---------- STORAGE ---------- */
@@ -30,11 +66,13 @@ function loadFromStorage() {
   const savedGoals = localStorage.getItem("cashflow_goals");
 
   if (savedEntries) entries = JSON.parse(savedEntries);
-
   if (savedGoals) {
     const parsed = JSON.parse(savedGoals);
     parsed.forEach((g, i) => {
-      if (goals[i]) goals[i].allocated = g.allocated || 0;
+      if (goals[i]) {
+        goals[i].allocated = Number(g.allocated) || 0;
+        goals[i].allocations = g.allocations || [];
+      }
     });
   }
 }
@@ -43,24 +81,33 @@ loadFromStorage();
 
 /* ---------- UTIL ---------- */
 function formatDate(date) {
-  return date.toISOString().split("T")[0];
-}
-
-function daysBetween(d1, d2) {
-  return Math.floor((d2 - d1) / (1000 * 60 * 60 * 24));
+  return date.toISOString().split("T")[0]; // always "YYYY-MM-DD"
 }
 
 function calculateBalanceUpTo(date) {
-  let balance = parseFloat(document.getElementById("startingBalance").value);
+  let balance =
+    parseFloat(document.getElementById("startingBalance")?.value) || 0;
 
   for (let d = new Date(startDate); d <= date; d.setDate(d.getDate() + 1)) {
     const dateStr = formatDate(d);
 
+    // Add entries (income/expense) for this day
     if (entries[dateStr]) {
       entries[dateStr].forEach((e) => {
-        balance += e.type === "income" ? e.amount : -e.amount;
+        balance += e.type === "income" ? Number(e.amount) : -Number(e.amount);
       });
     }
+
+    // Subtract allocations made on THIS DAY only
+    goals.forEach((g) => {
+      if (g.allocations && g.allocations.length > 0) {
+        g.allocations.forEach((a) => {
+          if (a.date === dateStr) {
+            balance -= Number(a.amount);
+          }
+        });
+      }
+    });
   }
 
   return balance;
@@ -68,7 +115,7 @@ function calculateBalanceUpTo(date) {
 
 function getUnallocatedBalance() {
   const totalBalance = calculateBalanceUpTo(currentDate);
-  const totalAllocated = goals.reduce((sum, g) => sum + g.allocated, 0);
+  const totalAllocated = goals.reduce((sum, g) => sum + Number(g.allocated), 0);
   return totalBalance - totalAllocated;
 }
 
@@ -87,25 +134,16 @@ function renderGoals() {
   goals.forEach((goal) => {
     const div = document.createElement("div");
     div.className = "goal-card";
-
     if (goal.allocated >= goal.amount) div.classList.add("goal-funded");
 
     const percent = ((goal.allocated / goal.amount) * 100).toFixed(1);
 
     div.innerHTML =
-      "<strong>" +
-      goal.name +
-      "</strong><br>" +
-      (goal.due ? "Due: " + goal.due + "<br>" : "") +
-      "Goal: $" +
-      goal.amount.toFixed(2) +
-      "<br>" +
-      "Allocated: $" +
-      goal.allocated.toFixed(2) +
-      "<br>" +
-      "Progress: " +
-      percent +
-      "%<br>" +
+      `<strong>${goal.name}</strong><br>` +
+      (goal.due ? `Due: ${goal.due}<br>` : "") +
+      `Goal: $${goal.amount.toFixed(2)}<br>` +
+      `Allocated: $${goal.allocated.toFixed(2)}<br>` +
+      `Progress: ${percent}%<br>` +
       (goal.allocated >= goal.amount
         ? "Funded"
         : "Remaining: $" + (goal.amount - goal.allocated).toFixed(2));
@@ -118,13 +156,13 @@ function renderGoals() {
     const addBtn = document.createElement("button");
     addBtn.innerText = "+";
     addBtn.onclick = () => {
-      const value = parseFloat(input.value);
+      const value = Number(input.value);
       if (!value || value <= 0) return;
-      if (value > getUnallocatedBalance()) {
-        alert("Not enough unallocated funds.");
-        return;
-      }
+      if (value > getUnallocatedBalance())
+        return alert("Not enough unallocated funds.");
+
       goal.allocated += value;
+      goal.allocations.push({ date: formatDate(currentDate), amount: value });
       saveToStorage();
       renderDay();
     };
@@ -132,9 +170,28 @@ function renderGoals() {
     const removeBtn = document.createElement("button");
     removeBtn.innerText = "-";
     removeBtn.onclick = () => {
-      const value = parseFloat(input.value);
+      const value = Number(input.value);
       if (!value || value <= 0) return;
+
       goal.allocated = Math.max(0, goal.allocated - value);
+
+      if (goal.allocations) {
+        let remaining = value;
+        for (
+          let i = goal.allocations.length - 1;
+          i >= 0 && remaining > 0;
+          i--
+        ) {
+          if (goal.allocations[i].amount <= remaining) {
+            remaining -= goal.allocations[i].amount;
+            goal.allocations.splice(i, 1);
+          } else {
+            goal.allocations[i].amount -= remaining;
+            remaining = 0;
+          }
+        }
+      }
+
       saveToStorage();
       renderDay();
     };
@@ -164,6 +221,7 @@ function renderDay() {
   const list = document.getElementById("entriesList");
   list.innerHTML = "";
 
+  // Show normal entries
   if (entries[dateStr]) {
     entries[dateStr].forEach((e, index) => {
       const div = document.createElement("div");
@@ -172,7 +230,7 @@ function renderDay() {
       const span = document.createElement("span");
       span.className = e.type;
       span.innerText =
-        (e.type === "income" ? "+" : "-") + e.name + " ($" + e.amount + ")";
+        (e.type === "income" ? "+ " : "- ") + " $" + e.amount + " - " + e.name;
       div.appendChild(span);
 
       const editBtn = document.createElement("button");
@@ -189,6 +247,26 @@ function renderDay() {
     });
   }
 
+  // Show allocations as entries
+  goals.forEach((g) => {
+    if (g.allocations) {
+      g.allocations.forEach((a) => {
+        if (a.date === dateStr) {
+          const div = document.createElement("div");
+          div.className = "entry allocation";
+
+          const span = document.createElement("span");
+          span.className = "allocation";
+          span.style.color = "blue";
+          span.innerText = `- $${a.amount.toFixed(2)} - Allocated to ${g.name}`;
+          div.appendChild(span);
+
+          list.appendChild(div);
+        }
+      });
+    }
+  });
+
   renderCalendar();
   renderGoals();
 }
@@ -197,26 +275,6 @@ function renderDay() {
 function renderCalendar() {
   const calendarDiv = document.getElementById("calendarView");
   calendarDiv.innerHTML = "<h3>Calendar View</h3>";
-
-  let runningBalance = parseFloat(
-    document.getElementById("startingBalance").value
-  );
-  const totalDays = daysBetween(startDate, endDate);
-  const balanceMap = {};
-
-  for (let i = 0; i <= totalDays; i++) {
-    const d = new Date(startDate);
-    d.setDate(startDate.getDate() + i);
-    const dateStr = formatDate(d);
-
-    if (entries[dateStr]) {
-      entries[dateStr].forEach((e) => {
-        runningBalance += e.type === "income" ? e.amount : -e.amount;
-      });
-    }
-
-    balanceMap[dateStr] = runningBalance;
-  }
 
   let renderDate = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
 
@@ -247,22 +305,35 @@ function renderCalendar() {
       cell.classList.add("calendar-cell");
 
       if (cellDate >= startDate && cellDate <= endDate) {
-        const balance = balanceMap[dateStr];
-        cell.innerHTML =
-          "<strong>" + day + "</strong><br>$" + balance.toFixed(2);
+        const balance = calculateBalanceUpTo(cellDate);
+        cell.innerHTML = `<strong>${day}</strong><br>$${balance.toFixed(2)}`;
 
         if (entries[dateStr]) {
           entries[dateStr].forEach((e) => {
             const item = document.createElement("div");
             item.style.fontSize = "10px";
             item.style.color = e.type === "income" ? "green" : "red";
-            item.innerText = (e.type === "income" ? "+" : "-") + e.name;
+            item.innerText = (e.type === "income" ? "+ " : "- ") + e.name;
             cell.appendChild(item);
           });
         }
 
+        goals.forEach((g) => {
+          if (g.allocations) {
+            g.allocations.forEach((a) => {
+              if (a.date === dateStr) {
+                const alloc = document.createElement("div");
+                alloc.style.fontSize = "10px";
+                alloc.style.color = "blue";
+                alloc.innerText = `- ${g.name}`;
+                cell.appendChild(alloc);
+              }
+            });
+          }
+        });
+
         if (balance < 0) cell.classList.add("calendar-negative");
-        if (formatDate(cellDate) === formatDate(currentDate))
+        if (dateStr === formatDate(currentDate))
           cell.classList.add("calendar-selected");
 
         cell.onclick = () => {
@@ -282,12 +353,11 @@ function renderCalendar() {
 /* ---------- ENTRY CRUD ---------- */
 function saveEntry() {
   const name = document.getElementById("entryName").value;
-  const amount = parseFloat(document.getElementById("entryAmount").value);
+  const amount = Number(document.getElementById("entryAmount").value);
   const type = document.getElementById("entryType").value;
   const dateStr = formatDate(currentDate);
 
   if (!name || !amount) return alert("Fill all fields");
-
   if (!entries[dateStr]) entries[dateStr] = [];
 
   if (editIndex !== null) {
@@ -318,20 +388,19 @@ function deleteEntry(index) {
   renderDay();
 }
 
+/* ---------- NAVIGATION ---------- */
 function nextDay() {
   if (currentDate < endDate) {
     currentDate.setDate(currentDate.getDate() + 1);
     renderDay();
   }
 }
-
 function prevDay() {
   if (currentDate > startDate) {
     currentDate.setDate(currentDate.getDate() - 1);
     renderDay();
   }
 }
-
 function recalculate() {
   currentDate = new Date(startDate);
   renderDay();
