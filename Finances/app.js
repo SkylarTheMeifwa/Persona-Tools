@@ -6,15 +6,17 @@ let currentDate = new Date(startDate);
 let editIndex = null;
 
 const goals = [
-  { name: "Rent (March 1st)", amount: 365, due: "2026-03-03", allocated: 0 },
-  { name: "Rent (March 2nd)", amount: 368, due: "2026-03-18", allocated: 0 },
-  { name: "PS5 Reimbursement", amount: 101.31, allocated: 0 },
-  { name: "New Tire", amount: 130, allocated: 0 },
-  { name: "Phoebe's Lights", amount: 40, due: "2026-03-29", allocated: 0 },
-  { name: "Brandon Cooling Pad", amount: 20, due: "2026-03-29", allocated: 0 },
-  { name: "Scrapbook", amount: 40, allocated: 0 },
-  { name: "Trip to See Brandon", amount: 140, due: "2026-04-11", allocated: 0 },
-  { name: "Rent (April)", amount: 730, due: "2026-04-03", allocated: 0 },
+  { name: "Rent (March Part 1)", amount: 365, due: "3/3", allocated: 0 },
+  { name: "Rent (March Part 2)", amount: 368, due: "3/18", allocated: 0 },
+  { name: "Phoebe's Lights", amount: 40, due: "3/29", allocated: 0 },
+  { name: "Brandon Cooling Pad", amount: 20, due: "03/29", allocated: 0 },
+  { name: "Scrapbook", amount: 40, due: "3/29", allocated: 0 },
+  { name: "Pillows", amount: 20, due: "4/7", allocated: 0 },
+  { name: "Rent (April)", amount: 730, due: "4/3", allocated: 0 },
+  { name: "New Tire", amount: 130, due: "4/7", allocated: 0 },
+  { name: "Trip to See Brandon", amount: 140, due: "4/11", allocated: 0 },
+  { name: "PS5 Reimbursement", amount: 101.31, allocated: 0 },  
+  { name: "Pillows", amount: 20, allocated: 0 },  
 ];
 
 /* ---------- STORAGE ---------- */
