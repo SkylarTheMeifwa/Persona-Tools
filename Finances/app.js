@@ -6,8 +6,8 @@ let currentDate = new Date(startDate);
 let editIndex = null;
 
 const goals = [
-  { name: "Rent (March Part 1)", amount: 365, due: "3/3", allocated: 0 },
-  { name: "Rent (March Part 2)", amount: 368, due: "3/18", allocated: 0 },
+  { name: "Rent (March Part 1)", amount: 364.66, due: "3/3", allocated: 0 },
+  { name: "Rent (March Part 2)", amount: 367.66, due: "3/18", allocated: 0 },
   { name: "Phoebe's Lights", amount: 40, due: "3/29", allocated: 0 },
   { name: "Brandon Cooling Pad", amount: 20, due: "03/29", allocated: 0 },
   { name: "Scrapbook", amount: 40, due: "3/29", allocated: 0 },
