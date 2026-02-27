@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Day-by-Day Cash Flow Simulator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+
+  <body>
+     <iframe
+      src="p5-background.html"
+      style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        border: none;
+        z-index: -1;
+        pointer-events: none;
+      "
+      aria-hidden="true"
+    ></iframe>
+    <h2>Day-by-Day Cash Flow</h2>
+
+    <div id="goalsView"></div>
+
+    <label>Starting Balance:</label>
+    <input type="number" id="startingBalance" value="16" />
+    <button onclick="recalculate()">Reset Simulation</button>
+
+    <hr />
+
+    <button onclick="prevDay()">Previous</button>
+    <button onclick="nextDay()">Next</button>
+
+    <h3 id="currentDate"></h3>
+    <h3 id="currentBalance"></h3>
+
+    <div id="entriesList"></div>
+
+    <div id="entryForm">
+      <h4>Add Entry</h4>
+      Name:
+      <input type="text" id="entryName" />
+      Amount:
+      <input type="number" id="entryAmount" />
+      Type:
+      <select id="entryType">
+        <option value="income">Income</option>
+        <option value="bill">Bill</option>
+      </select>
+      <button onclick="saveEntry()">Save</button>
+    </div>
+
+    <div id="calendarView"></div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
