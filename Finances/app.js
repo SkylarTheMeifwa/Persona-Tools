@@ -91,20 +91,18 @@ function calculateBalanceUpTo(date) {
   for (let d = new Date(startDate); d <= date; d.setDate(d.getDate() + 1)) {
     const dateStr = formatDate(d);
 
-    // Add entries (income/expense) for this day
+    // Add income/expense entries
     if (entries[dateStr]) {
       entries[dateStr].forEach((e) => {
         balance += e.type === "income" ? Number(e.amount) : -Number(e.amount);
       });
     }
 
-    // Subtract allocations made on THIS DAY only
+    // Subtract allocations **only on the day they happen**
     goals.forEach((g) => {
-      if (g.allocations && g.allocations.length > 0) {
+      if (g.allocations) {
         g.allocations.forEach((a) => {
-          if (a.date === dateStr) {
-            balance -= Number(a.amount);
-          }
+          if (a.date === dateStr) balance -= Number(a.amount);
         });
       }
     });
@@ -114,9 +112,20 @@ function calculateBalanceUpTo(date) {
 }
 
 function getUnallocatedBalance() {
-  const totalBalance = calculateBalanceUpTo(currentDate);
-  const totalAllocated = goals.reduce((sum, g) => sum + Number(g.allocated), 0);
-  return totalBalance - totalAllocated;
+  // Start with today’s balance
+  const todayBalance = calculateBalanceUpTo(currentDate);
+
+  // Subtract allocations already made **today** (so you can't overspend)
+  const todayAllocated = goals.reduce((sum, g) => {
+    return (
+      sum +
+      g.allocations.reduce((s, a) => {
+        return a.date === formatDate(currentDate) ? s + Number(a.amount) : s;
+      }, 0)
+    );
+  }, 0);
+
+  return todayBalance;
 }
 
 /* ---------- GOALS ---------- */
