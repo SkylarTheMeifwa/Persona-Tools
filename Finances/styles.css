@@ -1,0 +1,155 @@
+body {
+  font-family: Arial, sans-serif;
+  padding: 15px;
+  max-width: 1200px;
+  margin: auto;
+}
+
+h2,
+h3,
+h4 {
+  margin: 8px 0;
+}
+
+button {
+  margin: 3px;
+  padding: 6px 10px;
+  font-size: 14px;
+}
+
+input,
+select {
+  padding: 6px;
+  margin: 3px 0;
+  font-size: 14px;
+  width: 100%;
+  max-width: 200px;
+}
+
+.negative {
+  background-color: #ffe0e0;
+}
+
+.entry {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 4px 0;
+}
+
+.income {
+  color: green;
+}
+.bill {
+  color: red;
+}
+
+#entryForm {
+  margin-top: 15px;
+  border-top: 1px solid #ccc;
+  padding-top: 10px;
+}
+
+/* GOALS GRID */
+
+#goalsView {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.goal-card {
+  background: white;
+  border: 1px solid #ddd;
+  padding: 12px;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.goal-funded {
+  background: #e6ffe6;
+}
+
+.goal-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.goal-card input {
+  width: 60px;
+  padding: 4px;
+  font-size: 12px;
+}
+
+.goal-card button {
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* CALENDAR */
+
+#calendarView {
+  margin-top: 30px;
+  overflow-x: auto;
+}
+
+.calendar-cell {
+  border: 1px solid #ccc;
+  padding: 6px;
+  min-height: 90px;
+  font-size: 12px;
+  cursor: pointer;
+  background-color: #e3e3e3;
+  transition: 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+
+.calendar-cell:hover {
+  background-color: #cfcfcf;
+}
+
+.calendar-selected {
+  border: 2px solid #2979ff;
+  background-color: #d0d9ff;
+}
+
+.calendar-negative {
+  background-color: #ffcccc;
+}
+
+/* Responsive */
+
+@media (max-width: 768px) {
+  .calendar-cell {
+    min-height: 70px;
+    font-size: 11px;
+    padding: 4px;
+  }
+}
+
+@media (max-width: 480px) {
+  .calendar-cell {
+    min-height: 60px;
+    font-size: 10px;
+  }
+
+  .entry {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
