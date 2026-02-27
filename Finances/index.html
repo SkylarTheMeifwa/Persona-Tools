@@ -7,7 +7,7 @@
   </head>
 
   <body>
-     <iframe
+    <iframe
       src="p5-background.html"
       style="
         position: fixed;
@@ -45,12 +45,16 @@
       <input type="text" id="entryName" />
       Amount:
       <input type="number" id="entryAmount" />
-      Type:
-      <select id="entryType">
-        <option value="income">Income</option>
-        <option value="bill">Bill</option>
-      </select>
-      <button onclick="saveEntry()">Save</button>
+      <div id="typeToggle">
+        <button id="incomeBtn" type="button">Income</button>
+        <button id="billBtn" type="button">Bill</button>
+      </div>
+
+      <button id="mainSaveBtn" onclick="saveEntry()">Add Entry</button>
+
+      <button id="toggleEditModeBtn" onclick="toggleEditMode()">
+        Edit Mode
+      </button>
     </div>
 
     <div id="calendarView"></div>
