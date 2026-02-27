@@ -4,6 +4,8 @@ const endDate = new Date("2026-04-12");
 let entries = {};
 let currentDate = new Date(startDate);
 let editIndex = null;
+let selectedType = "income";
+let isEditMode = false;
 
 const goals = [
   {
@@ -54,6 +56,17 @@ const goals = [
   { name: "PS5 Reimbursement", amount: 101.31, allocated: 0, allocations: [] },
   { name: "Pillows", amount: 20, allocated: 0, allocations: [] },
 ];
+
+const holidays = {
+  "2026-04-03": {
+    name: "Good Friday",
+    note: "Not Going Home",
+  },
+  "2026-04-05": {
+    name: "Easter",
+    note: "Going Home",
+  },
+};
 
 /* ---------- STORAGE ---------- */
 function saveToStorage() {
@@ -127,6 +140,31 @@ function getUnallocatedBalance() {
 
   return todayBalance;
 }
+
+function updateTypeUI() {
+  const incomeBtn = document.getElementById("incomeBtn");
+  const billBtn = document.getElementById("billBtn");
+
+  if (selectedType === "income") {
+    incomeBtn.style.background = "#d1fae5";
+    billBtn.style.background = "";
+  } else {
+    billBtn.style.background = "#fee2e2";
+    incomeBtn.style.background = "";
+  }
+}
+
+document.getElementById("incomeBtn").onclick = () => {
+  selectedType = "income";
+  updateTypeUI();
+};
+
+document.getElementById("billBtn").onclick = () => {
+  selectedType = "bill";
+  updateTypeUI();
+};
+
+updateTypeUI();
 
 /* ---------- GOALS ---------- */
 function renderGoals() {
@@ -221,7 +259,19 @@ function renderDay() {
   const dateStr = formatDate(currentDate);
   const balance = calculateBalanceUpTo(currentDate);
 
-  document.getElementById("currentDate").innerText = currentDate.toDateString();
+  let dateDisplay = currentDate.toDateString();
+
+  if (holidays[dateStr]) {
+    const holiday = holidays[dateStr];
+
+    dateDisplay += " - " + holiday.name;
+
+    if (holiday.note) {
+      dateDisplay += " (" + holiday.note + ")";
+    }
+  }
+
+  document.getElementById("currentDate").innerText = dateDisplay;
 
   const balanceEl = document.getElementById("currentBalance");
   balanceEl.innerText = "Balance: $" + balance.toFixed(2);
@@ -242,15 +292,23 @@ function renderDay() {
         (e.type === "income" ? "+ " : "- ") + " $" + e.amount + " - " + e.name;
       div.appendChild(span);
 
-      const editBtn = document.createElement("button");
-      editBtn.innerText = "Edit";
-      editBtn.onclick = () => editEntry(index);
-      div.appendChild(editBtn);
+      if (isEditMode) {
+        const buttonContainer = document.createElement("div");
+        buttonContainer.style.display = "flex";
+        buttonContainer.style.gap = "6px";
 
-      const delBtn = document.createElement("button");
-      delBtn.innerText = "Delete";
-      delBtn.onclick = () => deleteEntry(index);
-      div.appendChild(delBtn);
+        const editBtn = document.createElement("button");
+        editBtn.innerText = "Edit";
+        editBtn.onclick = () => editEntry(index);
+
+        const delBtn = document.createElement("button");
+        delBtn.innerText = "Delete";
+        delBtn.onclick = () => deleteEntry(index);
+
+        buttonContainer.appendChild(editBtn);
+        buttonContainer.appendChild(delBtn);
+        div.appendChild(buttonContainer);
+      }
 
       list.appendChild(div);
     });
@@ -315,7 +373,33 @@ function renderCalendar() {
 
       if (cellDate >= startDate && cellDate <= endDate) {
         const balance = calculateBalanceUpTo(cellDate);
-        cell.innerHTML = `<strong>${day}</strong><br>$${balance.toFixed(2)}`;
+        // Create top line container
+        const topRow = document.createElement("div");
+        topRow.style.display = "flex";
+        topRow.style.alignItems = "center";
+        topRow.style.gap = "4px";
+        topRow.style.whiteSpace = "nowrap"; // FORCE single line
+
+        // Day number
+        const dayNumber = document.createElement("strong");
+        dayNumber.innerText = day;
+        topRow.appendChild(dayNumber);
+
+        if (holidays[dateStr]) {
+          const holidayText = document.createElement("div");
+          holidayText.innerText = holidays[dateStr].name; // ← FIXED
+          holidayText.style.color = "purple";
+          holidayText.style.fontSize = "10px";
+          holidayText.style.fontWeight = "normal";
+          topRow.appendChild(holidayText);
+        }
+
+        cell.appendChild(topRow);
+
+        // Balance underneath
+        const balanceLine = document.createElement("div");
+        balanceLine.innerText = "$" + balance.toFixed(2);
+        cell.appendChild(balanceLine);
 
         if (entries[dateStr]) {
           entries[dateStr].forEach((e) => {
@@ -358,12 +442,21 @@ function renderCalendar() {
     renderDate = new Date(year, month + 1, 1);
   }
 }
+function toggleEditMode() {
+  isEditMode = !isEditMode;
+
+  document.getElementById("toggleEditModeBtn").innerText = isEditMode
+    ? "Done Editing"
+    : "Edit Mode";
+
+  renderDay();
+}
 
 /* ---------- ENTRY CRUD ---------- */
 function saveEntry() {
   const name = document.getElementById("entryName").value;
   const amount = Number(document.getElementById("entryAmount").value);
-  const type = document.getElementById("entryType").value;
+  const type = selectedType;
   const dateStr = formatDate(currentDate);
 
   if (!name || !amount) return alert("Fill all fields");
@@ -375,6 +468,7 @@ function saveEntry() {
   } else {
     entries[dateStr].push({ name, amount, type });
   }
+  document.getElementById("mainSaveBtn").innerText = "Add Entry";
 
   saveToStorage();
   renderDay();
@@ -386,6 +480,7 @@ function editEntry(index) {
   document.getElementById("entryName").value = entry.name;
   document.getElementById("entryAmount").value = entry.amount;
   document.getElementById("entryType").value = entry.type;
+  document.getElementById("mainSaveBtn").innerText = "Save Changes";
   editIndex = index;
 }
 
