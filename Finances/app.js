@@ -36,7 +36,14 @@ const goals = [
     allocated: 0,
     allocations: [],
   },
-  { name: "Scrapbook", amount: 40, due: "3/29", allocated: 0, allocations: [] },
+  { name: "Satin Pillowcases", amount: 40, due: "3/29", allocated: 0, allocations: [] },
+  {
+    name: "At Home Run",
+    amount: 150,
+    due: "4/3",
+    allocated: 0,
+    allocations: [],
+  },
   {
     name: "Rent (April)",
     amount: 730,
@@ -46,6 +53,8 @@ const goals = [
   },
   { name: "Pillows", amount: 20, due: "4/7", allocated: 0, allocations: [] },
   { name: "New Tire", amount: 130, due: "4/7", allocated: 0, allocations: [] },
+  { name: "Scrapbook", amount: 40, due: "4/7", allocated: 0, allocations: [] },
+
   {
     name: "Trip to See Brandon",
     amount: 140,
