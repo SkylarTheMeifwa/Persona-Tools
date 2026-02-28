@@ -36,7 +36,13 @@ const goals = [
     allocated: 0,
     allocations: [],
   },
-  { name: "Satin Pillowcases", amount: 40, due: "3/29", allocated: 0, allocations: [] },
+  {
+    name: "Satin Pillowcases",
+    amount: 40,
+    due: "3/29",
+    allocated: 0,
+    allocations: [],
+  },
   {
     name: "At Home Run",
     amount: 150,
@@ -109,28 +115,46 @@ function formatDate(date) {
   return `${year}-${month}-${day}`;
 }
 
-function calculateBalanceUpTo(date) {
+function calculateBalanceUpTo(targetDate) {
   let balance =
     parseFloat(document.getElementById("startingBalance")?.value) || 0;
 
-  for (let d = new Date(startDate); d <= date; d.setDate(d.getDate() + 1)) {
-    const dateStr = formatDate(d);
+  let d = new Date(
+    startDate.getFullYear(),
+    startDate.getMonth(),
+    startDate.getDate()
+  );
 
-    // Add income/expense entries
+  const end = new Date(
+    targetDate.getFullYear(),
+    targetDate.getMonth(),
+    targetDate.getDate()
+  );
+
+  while (d <= end) {
+    const dateStr = formatDate(d);
+    
+    // Entries
     if (entries[dateStr]) {
       entries[dateStr].forEach((e) => {
-        balance += e.type === "income" ? Number(e.amount) : -Number(e.amount);
+        const change =
+          e.type === "income" ? Number(e.amount) : -Number(e.amount);
+        balance += change;
       });
     }
 
-    // Subtract allocations **only on the day they happen**
+    // Allocations
     goals.forEach((g) => {
       if (g.allocations) {
         g.allocations.forEach((a) => {
-          if (a.date === dateStr) balance -= Number(a.amount);
+          if (a.date === dateStr) {
+            balance -= Number(a.amount);
+          }
         });
       }
     });
+
+    d.setDate(d.getDate() + 1);
   }
 
   return balance;
