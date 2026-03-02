@@ -23,13 +23,6 @@ const goals = [
     allocations: [],
   },
   {
-    name: "Brandon Cooling Pad",
-    amount: 20,
-    due: "3/29",
-    allocated: 0,
-    allocations: [],
-  },
-  {
     name: "Satin Pillowcases",
     amount: 40,
     due: "3/29",
