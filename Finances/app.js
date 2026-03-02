@@ -23,20 +23,6 @@ const goals = [
     allocations: [],
   },
   {
-    name: "Phoebe's Lights",
-    amount: 40,
-    due: "3/29",
-    allocated: 0,
-    allocations: [],
-  },
-  {
-    name: "Brandon Cooling Pad",
-    amount: 20,
-    due: "3/29",
-    allocated: 0,
-    allocations: [],
-  },
-  {
     name: "Satin Pillowcases",
     amount: 40,
     due: "3/29",
@@ -60,7 +46,6 @@ const goals = [
   { name: "Pillows", amount: 20, due: "4/7", allocated: 0, allocations: [] },
   { name: "New Tire", amount: 130, due: "4/7", allocated: 0, allocations: [] },
   { name: "Scrapbook", amount: 40, due: "4/7", allocated: 0, allocations: [] },
-
   {
     name: "Trip to See Brandon",
     amount: 140,
@@ -70,6 +55,9 @@ const goals = [
   },
   { name: "PS5 Reimbursement", amount: 101.31, allocated: 0, allocations: [] },
   { name: "Pillows", amount: 20, allocated: 0, allocations: [] },
+  { name: "PS5", amount: 122.01, allocated: 0, allocations: [] },
+  { name: "Book Shelf", amount: 108.11, allocated: 0, allocations: [] },
+  
 ];
 
 const holidays = {
