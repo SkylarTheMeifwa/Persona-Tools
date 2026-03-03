@@ -9,7 +9,7 @@ export default async function handler(req, res) {
 
   const clientId = process.env.DROPBOX_APP_KEY;
   const clientSecret = process.env.DROPBOX_APP_SECRET;
-  const redirectUri = "https://YOUR-VERCEL-URL.vercel.app/api/dropbox-callback";
+  const redirectUri = "https://persona-tools.vercel.app/auth/dropbox-callback";
 
   const params = new URLSearchParams();
   params.append("code", code);
