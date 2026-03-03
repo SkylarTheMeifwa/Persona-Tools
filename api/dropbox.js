@@ -1,5 +1,9 @@
 export default function handler(req, res) {
   const clientId = process.env.DROPBOX_APP_KEY;
+  if (!clientId) {
+    return res.status(500).send("Missing DROPBOX_APP_KEY");
+  }
+
   const redirectUri = "https://persona-tools.vercel.app/api/dropbox-callback";
 
   const authUrl =
