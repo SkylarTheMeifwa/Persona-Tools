@@ -5,11 +5,6 @@ export default async function handler(req, res) {
 
     const clientId = process.env.DROPBOX_APP_KEY;
     const clientSecret = process.env.DROPBOX_APP_SECRET;
-
-    if (!clientId || !clientSecret) {
-      return res.status(500).send("Missing Dropbox credentials");
-    }
-
     const redirectUri = "https://persona-tools.vercel.app/api/dropbox-callback";
 
     const params = new URLSearchParams();
@@ -28,12 +23,10 @@ export default async function handler(req, res) {
 
     if (data.error) return res.status(400).json(data);
 
-    // ⚠️ TODO: Store tokens in a database
-    console.log("Dropbox tokens:", data);
-
-    res.send("Dropbox connected successfully!");
+    // Redirect to frontend with token in query string
+    res.redirect(`https://persona-tools.vercel.app/?dropbox_token=${data.access_token}`);
   } catch (err) {
     console.error(err);
-    res.status(500).send("Serverless function error");
+    res.status(500).send("Server error");
   }
 }

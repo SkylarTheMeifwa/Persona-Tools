@@ -23,13 +23,6 @@ const goals = [
     allocations: [],
   },
   {
-    name: "Phoebe's Lights",
-    amount: 40,
-    due: "3/29",
-    allocated: 0,
-    allocations: [],
-  },
-  {
     name: "Satin Pillowcases",
     amount: 40,
     due: "3/29",
@@ -77,29 +70,75 @@ const holidays = {
 };
 
 /* ---------- STORAGE ---------- */
-function saveToStorage() {
-  localStorage.setItem("cashflow_entries", JSON.stringify(entries));
-  localStorage.setItem("cashflow_goals", JSON.stringify(goals));
+// ---------- LOCAL STORAGE + DROPBOX INTEGRATION ----------
+
+// Start with localStorage fallback
+function saveToDropbox() {
+  const userToken = localStorage.getItem("dropbox_token");
+  if (!userToken) return;
+
+  fetch("/api/save-to-dropbox", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userToken, entries, goals })
+  }).catch(err => console.error("Dropbox save failed:", err));
 }
 
-function loadFromStorage() {
-  const savedEntries = localStorage.getItem("cashflow_entries");
-  const savedGoals = localStorage.getItem("cashflow_goals");
+function saveToStorage() {
+  // Save locally
+  localStorage.setItem("cashflow_entries", JSON.stringify(entries));
+  localStorage.setItem("cashflow_goals", JSON.stringify(goals));
 
-  if (savedEntries) entries = JSON.parse(savedEntries);
-  if (savedGoals) {
-    const parsed = JSON.parse(savedGoals);
-    parsed.forEach((g, i) => {
-      if (goals[i]) {
-        goals[i].allocated = Number(g.allocated) || 0;
-        goals[i].allocations = g.allocations || [];
-      }
+  // Save to Dropbox
+  saveToDropbox();
+}
+
+// ---------- DROPBOX TOKEN HANDLING ----------
+
+// Grab token from query string after OAuth
+const params = new URLSearchParams(window.location.search);
+const token = params.get("dropbox_token");
+if (token) {
+  localStorage.setItem("dropbox_token", token);
+  // Clean up URL so token isn't visible
+  window.history.replaceState({}, document.title, "/");
+}
+
+// ---------- LOAD DATA FROM DROPBOX ----------
+async function loadFromDropbox() {
+  const userToken = localStorage.getItem("dropbox_token");
+  if (!userToken) return;
+
+  try {
+    const res = await fetch("/api/load-from-dropbox", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userToken })
     });
+
+    if (!res.ok) return;
+
+    const data = await res.json();
+
+    if (data.entries) entries = data.entries;
+    if (data.goals) {
+      data.goals.forEach((g, i) => {
+        if (goals[i]) {
+          goals[i].allocated = Number(g.allocated) || 0;
+          goals[i].allocations = g.allocations || [];
+        }
+      });
+    }
+
+    renderDay();
+    console.log("Data loaded from Dropbox successfully");
+  } catch (err) {
+    console.error("Failed to load from Dropbox:", err);
   }
 }
 
-loadFromStorage();
-
+// Load Dropbox data after localStorage
+loadFromDropbox();
 /* ---------- UTIL ---------- */
 function formatDate(date) {
   const year = date.getFullYear();
