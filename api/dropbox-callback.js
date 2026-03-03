@@ -30,10 +30,9 @@ export default async function handler(req, res) {
       return res.status(400).json(data);
     }
 
-    // ⚠️ Save these tokens in a database linked to the user
+    // ⚠️ TODO: Save access_token and refresh_token securely for the user
     console.log("Dropbox tokens:", data);
 
-    // For now, just confirm success
     res.send("Dropbox connected successfully!");
   } catch (err) {
     console.error(err);
