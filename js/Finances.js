@@ -1,5 +1,3 @@
-yes
-
 const startDate = new Date("2026-02-25");
 const endDate = new Date("2026-04-12");
 
