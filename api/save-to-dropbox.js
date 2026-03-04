@@ -1,7 +1,8 @@
+// File: /api/save-to-dropbox.js
 import { Dropbox } from "dropbox";
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
+  if (req.method !== "POST") return res.status(405).json({ error: "Method Not Allowed" });
 
   const { userToken, entries, goals } = req.body;
 
@@ -10,15 +11,16 @@ export default async function handler(req, res) {
   const dbx = new Dropbox({ accessToken: userToken });
 
   try {
+    // Save the file in Dropbox, overwriting if it exists
     await dbx.filesUpload({
-      path: "/Persona-Tools/cashflow-data.json", // <-- this is the file that will be created
+      path: "/PersonaTools/cashflow-data.json", // <-- root folder /PersonaTools
       contents: JSON.stringify({ entries, goals }),
-      mode: { ".tag": "overwrite" } // overwrite if file exists
+      mode: { ".tag": "overwrite" }
     });
 
     res.status(200).json({ success: true });
   } catch (err) {
     console.error("Dropbox save error:", err);
-    res.status(500).json({ error: "Dropbox save failed" });
+    res.status(500).json({ error: "Dropbox save failed", details: err.error });
   }
 }
