@@ -1,33 +1,24 @@
+import { Dropbox } from "dropbox";
+
 export default async function handler(req, res) {
+  if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
+
+  const { userToken, entries, goals } = req.body;
+
+  if (!userToken) return res.status(400).json({ error: "No token provided" });
+
+  const dbx = new Dropbox({ accessToken: userToken });
+
   try {
-    if (req.method !== "POST") return res.status(405).send("Method not allowed");
-
-    const { userToken, entries, goals } = req.body;
-    if (!userToken) return res.status(400).send("Missing user token");
-
-    const data = JSON.stringify({ entries, goals }, null, 2);
-
-    const response = await fetch("https://content.dropboxapi.com/2/files/upload", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${userToken}`,
-        "Content-Type": "application/octet-stream",
-        "Dropbox-API-Arg": JSON.stringify({
-          path: "/cashflow.json",
-          mode: "overwrite",
-          autorename: false,
-          mute: false
-        })
-      },
-      body: data
+    await dbx.filesUpload({
+      path: "/cashflow-data.json", // <-- this is the file that will be created
+      contents: JSON.stringify({ entries, goals }),
+      mode: { ".tag": "overwrite" } // overwrite if file exists
     });
 
-    const result = await response.json();
-    if (result.error) return res.status(400).json(result);
-
-    res.status(200).json({ success: true, result });
+    res.status(200).json({ success: true });
   } catch (err) {
-    console.error(err);
-    res.status(500).send("Server error");
+    console.error("Dropbox save error:", err);
+    res.status(500).json({ error: "Dropbox save failed" });
   }
 }
