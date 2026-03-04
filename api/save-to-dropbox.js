@@ -11,7 +11,7 @@ export default async function handler(req, res) {
 
   try {
     await dbx.filesUpload({
-      path: "/PersonaTools/cashflow-data.json", // <-- this is the file that will be created
+      path: "/Persona-Tools/cashflow-data.json", // <-- this is the file that will be created
       contents: JSON.stringify({ entries, goals }),
       mode: { ".tag": "overwrite" } // overwrite if file exists
     });
