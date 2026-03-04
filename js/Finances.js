@@ -1,3 +1,5 @@
+yes
+
 const startDate = new Date("2026-02-25");
 const endDate = new Date("2026-04-12");
 
@@ -92,6 +94,24 @@ function saveToStorage() {
   // Save to Dropbox
   saveToDropbox();
 }
+
+function loadFromLocalStorage() {
+  const savedEntries = localStorage.getItem("cashflow_entries");
+  const savedGoals = localStorage.getItem("cashflow_goals");
+
+  if (savedEntries) entries = JSON.parse(savedEntries);
+  if (savedGoals) {
+    const parsed = JSON.parse(savedGoals);
+    parsed.forEach((g, i) => {
+      if (goals[i]) {
+        goals[i].allocated = Number(g.allocated) || 0;
+        goals[i].allocations = g.allocations || [];
+      }
+    });
+  }
+}
+
+loadFromLocalStorage();
 
 // ---------- DROPBOX TOKEN HANDLING ----------
 
