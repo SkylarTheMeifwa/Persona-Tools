@@ -1,27 +1,21 @@
+import { Dropbox } from "dropbox";
+
 export default async function handler(req, res) {
+  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+
+  const { userToken } = req.body;
+  if (!userToken) return res.status(400).json({ error: "Missing token" });
+
+  const dbx = new Dropbox({ accessToken: userToken });
+
   try {
-    if (req.method !== "POST") return res.status(405).send("Method not allowed");
-
-    const { userToken } = req.body;
-    if (!userToken) return res.status(400).send("Missing user token");
-
-    const response = await fetch("https://content.dropboxapi.com/2/files/download", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${userToken}`,
-        "Dropbox-API-Arg": JSON.stringify({ path: "/cashflow.json" })
-      }
-    });
-
-    if (!response.ok) {
-      return res.status(response.status).send("Error fetching from Dropbox");
-    }
-
-    const text = await response.text();
+    const file = await dbx.filesDownload({ path: "/Persona-Tools/cashflow-data.json" });
+    const text = new TextDecoder("utf-8").decode(file.result.fileBinary);
     const data = JSON.parse(text);
+
     res.status(200).json(data);
   } catch (err) {
-    console.error(err);
-    res.status(500).send("Server error");
+    console.warn("File not found or error reading:", err);
+    res.status(404).json({ entries: {}, goals: [] });
   }
 }
