@@ -1,4 +1,5 @@
 import { Dropbox } from "dropbox";
+import fetch from "node-fetch";
 
 function parseCookies(cookieHeader) {
   const list = {};
@@ -6,37 +7,53 @@ function parseCookies(cookieHeader) {
 
   cookieHeader.split(";").forEach(cookie => {
     const parts = cookie.split("=");
-    list[parts[0].trim()] = decodeURIComponent(parts[1]);
+    const name = parts.shift().trim();
+    const value = parts.join("=");
+
+    list[name] = decodeURIComponent(value);
   });
 
   return list;
 }
 
 export default async function handler(req, res) {
-  if (req.method !== "POST")
+
+  if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
+  }
 
   const cookies = parseCookies(req.headers.cookie);
   const userToken = cookies.userToken;
 
-  const { entries, goals } = req.body;
-console.log("BODY:", req.body);
-console.log("COOKIES:", req.headers.cookie);
-  if (!userToken)
-    return res.status(400).json({ error: "Missing Dropbox token" });
+  if (!userToken) {
+    return res.status(401).json({ error: "Dropbox not connected" });
+  }
 
-  const dbx = new Dropbox({ accessToken: userToken });
-console.log("TOKEN:", userToken);
+  const { entries, goals } = req.body;
+
+  const dbx = new Dropbox({
+    accessToken: userToken,
+    fetch
+  });
+
   try {
+
+    const data = {
+      entries,
+      goals,
+      savedAt: new Date().toISOString()
+    };
+
     await dbx.filesUpload({
       path: "/Persona-Tools/cashflow-data.json",
-      contents: JSON.stringify({ entries, goals }, null, 2),
+      contents: JSON.stringify(data, null, 2),
       mode: "overwrite"
     });
 
     res.status(200).json({ success: true });
+
   } catch (err) {
-    console.error(err);
+    console.error("DROPBOX ERROR:", err);
     res.status(500).json({ error: err.message });
   }
 }

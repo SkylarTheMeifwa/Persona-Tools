@@ -1,21 +1,61 @@
 import { Dropbox } from "dropbox";
+import fetch from "node-fetch";
+
+function parseCookies(cookieHeader) {
+  const list = {};
+  if (!cookieHeader) return list;
+
+  cookieHeader.split(";").forEach(cookie => {
+    const parts = cookie.split("=");
+    const name = parts.shift().trim();
+    const value = parts.join("=");
+
+    list[name] = decodeURIComponent(value);
+  });
+
+  return list;
+}
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
-  const { userToken } = req.body;
-  if (!userToken) return res.status(400).json({ error: "Missing token" });
+  const cookies = parseCookies(req.headers.cookie);
+  const userToken = cookies.userToken;
 
-  const dbx = new Dropbox({ accessToken: userToken });
+  if (!userToken) {
+    return res.status(401).json({ error: "Dropbox not connected" });
+  }
+
+  const dbx = new Dropbox({
+    accessToken: userToken,
+    fetch
+  });
 
   try {
-    const file = await dbx.filesDownload({ path: "/Persona-Tools/cashflow-data.json" });
-    const text = new TextDecoder("utf-8").decode(file.result.fileBinary);
-    const data = JSON.parse(text);
 
-    res.status(200).json(data);
+    const response = await dbx.filesDownload({
+      path: "/Persona-Tools/cashflow-data.json"
+    });
+
+    const fileData = response.result.fileBinary;
+
+    const json = JSON.parse(fileData.toString());
+
+    res.status(200).json(json);
+
   } catch (err) {
-    console.warn("File not found or error reading:", err);
-    res.status(404).json({ entries: {}, goals: [] });
+
+    // file might not exist yet
+    if (err?.error?.error_summary?.includes("path/not_found")) {
+      return res.status(200).json({
+        entries: [],
+        goals: []
+      });
+    }
+
+    console.error("DROPBOX LOAD ERROR:", err);
+
+    res.status(500).json({
+      error: err.message
+    });
   }
 }

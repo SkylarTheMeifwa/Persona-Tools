@@ -1,32 +1,41 @@
+import fetch from "node-fetch";
+
 export default async function handler(req, res) {
-  try {
-    const code = req.query.code;
-    if (!code) return res.status(400).send("No code provided");
+  const { code } = req.query;
 
-    const clientId = process.env.DROPBOX_APP_KEY;
-    const clientSecret = process.env.DROPBOX_APP_SECRET;
-    const redirectUri = "https://persona-tools.vercel.app/api/dropbox-callback";
+  const clientId = process.env.DROPBOX_APP_KEY;
+  const clientSecret = process.env.DROPBOX_APP_SECRET;
 
-    const params = new URLSearchParams();
-    params.append("code", code);
-    params.append("grant_type", "authorization_code");
-    params.append("client_id", clientId);
-    params.append("client_secret", clientSecret);
-    params.append("redirect_uri", redirectUri);
+  const redirectUri =
+    "https://persona-tools.vercel.app/api/dropbox-callback";
 
-    const tokenRes = await fetch("https://api.dropboxapi.com/oauth2/token", {
+  const tokenRes = await fetch(
+    "https://api.dropboxapi.com/oauth2/token",
+    {
       method: "POST",
-      body: params
-    });
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: new URLSearchParams({
+        code,
+        grant_type: "authorization_code",
+        client_id: clientId,
+        client_secret: clientSecret,
+        redirect_uri: redirectUri
+      })
+    }
+  );
 
-    const data = await tokenRes.json();
+  const data = await tokenRes.json();
 
-    if (data.error) return res.status(400).json(data);
-
-    // Redirect to frontend with token in query string
-    res.redirect(`https://persona-tools.vercel.app/?dropbox_token=${data.access_token}`);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Server error");
+  if (!data.access_token) {
+    return res.status(500).json(data);
   }
+
+  res.setHeader(
+    "Set-Cookie",
+    `userToken=${data.access_token}; Path=/; Secure; SameSite=Lax`
+  );
+
+  res.redirect("/");
 }
