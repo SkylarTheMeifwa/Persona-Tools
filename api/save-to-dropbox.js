@@ -20,12 +20,13 @@ export default async function handler(req, res) {
   const userToken = cookies.userToken;
 
   const { entries, goals } = req.body;
-
+console.log("BODY:", req.body);
+console.log("COOKIES:", req.headers.cookie);
   if (!userToken)
     return res.status(400).json({ error: "Missing Dropbox token" });
 
   const dbx = new Dropbox({ accessToken: userToken });
-
+console.log("TOKEN:", userToken);
   try {
     await dbx.filesUpload({
       path: "/Persona-Tools/cashflow-data.json",
