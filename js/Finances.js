@@ -14,12 +14,12 @@ const goals = [
   { name: "Trip to See My Love", amount: 150, due: "4/11", allocated: 0, allocations: [], },
   { name: "Beach Trip", amount: 250, due: "4/11", allocated: 0, allocations: [], },
   { name: "At Home Run", amount: 150, due: "4/3", allocated: 0, allocations: [], },
-  { name: "Scrapbook", amount: 40, due: "4/7", allocated: 0, allocations: [] },
+  { name: "Scrapbook", amount: 10, due: "4/7", allocated: 0, allocations: [] },
   { name: "Capture Card", amount: 110.74, due: "4/7", allocated: 0, allocations: [] },
   { name: "PS5 Reimbursement", amount: 101.31, allocated: 0, allocations: [] },
   { name: "Satin Pillowcases", amount: 40, due: "4/7", allocated: 0, allocations: [], },
   { name: "Pillows", amount: 27.25, due: "4/7", allocated: 0, allocations: [] },  
-  { name: "PS5 Remainder", amount: 122.01, allocated: 0, allocations: [] },
+  { name: "PS5 Remainder", amount: 121.24, allocated: 0, allocations: [] },
 ];
 
 const holidays = {
