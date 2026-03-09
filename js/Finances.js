@@ -8,54 +8,18 @@ let selectedType = "income";
 let isEditMode = false;
 
 const goals = [
-  {
-    name: "Rent (March Part 1)",
-    amount: 364.66,
-    due: "3/3",
-    allocated: 0,
-    allocations: [],
-  },
-  {
-    name: "Rent (March Part 2)",
-    amount: 367.66,
-    due: "3/18",
-    allocated: 0,
-    allocations: [],
-  },
-  {
-    name: "Satin Pillowcases",
-    amount: 40,
-    due: "3/29",
-    allocated: 0,
-    allocations: [],
-  },
-  {
-    name: "At Home Run",
-    amount: 150,
-    due: "4/3",
-    allocated: 0,
-    allocations: [],
-  },
-  {
-    name: "Rent (April)",
-    amount: 730,
-    due: "4/3",
-    allocated: 0,
-    allocations: [],
-  },
-  { name: "Pillows", amount: 20, due: "4/7", allocated: 0, allocations: [] },
+  { name: "March Rent Part 2", amount: 367.66, due: "3/18", allocated: 0, allocations: [], },
+  { name: "April Rent", amount: 730, due: "4/3", allocated: 0, allocations: [], },
   { name: "New Tire", amount: 130, due: "4/7", allocated: 0, allocations: [] },
+  { name: "Trip to See My Love", amount: 150, due: "4/11", allocated: 0, allocations: [], },
+  { name: "Beach Trip", amount: 250, due: "4/11", allocated: 0, allocations: [], },
+  { name: "At Home Run", amount: 150, due: "4/3", allocated: 0, allocations: [], },
   { name: "Scrapbook", amount: 40, due: "4/7", allocated: 0, allocations: [] },
-
-  {
-    name: "Trip to See Brandon",
-    amount: 140,
-    due: "4/11",
-    allocated: 0,
-    allocations: [],
-  },
+  { name: "Capture Card", amount: 110.74, due: "4/7", allocated: 0, allocations: [] },
   { name: "PS5 Reimbursement", amount: 101.31, allocated: 0, allocations: [] },
-  { name: "Pillows", amount: 20, allocated: 0, allocations: [] },
+  { name: "Satin Pillowcases", amount: 40, due: "4/7", allocated: 0, allocations: [], },
+  { name: "Pillows", amount: 27.25, due: "4/7", allocated: 0, allocations: [] },  
+  { name: "PS5 Remainder", amount: 122.01, allocated: 0, allocations: [] },
 ];
 
 const holidays = {
