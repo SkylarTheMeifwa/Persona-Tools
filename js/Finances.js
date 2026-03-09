@@ -147,7 +147,6 @@ function calculateBalanceUpTo(targetDate) {
 
   while (d <= end) {
     const dateStr = formatDate(d);
-    console.log("Day:", dateStr);
 
     // Entries
     if (entries[dateStr]) {
