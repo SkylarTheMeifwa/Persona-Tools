@@ -39,9 +39,11 @@ export default async function handler(req, res) {
   try {
     // Download existing file if it exists
     let existing = { entries: [], goals: [] };
+
+    let response = null;
     try {
-      const response = await dbx.filesDownload({
-        path: "Apps/Persona-Tools/cashflow-data.json"
+      response = await dbx.filesDownload({
+        path: "/Persona-Tools/cashflow-data.json"
       });
       const fileData = response.result.fileBinary;
       existing = JSON.parse(fileData.toString());
