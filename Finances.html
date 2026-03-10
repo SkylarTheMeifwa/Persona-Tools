@@ -25,14 +25,17 @@
 
     <div id="goalsView"></div>
 
-    <label>Starting Balance:</label>
-    <input type="number" id="startingBalance" value="10.36" />
-    <button onclick="recalculate()">Reset Simulation</button>
-
     <hr />
 
-    <button onclick="prevDay()">Previous</button>
-    <button onclick="nextDay()">Next</button>
+    <div style="display: flex; justify-content: space-between;">
+      <div>
+        <button onclick="prevDay()">Previous</button>
+        <button onclick="nextDay()">Next</button>
+      </div>
+      <button id="toggleEditModeBtn" onclick="toggleEditMode()">
+        Edit Entries
+      </button>
+    </div>
 
     <h3 id="currentDate"></h3>
     <h3 id="currentBalance"></h3>
@@ -45,16 +48,9 @@
       <input type="text" id="entryName" />
       Amount:
       <input type="number" id="entryAmount" />
-      <div id="typeToggle">
-        <button id="incomeBtn" type="button">Income</button>
-        <button id="billBtn" type="button">Bill</button>
-      </div>
 
-      <button id="mainSaveBtn" onclick="saveEntry()">Add Entry</button>
-
-      <button id="toggleEditModeBtn" onclick="toggleEditMode()">
-        Edit Mode
-      </button>
+      <button onclick="saveEntry('income')">Income</button>
+      <button onclick="saveEntry('bill')">Bill</button>
     </div>
 
     <div id="calendarView"></div>

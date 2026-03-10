@@ -4,7 +4,6 @@ const endDate = new Date("2026-04-12");
 let entries = {};
 let currentDate = new Date(startDate);
 let editIndex = null;
-let selectedType = "income";
 let isEditMode = false;
 
 const goals = [
@@ -226,31 +225,6 @@ function getUnallocatedBalance() {
   return todayBalance;
 }
 
-function updateTypeUI() {
-  const incomeBtn = document.getElementById("incomeBtn");
-  const billBtn = document.getElementById("billBtn");
-
-  if (selectedType === "income") {
-    incomeBtn.style.background = "#d1fae5";
-    billBtn.style.background = "";
-  } else {
-    billBtn.style.background = "#fee2e2";
-    incomeBtn.style.background = "";
-  }
-}
-
-document.getElementById("incomeBtn").onclick = () => {
-  selectedType = "income";
-  updateTypeUI();
-};
-
-document.getElementById("billBtn").onclick = () => {
-  selectedType = "bill";
-  updateTypeUI();
-};
-
-updateTypeUI();
-
 /* ---------- GOALS ---------- */
 function renderGoals() {
   const goalsDiv = document.getElementById("goalsView");
@@ -344,7 +318,13 @@ function renderDay() {
   const dateStr = formatDate(currentDate);
   const balance = calculateBalanceUpTo(currentDate);
 
-  let dateDisplay = currentDate.toDateString();
+  // Format like "Tuesday, April 7, 2026"
+  let dateDisplay = currentDate.toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 
   if (holidays[dateStr]) {
     const holiday = holidays[dateStr];
@@ -371,6 +351,15 @@ function renderDay() {
       const div = document.createElement("div");
       div.className = "entry";
 
+      if (isEditMode) {
+        const delBtn = document.createElement("button");
+        delBtn.className = "delete-btn";
+        delBtn.innerHTML = "&#128465;";
+        delBtn.title = "Delete";
+        delBtn.onclick = () => deleteEntry(index);
+        div.appendChild(delBtn);
+      }
+
       const span = document.createElement("span");
       span.className = e.type;
       span.innerText =
@@ -378,21 +367,12 @@ function renderDay() {
       div.appendChild(span);
 
       if (isEditMode) {
-        const buttonContainer = document.createElement("div");
-        buttonContainer.style.display = "flex";
-        buttonContainer.style.gap = "6px";
-
         const editBtn = document.createElement("button");
-        editBtn.innerText = "Edit";
+        editBtn.className = "edit-btn";
+        editBtn.innerHTML = "&#9998;";
+        editBtn.title = "Edit";
         editBtn.onclick = () => editEntry(index);
-
-        const delBtn = document.createElement("button");
-        delBtn.innerText = "Delete";
-        delBtn.onclick = () => deleteEntry(index);
-
-        buttonContainer.appendChild(editBtn);
-        buttonContainer.appendChild(delBtn);
-        div.appendChild(buttonContainer);
+        div.appendChild(editBtn);
       }
 
       list.appendChild(div);
@@ -443,6 +423,16 @@ function renderCalendar() {
     grid.style.display = "grid";
     grid.style.gridTemplateColumns = "repeat(7, 1fr)";
     grid.style.gap = "4px";
+
+    // add weekday headers
+    const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    weekdays.forEach((wd) => {
+      const hd = document.createElement("div");
+      hd.style.fontWeight = "bold";
+      hd.style.textAlign = "center";
+      hd.innerText = wd;
+      grid.appendChild(hd);
+    });
 
     const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -531,17 +521,16 @@ function toggleEditMode() {
   isEditMode = !isEditMode;
 
   document.getElementById("toggleEditModeBtn").innerText = isEditMode
-    ? "Done Editing"
-    : "Edit Mode";
+    ? "Save Changes"
+    : "Edit Entries";
 
   renderDay();
 }
 
 /* ---------- ENTRY CRUD ---------- */
-function saveEntry() {
+function saveEntry(type) {
   const name = document.getElementById("entryName").value;
   const amount = Number(document.getElementById("entryAmount").value);
-  const type = selectedType;
   const dateStr = formatDate(currentDate);
 
   if (!name || !amount) return alert("Fill all fields");
@@ -553,7 +542,10 @@ function saveEntry() {
   } else {
     entries[dateStr].push({ name, amount, type });
   }
-  document.getElementById("mainSaveBtn").innerText = "Add Entry";
+
+  // Clear the form
+  document.getElementById("entryName").value = "";
+  document.getElementById("entryAmount").value = "";
 
   saveToStorage();
   renderDay();
@@ -564,8 +556,6 @@ function editEntry(index) {
   const entry = entries[dateStr][index];
   document.getElementById("entryName").value = entry.name;
   document.getElementById("entryAmount").value = entry.amount;
-  document.getElementById("entryType").value = entry.type;
-  document.getElementById("mainSaveBtn").innerText = "Save Changes";
   editIndex = index;
 }
 
