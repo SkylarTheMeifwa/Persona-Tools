@@ -67,6 +67,49 @@ function saveToStorage() {
   saveToDropbox();
 }
 
+// allow exporting data to a file
+function exportData() {
+  const data = {
+    entries,
+    goals,
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {
+    type: "application/json",
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "cashflow-data.json";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (data.entries) entries = data.entries;
+      if (data.goals) {
+        // replace goals array but keep existing structure to preserve methods
+        goals.length = 0;
+        data.goals.forEach((g) => goals.push(g));
+      }
+      saveToStorage();
+      renderDay();
+      alert('Data imported successfully');
+    } catch (err) {
+      alert('Failed to import: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+  // reset input so same file can be selected again later
+  event.target.value = '';
+}
+
 // ---------- LOAD LOCAL STORAGE ----------
 
 function loadFromLocalStorage() {

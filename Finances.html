@@ -51,6 +51,12 @@
 
       <button onclick="saveEntry('income')">Income</button>
       <button onclick="saveEntry('bill')">Bill</button>
+
+      <div style="margin-top:10px;">
+        <button onclick="exportData()">Export Data</button>
+      <input type="file" id="importFile" accept="application/json" style="display:none" onchange="importData(event)" />
+      <button onclick="document.getElementById('importFile').click()">Import Data</button>
+      </div>
     </div>
 
     <div id="calendarView"></div>
