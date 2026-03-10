@@ -23,7 +23,11 @@ export default async function handler(req, res) {
   }
 
   const cookies = parseCookies(req.headers.cookie);
-  const userToken = cookies.userToken;
+  // Accept token from cookie or body
+  let userToken = cookies.userToken;
+  if (!userToken && req.body && req.body.userToken) {
+    userToken = req.body.userToken;
+  }
 
   if (!userToken) {
     return res.status(401).json({ error: "Dropbox not connected" });
