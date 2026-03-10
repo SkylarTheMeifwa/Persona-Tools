@@ -42,21 +42,13 @@ export default async function handler(req, res) {
 
   try {
     // Ensure /Persona-Tools folder exists
-    try {
-      await dbx.filesCreateFolderV2({ path: "/Persona-Tools", autorename: false });
-    } catch (err) {
-      // Ignore if folder already exists
-      if (!err?.error?.error_summary?.includes("folder/conflict")) {
-        throw err;
-      }
-    }
 
     // Download existing file if it exists
     let existing = { entries: [], goals: [] };
     let response = null;
     try {
       response = await dbx.filesDownload({
-        path: "/Persona-Tools/cashflow-data.json"
+        path: "/cashflow-data.json"
       });
       const fileData = response.result.fileBinary;
       existing = JSON.parse(fileData.toString());
@@ -76,7 +68,7 @@ export default async function handler(req, res) {
     };
 
     await dbx.filesUpload({
-      path: "/Persona-Tools/cashflow-data.json",
+      path: "/cashflow-data.json",
       contents: JSON.stringify(data, null, 2),
       mode: { ".tag": "update", "update": response?.result?.rev || undefined } // update if possible
     });
