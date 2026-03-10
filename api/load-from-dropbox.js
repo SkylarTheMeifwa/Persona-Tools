@@ -33,7 +33,7 @@ export default async function handler(req, res) {
   try {
 
     const response = await dbx.filesDownload({
-      path: "/Persona-Tools/cashflow-data.json"
+      path: "Apps/Persona-Tools/cashflow-data.json"
     });
 
     const fileData = response.result.fileBinary;

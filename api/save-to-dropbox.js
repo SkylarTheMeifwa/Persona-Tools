@@ -37,8 +37,24 @@ export default async function handler(req, res) {
   });
 
   try {
+    // Download existing file if it exists
+    let existing = { entries: [], goals: [] };
+    try {
+      const response = await dbx.filesDownload({
+        path: "Apps/Persona-Tools/cashflow-data.json"
+      });
+      const fileData = response.result.fileBinary;
+      existing = JSON.parse(fileData.toString());
+    } catch (err) {
+      // If file doesn't exist, continue with empty
+      if (!err?.error?.error_summary?.includes("path/not_found")) {
+        throw err;
+      }
+    }
 
+    // Merge: replace entries and goals with new data
     const data = {
+      ...existing,
       entries,
       goals,
       savedAt: new Date().toISOString()
@@ -47,7 +63,7 @@ export default async function handler(req, res) {
     await dbx.filesUpload({
       path: "/Persona-Tools/cashflow-data.json",
       contents: JSON.stringify(data, null, 2),
-      mode: "overwrite"
+      mode: { ".tag": "update", "update": response?.result?.rev || undefined } // update if possible
     });
 
     res.status(200).json({ success: true });
