@@ -1,0 +1,24 @@
+{
+  "name": "persona-tools",
+  "version": "1.0.0",
+  "description": "A fan-made collection of interactive tools inspired by the Persona series — designed to enhance your gameplay experience and even help in real life. This multi-page web project includes dynamic trackers, calendars, and guides tailored for games like Persona 5 Royal, P4G, P3P, P5X, and more.",
+  "keywords": [],
+  "homepage": "https://github.com/SkylarTheMeifwa/Persona-Tools#readme",
+  "bugs": {
+    "url": "https://github.com/SkylarTheMeifwa/Persona-Tools/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SkylarTheMeifwa/Persona-Tools.git"
+  },
+  "license": "ISC",
+  "author": "SkylarTheMeifwa",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "dropbox": "^10.34.0"
+  }
+}
