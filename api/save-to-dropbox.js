@@ -72,7 +72,7 @@ export default async function handler(req, res) {
     await dbx.filesUpload({
       path: "/cashflow-data.json",
       contents: JSON.stringify(data, null, 2),
-      mode: { ".tag": "update", "update": response?.result?.rev || undefined } // update if possible
+      mode: "overwrite"
     });
 
     res.status(200).json({ success: true });
