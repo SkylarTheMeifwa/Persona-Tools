@@ -191,17 +191,6 @@ function saveToStorage() {
 
   // Cloud sync
   saveToDropbox();
-        userToken,
-        entries,
-        goals,
-        deletedGoals
-      })
-    });
-  } catch (err) {
-    console.error("Dropbox save failed:", err);
-  }
-  a.click();
-  URL.revokeObjectURL(url);
 }
 
 function importData(event) {
