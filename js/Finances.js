@@ -629,3 +629,4 @@ function recalculate() {
 }
 
 renderDay();
+window.saveToStorage = saveToStorage;
