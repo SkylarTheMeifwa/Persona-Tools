@@ -534,7 +534,15 @@ function renderGoals() {
       }
       div.appendChild(document.createElement("br"));
       if (goal.due) {
-        div.appendChild(document.createTextNode(`Due: ${goal.due}`));
+        // Format due date as m/d
+        const dateObj = new Date(goal.due);
+        if (!isNaN(dateObj)) {
+          const m = dateObj.getMonth() + 1;
+          const d = dateObj.getDate();
+          div.appendChild(document.createTextNode(`Due: ${m}/${d}`));
+        } else {
+          div.appendChild(document.createTextNode(`Due: ${goal.due}`));
+        }
         div.appendChild(document.createElement("br"));
       }
       div.appendChild(document.createTextNode(`Goal: $${goal.amount.toFixed(2)}`));
