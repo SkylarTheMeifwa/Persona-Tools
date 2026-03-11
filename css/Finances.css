@@ -1,3 +1,28 @@
+/* Ensure edit and delete buttons in goal cards ignore default button styles and are flush */
+.edit-btn, .delete-btn {
+  margin: 0 !important;
+  padding: 0 !important;
+  background: none !important;
+  border: none !important;
+  font-size: 16px !important;
+  box-shadow: none !important;
+  outline: none !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  width: auto !important;
+  height: auto !important;
+}
+.goal-deleted {
+  background: #eee !important;
+  color: #888;
+  border: 1px solid #bbb;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+}
+
 body {
   font-family: Arial, sans-serif;
   padding: 15px;
@@ -15,6 +40,24 @@ button {
   margin: 3px;
   padding: 6px 10px;
   font-size: 14px;
+}
+
+/* Ensure restore-btn is not affected by button selector */
+.restore-btn {
+  font-size: 5vw !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: none !important;
+  border: none !important;
+  color: #000 !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  height: auto !important;
+  min-height: 1em !important;
+  line-height: 1.1 !important;
+  display: block !important;
+  text-align: center !important;
 }
 
 input,

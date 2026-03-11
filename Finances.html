@@ -23,6 +23,44 @@
     ></iframe>
     <h2>Day-by-Day Cash Flow</h2>
 
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+      <div id="goalsBannerContainer" style="flex: 1 1 auto;"></div>
+      <button id="addGoalBtn" onclick="openAddGoalModal()" style="margin-left: 10px; display: none;">Add Goal</button>
+      <button id="rearrangeGoalsBtn" onclick="openRearrangeGoalsModal()" style="margin-left: 10px; display: none;">Rearrange Goals</button>
+      <button id="toggleEditGoalsBtn" onclick="toggleEditGoalsMode()" style="margin-left: 10px;">Edit Goals</button>
+            <!-- Add Goal Modal -->
+            <div id="addGoalModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.4); z-index:1000; align-items:center; justify-content:center;">
+              <div style="background:#fff; padding:24px; border-radius:8px; min-width:320px; max-width:90vw; margin:auto; box-shadow:0 2px 16px #0002;">
+                <h3>Add New Goal</h3>
+                <form id="addGoalForm" onsubmit="submitAddGoal(event)">
+                  <div style="margin-bottom:10px;">
+                    <label>Name:<br><input id="addGoalName" required style="width:100%"></label>
+                  </div>
+                  <div style="margin-bottom:10px;">
+                    <label>Amount:<br><input id="addGoalAmount" type="number" min="0.01" step="0.01" required style="width:100%"></label>
+                  </div>
+                  <div style="margin-bottom:10px;">
+                    <label>Due Date (optional):<br><input id="addGoalDue" type="date" style="width:100%"></label>
+                  </div>
+                  <div style="text-align:right;">
+                    <button type="button" onclick="closeAddGoalModal()">Cancel</button>
+                    <button type="submit">Add Goal</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+        <!-- Rearrange Goals Modal -->
+        <div id="rearrangeGoalsModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.4); z-index:1000; align-items:center; justify-content:center;">
+          <div style="background:#fff; padding:24px; border-radius:8px; min-width:320px; max-width:90vw; margin:auto; box-shadow:0 2px 16px #0002;">
+            <h3>Rearrange Goals</h3>
+            <ul id="rearrangeGoalsList" style="list-style:none; padding:0; margin:0 0 16px 0;"></ul>
+            <div style="text-align:right;">
+              <button onclick="closeRearrangeGoalsModal()">Cancel</button>
+              <button onclick="saveRearrangedGoals()">Save Order</button>
+            </div>
+          </div>
+        </div>
+    </div>
     <div id="goalsView"></div>
 
     <hr />

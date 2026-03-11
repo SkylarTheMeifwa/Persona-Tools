@@ -5,19 +5,144 @@ let entries = {};
 let currentDate = new Date(startDate);
 let editIndex = null;
 let isEditMode = false;
+let isEditGoalsMode = false;
+let deletedGoals = [];
+
+function toggleEditGoalsMode() {
+  isEditGoalsMode = !isEditGoalsMode;
+  renderGoals();
+  const btn = document.getElementById("toggleEditGoalsBtn");
+  if (btn) btn.innerText = isEditGoalsMode ? "Save Changes" : "Edit Goals";
+  // Show/hide rearrange and add goal buttons
+  const rearrangeBtn = document.getElementById("rearrangeGoalsBtn");
+  if (rearrangeBtn) rearrangeBtn.style.display = isEditGoalsMode ? "inline-block" : "none";
+  const addGoalBtn = document.getElementById("addGoalBtn");
+  if (addGoalBtn) addGoalBtn.style.display = isEditGoalsMode ? "inline-block" : "none";
+}
+
+// Add Goal Modal logic
+function openAddGoalModal() {
+  document.getElementById("addGoalModal").style.display = "flex";
+  document.getElementById("addGoalForm").reset();
+}
+function closeAddGoalModal() {
+  document.getElementById("addGoalModal").style.display = "none";
+}
+function submitAddGoal(e) {
+  e.preventDefault();
+  const name = document.getElementById("addGoalName").value.trim();
+  const amount = parseFloat(document.getElementById("addGoalAmount").value);
+  const due = document.getElementById("addGoalDue").value;
+  if (!name || isNaN(amount) || amount <= 0) return;
+  const newGoal = { name, amount, allocated: 0, allocations: [] };
+  if (due) newGoal.due = due;
+  goals.push(newGoal);
+  saveToStorage();
+  renderGoals();
+  closeAddGoalModal();
+}
+
+// Rearrange Goals Modal logic
+function openRearrangeGoalsModal() {
+  const modal = document.getElementById("rearrangeGoalsModal");
+  const list = document.getElementById("rearrangeGoalsList");
+  if (!modal || !list) return;
+  // Populate list
+  list.innerHTML = "";
+  goals.forEach((goal, idx) => {
+    const li = document.createElement("li");
+    li.style.display = "flex";
+    li.style.alignItems = "center";
+    li.style.marginBottom = "6px";
+    const title = document.createElement("span");
+    title.innerText = goal.name;
+    title.style.flex = "1 1 auto";
+    li.appendChild(title);
+    // Up button
+    const upBtn = document.createElement("button");
+    upBtn.innerHTML = "&#8593;";
+    upBtn.disabled = idx === 0;
+    upBtn.onclick = () => moveGoalInList(idx, -1);
+    li.appendChild(upBtn);
+    // Down button
+    const downBtn = document.createElement("button");
+    downBtn.innerHTML = "&#8595;";
+    downBtn.disabled = idx === goals.length - 1;
+    downBtn.onclick = () => moveGoalInList(idx, 1);
+    li.appendChild(downBtn);
+    list.appendChild(li);
+  });
+  modal.style.display = "flex";
+}
+
+function closeRearrangeGoalsModal() {
+  const modal = document.getElementById("rearrangeGoalsModal");
+  if (modal) modal.style.display = "none";
+}
+
+// Move goal in the modal list (not in main array yet)
+let tempGoalOrder = null;
+function moveGoalInList(idx, dir) {
+  if (!tempGoalOrder) {
+    tempGoalOrder = goals.map(g => g);
+  }
+  const newIdx = idx + dir;
+  if (newIdx < 0 || newIdx >= tempGoalOrder.length) return;
+  [tempGoalOrder[idx], tempGoalOrder[newIdx]] = [tempGoalOrder[newIdx], tempGoalOrder[idx]];
+  // Re-render list
+  const list = document.getElementById("rearrangeGoalsList");
+  if (!list) return;
+  list.innerHTML = "";
+  tempGoalOrder.forEach((goal, i) => {
+    const li = document.createElement("li");
+    li.style.display = "flex";
+    li.style.alignItems = "center";
+    li.style.marginBottom = "6px";
+    const title = document.createElement("span");
+    title.innerText = goal.name;
+    title.style.flex = "1 1 auto";
+    li.appendChild(title);
+    // Up button
+    const upBtn = document.createElement("button");
+    upBtn.innerHTML = "&#8593;";
+    upBtn.disabled = i === 0;
+    upBtn.onclick = () => moveGoalInList(i, -1);
+    li.appendChild(upBtn);
+    // Down button
+    const downBtn = document.createElement("button");
+    downBtn.innerHTML = "&#8595;";
+    downBtn.disabled = i === tempGoalOrder.length - 1;
+    downBtn.onclick = () => moveGoalInList(i, 1);
+    li.appendChild(downBtn);
+    list.appendChild(li);
+  });
+}
+
+function saveRearrangedGoals() {
+  if (tempGoalOrder) {
+    // Copy order to main array
+    for (let i = 0; i < goals.length; i++) {
+      goals[i] = tempGoalOrder[i];
+    }
+    tempGoalOrder = null;
+    saveToStorage();
+    renderGoals();
+  }
+  closeRearrangeGoalsModal();
+}
 
 const goals = [
-  { name: "March Rent Part 2", amount: 367.66, due: "3/18", allocated: 0, allocations: [], },
-  { name: "April Rent", amount: 730, due: "4/3", allocated: 0, allocations: [], },
-  { name: "New Tire", amount: 130, due: "4/7", allocated: 0, allocations: [] },
-  { name: "Trip to See My Love", amount: 150, due: "4/11", allocated: 0, allocations: [], },
-  { name: "Beach Trip", amount: 250, due: "4/11", allocated: 0, allocations: [], },
-  { name: "At Home Run", amount: 150, due: "4/3", allocated: 0, allocations: [], },
-  { name: "Scrapbook", amount: 10, due: "4/7", allocated: 0, allocations: [] },
-  { name: "Capture Card", amount: 110.74, due: "4/7", allocated: 0, allocations: [] },
+  { name: "March Rent Part 2", amount: 367.66, allocated: 0, allocations: [], },
+  { name: "April Rent", amount: 730, allocated: 0, allocations: [], },
+  { name: "New Tire", amount: 130, allocated: 0, allocations: [] },
+  { name: "Trip to See My Love", amount: 150, allocated: 0, allocations: [], },
+  { name: "Beach Trip", amount: 250, allocated: 0, allocations: [], },
+  { name: "At Home Run", amount: 150, allocated: 0, allocations: [], },
+  { name: "Scrapbook", amount: 10, allocated: 0, allocations: [] },
+  { name: "Capture Card", amount: 110.74, allocated: 0, allocations: [] },
   { name: "PS5 Reimbursement", amount: 101.31, allocated: 0, allocations: [] },
-  { name: "Satin Pillowcases", amount: 40, due: "4/7", allocated: 0, allocations: [], },
-  { name: "Pillows", amount: 27.25, due: "4/7", allocated: 0, allocations: [] },  
+  { name: "Satin Pillowcases", amount: 40, allocated: 0, allocations: [], },
+  { name: "Pillows", amount: 27.25, allocated: 0, allocations: [] },  
   { name: "PS5 Remainder", amount: 121.24, allocated: 0, allocations: [] },
 ];
 
@@ -273,29 +398,153 @@ function renderGoals() {
   const goalsDiv = document.getElementById("goalsView");
   goalsDiv.innerHTML = "";
 
-  const banner = document.createElement("div");
-  banner.style.gridColumn = "1 / -1";
-  banner.style.fontWeight = "bold";
-  banner.innerText =
-    "Unallocated Balance: $" + getUnallocatedBalance().toFixed(2);
-  goalsDiv.appendChild(banner);
+  // Place banner in the new container
+  const bannerContainer = document.getElementById("goalsBannerContainer");
+  if (bannerContainer) {
+    bannerContainer.innerHTML = "";
+    const banner = document.createElement("div");
+    banner.style.fontWeight = "bold";
+    banner.innerText = "Unallocated Balance: $" + getUnallocatedBalance().toFixed(2);
+    bannerContainer.appendChild(banner);
+  }
 
-  goals.forEach((goal) => {
+  goals.forEach((goal, idx) => {
     const div = document.createElement("div");
     div.className = "goal-card";
+    div.style.paddingTop = "";
     if (goal.allocated >= goal.amount) div.classList.add("goal-funded");
 
     const percent = ((goal.allocated / goal.amount) * 100).toFixed(1);
 
-    div.innerHTML =
-      `<strong>${goal.name}</strong><br>` +
-      (goal.due ? `Due: ${goal.due}<br>` : "") +
-      `Goal: $${goal.amount.toFixed(2)}<br>` +
-      `Allocated: $${goal.allocated.toFixed(2)}<br>` +
-      `Progress: ${percent}%<br>` +
-      (goal.allocated >= goal.amount
-        ? "Funded"
-        : "Remaining: $" + (goal.amount - goal.allocated).toFixed(2));
+    // Title and delete button in flex row
+    div.innerHTML = "";
+    // Absolute-positioned delete button in top right
+    let isEditing = goal._editing;
+    if (isEditGoalsMode && isEditing) {
+      // Inline edit form
+      const nameInput = document.createElement("input");
+      nameInput.value = goal.name;
+      nameInput.style.width = "100%";
+      nameInput.placeholder = "Goal Name";
+      nameInput.className = "goal-edit-input";
+
+      const amountInput = document.createElement("input");
+      amountInput.type = "number";
+      amountInput.value = goal.amount;
+      amountInput.min = "0.01";
+      amountInput.step = "0.01";
+      amountInput.style.width = "100%";
+      amountInput.placeholder = "Amount";
+      amountInput.className = "goal-edit-input";
+
+      const dueInput = document.createElement("input");
+      dueInput.type = "date";
+      dueInput.value = goal.due || "";
+      dueInput.style.width = "100%";
+      dueInput.className = "goal-edit-input";
+
+      nameInput.style.boxSizing = "border-box";
+      amountInput.style.boxSizing = "border-box";
+      dueInput.style.boxSizing = "border-box";
+      nameInput.style.marginBottom = "4px";
+      amountInput.style.marginBottom = "4px";
+      dueInput.style.marginBottom = "8px";
+      div.appendChild(nameInput);
+      div.appendChild(amountInput);
+      div.appendChild(dueInput);
+
+      // Save/Cancel buttons in a flex row
+      const btnRow = document.createElement("div");
+      btnRow.style.display = "flex";
+      btnRow.style.gap = "6px";
+      btnRow.style.justifyContent = "space-between";
+      btnRow.style.width = "100%";
+      const cancelBtn = document.createElement("button");
+      cancelBtn.innerText = "Cancel";
+      cancelBtn.style.flex = "1 1 0";
+      cancelBtn.onclick = () => {
+        delete goal._editing;
+        renderGoals();
+      };
+      const saveBtn = document.createElement("button");
+      saveBtn.innerText = "Save";
+      saveBtn.style.flex = "1 1 0";
+      saveBtn.onclick = () => {
+        goal.name = nameInput.value.trim() || goal.name;
+        goal.amount = parseFloat(amountInput.value) || goal.amount;
+        goal.due = dueInput.value || undefined;
+        delete goal._editing;
+        saveToStorage();
+        renderGoals();
+      };
+      btnRow.appendChild(cancelBtn);
+      btnRow.appendChild(saveBtn);
+      div.appendChild(btnRow);
+    } else {
+      // Normal display
+      const title = document.createElement("strong");
+      title.innerText = goal.name;
+      title.style.display = "block";
+      title.style.wordBreak = "break-word";
+      title.style.width = "100%";
+      title.style.paddingRight = "1.8em";
+      title.style.boxSizing = "border-box";
+      div.appendChild(title);
+
+      if (isEditGoalsMode) {
+        // Edit button
+        const editBtn = document.createElement("button");
+        editBtn.innerText = "✎";
+        editBtn.title = "Edit Goal";
+        editBtn.className = "edit-btn";
+        // Flex container for edit/delete buttons
+        const btnFlex = document.createElement("div");
+        btnFlex.style.display = "flex";
+        btnFlex.style.gap = "2px";
+        btnFlex.style.position = "absolute";
+        btnFlex.style.top = "4px";
+        btnFlex.style.right = "8px";
+        btnFlex.style.zIndex = "2";
+        // Edit button
+        editBtn.style.position = "static";
+        editBtn.onclick = () => {
+          goal._editing = true;
+          renderGoals();
+        };
+        // Delete button
+        const deleteBtn = document.createElement("button");
+        deleteBtn.innerHTML = "&#128465;";
+        deleteBtn.title = "Delete Goal";
+        deleteBtn.className = "delete-btn";
+        deleteBtn.style.position = "static";
+        deleteBtn.style.marginLeft = "0";
+        deleteBtn.style.paddingLeft = "0";
+        editBtn.style.marginRight = "0";
+        editBtn.style.paddingRight = "0";
+        deleteBtn.onclick = () => {
+          deletedGoals.push(goal); // Save deleted goal for greyed out rendering
+          goals.splice(idx, 1);
+          saveToStorage();
+          renderGoals();
+        };
+        btnFlex.appendChild(editBtn);
+        btnFlex.appendChild(deleteBtn);
+        div.style.position = "relative";
+        div.appendChild(btnFlex);
+      }
+      div.appendChild(document.createElement("br"));
+      if (goal.due) {
+        div.appendChild(document.createTextNode(`Due: ${goal.due}`));
+        div.appendChild(document.createElement("br"));
+      }
+      div.appendChild(document.createTextNode(`Goal: $${goal.amount.toFixed(2)}`));
+      div.appendChild(document.createElement("br"));
+      div.appendChild(document.createTextNode(`Allocated: $${goal.allocated.toFixed(2)}`));
+      div.appendChild(document.createElement("br"));
+      div.appendChild(document.createTextNode(`Progress: ${percent}%`));
+      div.appendChild(document.createElement("br"));
+      div.appendChild(document.createTextNode(goal.allocated >= goal.amount ? "Funded" : `Remaining: $${(goal.amount - goal.allocated).toFixed(2)}`));
+    }
 
     const input = document.createElement("input");
     input.type = "number";
@@ -354,6 +603,34 @@ function renderGoals() {
     div.appendChild(controls);
     goalsDiv.appendChild(div);
   });
+
+  // Show deleted goals greyed out in edit mode
+  if (isEditGoalsMode && deletedGoals.length > 0) {
+    deletedGoals.forEach((goal, idx) => {
+      const div = document.createElement("div");
+      div.className = "goal-card goal-deleted";
+      div.style.opacity = 0.5;
+      div.style.pointerEvents = "auto";
+      div.style.display = "flex";
+      div.style.flexDirection = "column";
+      div.style.alignItems = "center";
+      // Restore button
+      const restoreBtn = document.createElement("button");
+      restoreBtn.innerText = "Restore";
+      restoreBtn.className = "restore-btn";
+      restoreBtn.onclick = () => {
+        goals.push(goal);
+        deletedGoals.splice(idx, 1);
+        saveToStorage();
+        renderGoals();
+      };
+      div.appendChild(document.createElement("br"));
+      div.appendChild(document.createTextNode(goal.name));
+      div.appendChild(restoreBtn);
+      div.appendChild(document.createTextNode(`Goal: $${goal.amount.toFixed(2)}`));
+      goalsDiv.appendChild(div);
+    });
+  }
 }
 
 /* ---------- DAY VIEW ---------- */
