@@ -19,11 +19,16 @@ function parseCookies(cookieHeader) {
 export default async function handler(req, res) {
 
   const cookies = parseCookies(req.headers.cookie);
-  const userToken = cookies.userToken;
+  let userToken = cookies.userToken;
+  if (!userToken && req.body && req.body.userToken) {
+    userToken = req.body.userToken;
+  }
 
   if (!userToken) {
+    console.error("No Dropbox token provided.");
     return res.status(401).json({ error: "Dropbox not connected" });
   }
+  console.log("Dropbox token received:", userToken);
 
   const dbx = new Dropbox({
     accessToken: userToken,
@@ -31,19 +36,13 @@ export default async function handler(req, res) {
   });
 
   try {
-
     const response = await dbx.filesDownload({
-      path: "Apps/Persona-Tools/cashflow-data.json"
+      path: "/cashflow-data.json"
     });
-
     const fileData = response.result.fileBinary;
-
     const json = JSON.parse(fileData.toString());
-
     res.status(200).json(json);
-
   } catch (err) {
-
     // file might not exist yet
     if (err?.error?.error_summary?.includes("path/not_found")) {
       return res.status(200).json({
@@ -51,9 +50,8 @@ export default async function handler(req, res) {
         goals: []
       });
     }
-
     console.error("DROPBOX LOAD ERROR:", err);
-
+    if (err && err.stack) console.error(err.stack);
     res.status(500).json({
       error: err.message
     });

@@ -30,8 +30,10 @@ export default async function handler(req, res) {
   }
 
   if (!userToken) {
+    console.error("No Dropbox token provided.");
     return res.status(401).json({ error: "Dropbox not connected" });
   }
+  console.log("Dropbox token received:", userToken);
 
   const { entries, goals } = req.body;
 
@@ -74,9 +76,9 @@ export default async function handler(req, res) {
     });
 
     res.status(200).json({ success: true });
-
   } catch (err) {
     console.error("DROPBOX ERROR:", err);
+    if (err && err.stack) console.error(err.stack);
     res.status(500).json({ error: err.message });
   }
 }
