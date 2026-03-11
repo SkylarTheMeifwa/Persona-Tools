@@ -1,3 +1,21 @@
+button.color-randomize {
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  background: none;
+  color: white;
+  border: none;
+  font-family: inherit;
+  font-size: 1.1rem;
+  letter-spacing: 1px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin-top: 0.5em;
+  cursor: pointer;
+}
+
+button.color-randomize:hover {
+  background-color: #b30000;
+  transform: scale(1.05);
+}
 /* Font Definitions */
 @font-face {
   font-family: "Persona5MenuFont";

@@ -39,35 +39,23 @@
 
         <ul>
           <li>
-            <a href="Finances.html" class="color-randomize"
-              >Day to Day Finance Tracker</a
-            >
+            <a href="Finances.html" class="color-randomize" title="Day to Day Finance Tracker">Day to Day Finance Tracker</a>
           </li>
         </ul>
         <h3>Persona 5 Inspired Social Stat Tracker</h3>
         <ul>
           <li>
-            <a
-              href="I-Belieeevee-We-Can-Flyyy-Up-In-The-Sky.html"
-              class="color-randomize"
-              >With Knowledge Stat</a
-            >
+            <a href="I-Belieeevee-We-Can-Flyyy-Up-In-The-Sky.html" class="color-randomize" title="With Knowledge Stat">With Knowledge Stat</a>
           </li>
           <li>
-            <a
-              href="You'll-Never-See-It-Comiiingggg.html"
-              class="color-randomize"
-              >Without Knowledge Stat</a
-            >
+            <a href="You'll-Never-See-It-Comiiingggg.html" class="color-randomize" title="Without Knowledge Stat">Without Knowledge Stat</a>
           </li>
         </ul>
 
         <h3>Persona 5 Inspired To-Do List</h3>
         <ul>
           <li>
-            <a href="mementos-requests.html" class="color-randomize"
-              >To-Do List</a
-            >
+            <a href="mementos-requests.html" class="color-randomize" title="To-Do List">To-Do List</a>
           </li>
         </ul>
       </section>
@@ -76,9 +64,7 @@
         <h2>Game Guides</h2>
         <ul>
           <li>
-            <a href="Time-To-Retake-Your-Desires.html" class="color-randomize"
-              >Persona 5: The Phantom X Daily Tracker</a
-            >
+            <a href="Time-To-Retake-Your-Desires.html" class="color-randomize" title="Persona 5: The Phantom X Daily Tracker">Persona 5: The Phantom X Daily Tracker</a>
           </li>
         </ul>
       </section>
@@ -86,12 +72,21 @@
         <h2>Settings</h2>
         <ul>
           <li>
-            <a href="/api/dropbox"> Connect Dropbox </a>
+            <a href="/api/dropbox" class="color-randomize" title="Connect Dropbox"> Connect Dropbox </a>
+          </li>
+          <li style="margin: 0.5rem 0;">
+            <form id="dropbox-token-form">
+              <div style="display: flex; flex-direction: column; align-items: center;">
+                <input type="text" id="dropbox-token-input" style="width: 350px; max-width: 90vw; margin-bottom: 0.1em; text-align: center;" placeholder="Paste Dropbox token here"/>
+                <button type="submit" class="color-randomize" title="Save Dropbox Token">Save Token</button>
+              </div>
+            </form>
           </li>
         </ul>
       </section>
     </main>
 
+    <script src="js/dropbox-token-input.js"></script>
     <script>
       window.addEventListener("DOMContentLoaded", () => {
         const colors = ["#d3d3d3", "#555555", "#ffffff"];
@@ -101,7 +96,7 @@
             .map((char) => {
               if (char.trim() === "") return char;
               const color = colors[Math.floor(Math.random() * colors.length)];
-              return `<span style="color:${color}">${char}</span>`;
+              return `<span style=\"color:${color}\">${char}</span>`;
             })
             .join("");
         });
