@@ -191,13 +191,6 @@ function saveToStorage() {
 
   // Cloud sync
   saveToDropbox();
-  try {
-    await fetch("/api/save-to-dropbox", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
         userToken,
         entries,
         goals,
