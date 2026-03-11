@@ -304,12 +304,8 @@ async function loadFromDropbox() {
     }
 
     if (data.goals) {
-      data.goals.forEach((g, i) => {
-        if (goals[i]) {
-          goals[i].allocated = Number(g.allocated) || 0;
-          goals[i].allocations = g.allocations || [];
-        }
-      });
+      goals.length = 0;
+      data.goals.forEach(g => goals.push(g));
     }
 
     renderDay();
