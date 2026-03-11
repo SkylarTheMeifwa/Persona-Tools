@@ -47,7 +47,8 @@ export default async function handler(req, res) {
     if (err?.error?.error_summary?.includes("path/not_found")) {
       return res.status(200).json({
         entries: [],
-        goals: []
+        goals: [],
+        deletedGoals: []
       });
     }
     console.error("DROPBOX LOAD ERROR:", err);

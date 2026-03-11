@@ -173,7 +173,8 @@ async function saveToDropbox() {
       body: JSON.stringify({
         userToken,
         entries,
-        goals
+        goals,
+        deletedGoals
       })
     });
   } catch (err) {
