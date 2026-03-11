@@ -10,6 +10,10 @@ let deletedGoals = [];
 
 function toggleEditGoalsMode() {
   isEditGoalsMode = !isEditGoalsMode;
+  // If turning off edit mode (i.e., saving changes), persist to storage
+  if (!isEditGoalsMode) {
+    saveToStorage();
+  }
   renderGoals();
   const btn = document.getElementById("toggleEditGoalsBtn");
   if (btn) btn.innerText = isEditGoalsMode ? "Save Changes" : "Edit Goals";
