@@ -1,6 +1,6 @@
 // Dropbox logout utility
 function dropboxLogout() {
-  localStorage.removeItem("dropbox_token");
+  localStorage.clear('dropbox_token');
   alert("Dropbox token removed. Please reconnect.");
   // Optionally, reload the page to clear any cached state
   window.location.reload();
