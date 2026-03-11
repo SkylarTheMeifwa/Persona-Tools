@@ -187,24 +187,26 @@ function saveToStorage() {
   // Local backup
   localStorage.setItem("cashflow_entries", JSON.stringify(entries));
   localStorage.setItem("cashflow_goals", JSON.stringify(goals));
+  localStorage.setItem("cashflow_deletedGoals", JSON.stringify(deletedGoals));
 
   // Cloud sync
   saveToDropbox();
-}
-
-// allow exporting data to a file
-function exportData() {
-  const data = {
-    entries,
-    goals,
-  };
-  const blob = new Blob([JSON.stringify(data, null, 2)], {
-    type: "application/json",
-  });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "cashflow-data.json";
+  try {
+    await fetch("/api/save-to-dropbox", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        userToken,
+        entries,
+        goals,
+        deletedGoals
+      })
+    });
+  } catch (err) {
+    console.error("Dropbox save failed:", err);
+  }
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -248,13 +250,15 @@ function loadFromLocalStorage() {
 
   if (savedGoals) {
     const parsed = JSON.parse(savedGoals);
+    goals.length = 0;
+    parsed.forEach(g => goals.push(g));
+  }
 
-    parsed.forEach((g, i) => {
-      if (goals[i]) {
-        goals[i].allocated = Number(g.allocated) || 0;
-        goals[i].allocations = g.allocations || [];
-      }
-    });
+  const savedDeleted = localStorage.getItem("cashflow_deletedGoals");
+  if (savedDeleted) {
+    const parsed = JSON.parse(savedDeleted);
+    deletedGoals.length = 0;
+    parsed.forEach(g => deletedGoals.push(g));
   }
 }
 
@@ -306,6 +310,11 @@ async function loadFromDropbox() {
     if (data.goals) {
       goals.length = 0;
       data.goals.forEach(g => goals.push(g));
+    }
+
+    if (data.deletedGoals) {
+      deletedGoals.length = 0;
+      data.deletedGoals.forEach(g => deletedGoals.push(g));
     }
 
     renderDay();

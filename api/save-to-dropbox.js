@@ -35,7 +35,7 @@ export default async function handler(req, res) {
   }
   console.log("Dropbox token received:", userToken);
 
-  const { entries, goals } = req.body;
+  const { entries, goals, deletedGoals } = req.body;
 
   const dbx = new Dropbox({
     accessToken: userToken,
@@ -62,10 +62,12 @@ export default async function handler(req, res) {
     }
 
     // Merge: replace entries and goals with new data
+
     const data = {
       ...existing,
       entries,
       goals,
+      deletedGoals,
       savedAt: new Date().toISOString()
     };
 
