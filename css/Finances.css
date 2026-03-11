@@ -44,7 +44,7 @@ button {
 
 /* Ensure restore-btn is not affected by button selector */
 .restore-btn {
-  font-size: 5vw !important;
+  font-size: 3vw !important;
   padding: 0 !important;
   margin: 0 !important;
   background: none !important;
