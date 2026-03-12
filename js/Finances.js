@@ -223,7 +223,7 @@ function toggleGoalsTestMode() {
   isGoalsTestMode = !isGoalsTestMode;
   const btn = document.getElementById("toggleGoalsTestModeBtn");
   if (btn) {
-    btn.innerText = isGoalsTestMode ? "Test Mode: On" : "Test Mode: Off";
+    btn.innerText = isGoalsTestMode ? "Test: On" : "Test: Off";
   }
   renderDay();
 }
@@ -760,8 +760,9 @@ function renderGoals() {
     normalizeGoal(goal);
     const goalAmount = Number(goal.amount || 0);
     const allocatedAmount = getGoalAllocatedAmount(goal);
+    const appliedAmount = getGoalAppliedAmount(goal);
     goal.allocated = allocatedAmount;
-    const percent = goalAmount > 0 ? ((allocatedAmount / goalAmount) * 100).toFixed(1) : "0.0";
+    const percent = goalAmount > 0 ? ((appliedAmount / goalAmount) * 100).toFixed(1) : "0.0";
     const funded = isGoalFunded(goal);
 
     const card = document.createElement("div");
@@ -913,7 +914,7 @@ function renderGoals() {
     front.appendChild(document.createElement("br"));
     front.appendChild(
       document.createTextNode(
-        funded ? "Funded" : `Remaining: $${Math.max(goalAmount - allocatedAmount, 0).toFixed(2)}`
+        funded ? "Funded" : `Remaining: $${Math.max(goalAmount - appliedAmount, 0).toFixed(2)}`
       )
     );
 
