@@ -1,0 +1,227 @@
+/* ===== Persona 5 Nav Bar ===== */
+
+@import url("https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap");
+
+@font-face {
+  font-family: "Persona5MenuFont";
+  src: url("/assets/fonts/Persona5MenuFont.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "ExposeRegular";
+  src: url("/assets/fonts/Expose-Regular.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "Persona5Main";
+  src: url("/assets/fonts/Persona5Main.ttf") format("truetype");
+}
+
+:root {
+  --p5-font-persona-menu: "Persona5MenuFont";
+  --p5-font-expose-regular: "ExposeRegular";
+}
+
+html.p5-font-readable {
+  --p5-font-persona-menu: "ZCOOL KuaiLe";
+  --p5-font-expose-regular: "Persona5MenuFont";
+}
+
+/* Push page content below the fixed navbar */
+body {
+  padding-top: 52px;
+}
+
+body.has-stat-subnav {
+  padding-top: 98px;
+}
+
+body.has-stat-subnav.stat-subnav-collapsed {
+  padding-top: 52px;
+}
+
+.p5-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  background-color: rgba(10, 10, 10, 0.95);
+  border-bottom: 3px solid #ff0000;
+  box-sizing: border-box;
+}
+
+.p5-navbar ul {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: stretch;
+}
+
+.p5-navbar li {
+  margin: 0;
+}
+
+.p5-navbar a {
+  display: block;
+  padding: 0.65rem 1.1rem;
+  color: #e0e0e0;
+  text-decoration: none;
+  font-family: var(--p5-font-persona-menu, "Persona5MenuFont"),
+    var(--p5-font-expose-regular, "ExposeRegular"), "ZCOOL KuaiLe", sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  transition: background-color 0.2s ease, color 0.2s ease;
+  white-space: nowrap;
+  border-right: 1px solid rgba(255, 0, 0, 0.2);
+}
+
+.p5-navbar > ul:first-of-type > li:first-child > a {
+  border-left: 1px solid rgba(255, 0, 0, 0.2);
+}
+
+.p5-navbar a:hover {
+  background-color: #cc0000;
+  color: #ffffff;
+}
+
+.p5-navbar a.active {
+  background-color: #ff0000;
+  color: #ffffff;
+  text-shadow: 0 0 8px rgba(255, 200, 200, 0.6), 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+/* Home link gets a slight left indicator */
+.p5-navbar > ul:first-of-type > li:first-child > a::before {
+  content: "▶ ";
+  font-size: 0.6rem;
+  vertical-align: middle;
+}
+
+/* ===== Dropdown ===== */
+
+.p5-dropdown {
+  position: relative;
+}
+
+.p5-dropdown-toggle {
+  cursor: pointer;
+  user-select: none;
+}
+
+.p5-dropdown-toggle::after {
+  content: " ▾";
+  font-size: 0.7rem;
+}
+
+.p5-dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: rgba(10, 10, 10, 0.97);
+  border: 1px solid rgba(255, 0, 0, 0.4);
+  border-top: none;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  min-width: 160px;
+  z-index: 1001;
+  flex-direction: column;
+}
+
+.p5-dropdown-menu li {
+  width: 100%;
+}
+
+.p5-dropdown-menu a {
+  border-right: none;
+  border-left: none;
+  border-bottom: 1px solid rgba(255, 0, 0, 0.15);
+  white-space: nowrap;
+}
+
+.p5-dropdown-menu li:last-child a {
+  border-bottom: none;
+}
+
+.p5-dropdown:hover .p5-dropdown-menu,
+.p5-dropdown:focus-within .p5-dropdown-menu {
+  display: flex;
+}
+
+/* ===== Stat Subnav Row ===== */
+
+.p5-stat-subnav {
+  display: none;
+  width: 100%;
+  background-color: rgba(20, 20, 20, 0.98);
+  justify-content: center;
+}
+
+.p5-stat-subnav[hidden] {
+  display: none !important;
+}
+
+body.has-stat-subnav .p5-stat-subnav {
+  display: flex;
+}
+
+body.has-stat-subnav.stat-subnav-collapsed .p5-stat-subnav {
+  display: none;
+}
+
+.p5-stat-subnav a {
+  font-family: "Persona5Main", sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.5px;
+  text-transform: none;
+  color: #f0f0f0;
+  padding: 0.45rem 1.2rem;
+  border-right: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.p5-navbar.font-readable .p5-stat-subnav a {
+  font-family: "Persona5Main", sans-serif;
+}
+
+.p5-stat-subnav li:first-child a {
+  border-left: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.p5-stat-subnav a:hover {
+  background-color: #333333;
+  color: #ffffff;
+}
+
+.p5-stat-subnav a.active {
+  background-color: #ff0000;
+  color: #ffffff;
+  text-shadow: 0 0 8px rgba(255, 200, 200, 0.6), 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+@media (max-width: 600px) {
+  body.has-stat-subnav {
+    padding-top: 92px;
+  }
+
+  body.has-stat-subnav.stat-subnav-collapsed {
+    padding-top: 52px;
+  }
+
+  .p5-navbar a {
+    padding: 0.5rem 0.65rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.5px;
+  }
+
+  .p5-stat-subnav a {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.8rem;
+  }
+}

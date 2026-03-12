@@ -6,9 +6,31 @@ let currentDate = new Date(startDate);
 let editIndex = null;
 let isEditMode = false;
 let isEditGoalsMode = false;
+let isGoalsTestMode = false;
 let deletedGoals = [];
 
+function toggleGoalsTestMode() {
+  isGoalsTestMode = !isGoalsTestMode;
+  const btn = document.getElementById("toggleGoalsTestModeBtn");
+  if (btn) {
+    btn.innerText = isGoalsTestMode ? "Test Mode: On" : "Test Mode: Off";
+  }
+  renderDay();
+}
+
 function toggleEditGoalsMode() {
+  // Block entering edit mode when test mode is active or any card is flipped
+  if (!isEditGoalsMode) {
+    if (isGoalsTestMode) {
+      alert("Turn off Test Mode before editing goals.");
+      return;
+    }
+    if (goals.some(g => g._flipped)) {
+      alert("Flip all cards back before editing goals.");
+      return;
+    }
+  }
+
   isEditGoalsMode = !isEditGoalsMode;
   // If turning off edit mode (i.e., saving changes), persist to storage
   if (!isEditGoalsMode) {
@@ -22,6 +44,9 @@ function toggleEditGoalsMode() {
   if (rearrangeBtn) rearrangeBtn.style.display = isEditGoalsMode ? "inline-block" : "none";
   const addGoalBtn = document.getElementById("addGoalBtn");
   if (addGoalBtn) addGoalBtn.style.display = isEditGoalsMode ? "inline-block" : "none";
+  // Hide test mode button while in edit goals mode
+  const testModeBtn = document.getElementById("toggleGoalsTestModeBtn");
+  if (testModeBtn) testModeBtn.style.display = isEditGoalsMode ? "none" : "";
 }
 
 // Add Goal Modal logic
@@ -163,8 +188,15 @@ const holidays = {
 
 // ---------- LOCAL STORAGE + DROPBOX INTEGRATION ----------
 
+function stripGoalsForStorage(goalsArr) {
+  return goalsArr.map(g => ({
+    ...g,
+    allocations: (g.allocations || []).map(({ _editing, ...rest }) => rest)
+  }));
+}
+
 // Save to Dropbox
-async function saveToDropbox() {
+async function saveToDropbox(cleanGoals) {
   const userToken = localStorage.getItem("dropbox_token");
   if (!userToken) return;
 
@@ -177,7 +209,7 @@ async function saveToDropbox() {
       body: JSON.stringify({
         userToken,
         entries,
-        goals,
+        goals: cleanGoals,
         deletedGoals
       })
     });
@@ -188,14 +220,39 @@ async function saveToDropbox() {
 
 // Save locally + cloud
 function saveToStorage() {
+  const cleanGoals = stripGoalsForStorage(goals);
 
   // Local backup
   localStorage.setItem("cashflow_entries", JSON.stringify(entries));
-  localStorage.setItem("cashflow_goals", JSON.stringify(goals));
+  localStorage.setItem("cashflow_goals", JSON.stringify(cleanGoals));
   localStorage.setItem("cashflow_deletedGoals", JSON.stringify(deletedGoals));
 
   // Cloud sync
-  saveToDropbox();
+  saveToDropbox(cleanGoals);
+}
+
+function exportData() {
+  try {
+    const payload = {
+      entries,
+      goals,
+      deletedGoals,
+      exportedAt: new Date().toISOString(),
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `cashflow-export-${formatDate(new Date())}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    alert("Failed to export data: " + err.message);
+  }
 }
 
 function importData(event) {
@@ -212,6 +269,7 @@ function importData(event) {
         goals.length = 0;
         data.goals.forEach((g) => goals.push(g));
       }
+      normalizeGoals();
       saveToStorage();
       renderDay();
       alert('Data imported successfully');
@@ -247,6 +305,8 @@ function loadFromLocalStorage() {
     deletedGoals.length = 0;
     parsed.forEach(g => deletedGoals.push(g));
   }
+
+  normalizeGoals();
 }
 
 loadFromLocalStorage();
@@ -304,6 +364,7 @@ async function loadFromDropbox() {
       data.deletedGoals.forEach(g => deletedGoals.push(g));
     }
 
+    normalizeGoals();
     renderDay();
 
     console.log("Loaded data from Dropbox");
@@ -321,6 +382,60 @@ function formatDate(date) {
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
+}
+
+function formatMD(dateStr) {
+  if (typeof dateStr === "string") {
+    const parts = dateStr.split("-").map(Number);
+    if (parts.length === 3 && parts.every((n) => Number.isFinite(n))) {
+      return `${parts[1]}/${parts[2]}`;
+    }
+  }
+  const dateObj = new Date(dateStr);
+  if (Number.isNaN(dateObj.getTime())) return dateStr;
+  return `${dateObj.getMonth() + 1}/${dateObj.getDate()}`;
+}
+
+function isAllocationApplied(allocation) {
+  return isGoalsTestMode || Boolean(allocation.applied);
+}
+
+function getGoalAllocatedAmount(goal) {
+  if (!goal.allocations) return 0;
+  return goal.allocations.reduce((sum, allocation) => {
+    return sum + Number(allocation.amount || 0);
+  }, 0);
+}
+
+function getGoalAppliedAmount(goal) {
+  if (!goal.allocations) return 0;
+  return goal.allocations.reduce((sum, allocation) => {
+    return isAllocationApplied(allocation) ? sum + Number(allocation.amount || 0) : sum;
+  }, 0);
+}
+
+function isGoalFunded(goal) {
+  if (!goal.allocations || goal.allocations.length === 0) return false;
+  const appliedAmount = getGoalAppliedAmount(goal);
+  return Math.abs(appliedAmount - Number(goal.amount || 0)) < 0.005;
+}
+
+function normalizeGoal(goal) {
+  goal.allocations = Array.isArray(goal.allocations) ? goal.allocations : [];
+  goal.allocations = goal.allocations
+    .filter((allocation) => allocation && allocation.date && Number(allocation.amount) > 0)
+    .map((allocation) => ({
+      date: allocation.date,
+      amount: Number(allocation.amount),
+      applied: Boolean(allocation.applied),
+      _editing: Boolean(allocation._editing),
+    }));
+  goal.allocated = getGoalAllocatedAmount(goal);
+}
+
+function normalizeGoals() {
+  goals.forEach((goal) => normalizeGoal(goal));
+  deletedGoals.forEach((goal) => normalizeGoal(goal));
 }
 
 function calculateBalanceUpTo(targetDate) {
@@ -351,7 +466,7 @@ function calculateBalanceUpTo(targetDate) {
       });
     }
 
-    // Allocations
+    // Allocations are always part of balance and day/calendar rendering
     goals.forEach((g) => {
       if (g.allocations) {
         g.allocations.forEach((a) => {
@@ -369,20 +484,46 @@ function calculateBalanceUpTo(targetDate) {
 }
 
 function getUnallocatedBalance() {
-  // Start with today’s balance
-  const todayBalance = calculateBalanceUpTo(currentDate);
+  let balance =
+    parseFloat(document.getElementById("startingBalance")?.value) || 0;
 
-  // Subtract allocations already made **today** (so you can't overspend)
-  const todayAllocated = goals.reduce((sum, g) => {
-    return (
-      sum +
-      g.allocations.reduce((s, a) => {
-        return a.date === formatDate(currentDate) ? s + Number(a.amount) : s;
-      }, 0)
-    );
-  }, 0);
+  let d = new Date(
+    startDate.getFullYear(),
+    startDate.getMonth(),
+    startDate.getDate()
+  );
 
-  return todayBalance;
+  const end = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth(),
+    currentDate.getDate()
+  );
+
+  while (d <= end) {
+    const dateStr = formatDate(d);
+
+    if (entries[dateStr]) {
+      entries[dateStr].forEach((e) => {
+        const change =
+          e.type === "income" ? Number(e.amount) : -Number(e.amount);
+        balance += change;
+      });
+    }
+
+    goals.forEach((g) => {
+      if (g.allocations) {
+        g.allocations.forEach((a) => {
+          if (a.date === dateStr && isAllocationApplied(a)) {
+            balance -= Number(a.amount);
+          }
+        });
+      }
+    });
+
+    d.setDate(d.getDate() + 1);
+  }
+
+  return balance;
 }
 
 /* ---------- GOALS ---------- */
@@ -401,19 +542,23 @@ function renderGoals() {
   }
 
   goals.forEach((goal, idx) => {
-    const div = document.createElement("div");
-    div.className = "goal-card";
-    div.style.paddingTop = "";
-    if (goal.allocated >= goal.amount) div.classList.add("goal-funded");
+    normalizeGoal(goal);
+    const goalAmount = Number(goal.amount || 0);
+    const allocatedAmount = getGoalAllocatedAmount(goal);
+    goal.allocated = allocatedAmount;
+    const percent = goalAmount > 0 ? ((allocatedAmount / goalAmount) * 100).toFixed(1) : "0.0";
+    const funded = isGoalFunded(goal);
 
-    const percent = ((goal.allocated / goal.amount) * 100).toFixed(1);
+    const card = document.createElement("div");
+    card.className = "goal-card";
+    if (funded) card.classList.add("goal-funded");
 
-    // Title and delete button in flex row
-    div.innerHTML = "";
-    // Absolute-positioned delete button in top right
     let isEditing = goal._editing;
     if (isEditGoalsMode && isEditing) {
-      // Inline edit form
+      card.style.padding = "8px";
+      card.style.display = "flex";
+      card.style.flexDirection = "column";
+
       const nameInput = document.createElement("input");
       nameInput.value = goal.name;
       nameInput.style.width = "100%";
@@ -441,11 +586,10 @@ function renderGoals() {
       nameInput.style.marginBottom = "4px";
       amountInput.style.marginBottom = "4px";
       dueInput.style.marginBottom = "8px";
-      div.appendChild(nameInput);
-      div.appendChild(amountInput);
-      div.appendChild(dueInput);
+      card.appendChild(nameInput);
+      card.appendChild(amountInput);
+      card.appendChild(dueInput);
 
-      // Save/Cancel buttons in a flex row
       const btnRow = document.createElement("div");
       btnRow.style.display = "flex";
       btnRow.style.gap = "6px";
@@ -471,142 +615,256 @@ function renderGoals() {
       };
       btnRow.appendChild(cancelBtn);
       btnRow.appendChild(saveBtn);
-      div.appendChild(btnRow);
-    } else {
-      // Normal display
-      const title = document.createElement("strong");
-      title.innerText = goal.name;
-      title.style.display = "block";
-      title.style.wordBreak = "break-word";
-      title.style.width = "100%";
-      title.style.paddingRight = "1.8em";
-      title.style.boxSizing = "border-box";
-      div.appendChild(title);
+      card.appendChild(btnRow);
 
-      if (isEditGoalsMode) {
-        // Edit button
-        const editBtn = document.createElement("button");
-        editBtn.innerText = "✎";
-        editBtn.title = "Edit Goal";
-        editBtn.className = "edit-btn";
-        // Flex container for edit/delete buttons
-        const btnFlex = document.createElement("div");
-        btnFlex.style.display = "flex";
-        btnFlex.style.gap = "2px";
-        btnFlex.style.position = "absolute";
-        btnFlex.style.top = "4px";
-        btnFlex.style.right = "8px";
-        btnFlex.style.zIndex = "2";
-        // Edit button
-        editBtn.style.position = "static";
-        editBtn.onclick = () => {
-          goal._editing = true;
-          renderGoals();
-        };
-        // Delete button
-        const deleteBtn = document.createElement("button");
-        deleteBtn.innerHTML = "&#128465;";
-        deleteBtn.title = "Delete Goal";
-        deleteBtn.className = "delete-btn";
-        deleteBtn.style.position = "static";
-        deleteBtn.style.marginLeft = "0";
-        deleteBtn.style.paddingLeft = "0";
-        editBtn.style.marginRight = "0";
-        editBtn.style.paddingRight = "0";
-        deleteBtn.onclick = () => {
-          deletedGoals.push(goal); // Save deleted goal for greyed out rendering
-          goals.splice(idx, 1);
-          saveToStorage();
-          renderGoals();
-        };
-        btnFlex.appendChild(editBtn);
-        btnFlex.appendChild(deleteBtn);
-        div.style.position = "relative";
-        div.appendChild(btnFlex);
-      }
-      div.appendChild(document.createElement("br"));
-      if (goal.due) {
-        // Format due date as m/d
-        const dateObj = new Date(goal.due);
-        if (!isNaN(dateObj)) {
-          const m = dateObj.getMonth() + 1;
-          const d = dateObj.getDate();
-          div.appendChild(document.createTextNode(`Due: ${m}/${d}`));
-        } else {
-          div.appendChild(document.createTextNode(`Due: ${goal.due}`));
-        }
-        div.appendChild(document.createElement("br"));
-      }
-      div.appendChild(document.createTextNode(`Goal: $${goal.amount.toFixed(2)}`));
-      div.appendChild(document.createElement("br"));
-      div.appendChild(document.createTextNode(`Allocated: $${goal.allocated.toFixed(2)}`));
-      div.appendChild(document.createElement("br"));
-      div.appendChild(document.createTextNode(`Progress: ${percent}%`));
-      div.appendChild(document.createElement("br"));
-      div.appendChild(document.createTextNode(goal.allocated >= goal.amount ? "Funded" : `Remaining: $${(goal.amount - goal.allocated).toFixed(2)}`));
+      goalsDiv.appendChild(card);
+      return;
     }
 
-    const input = document.createElement("input");
-    input.type = "number";
-    input.placeholder = "Amount";
-    input.style.width = "70px";
-
-    const addBtn = document.createElement("button");
-    addBtn.innerText = "+";
-    addBtn.onclick = () => {
-      const value = Number(input.value);
-      if (!value || value <= 0) return;
-      if (value > getUnallocatedBalance())
-        return alert("Not enough unallocated funds.");
-
-      goal.allocated += value;
-      goal.allocations.push({ date: formatDate(currentDate), amount: value });
-      saveToStorage();
-      renderDay();
+    const inner = document.createElement("div");
+    inner.className = "goal-card-inner";
+    if (goal._flipped) inner.classList.add("flipped");
+    inner.onclick = (event) => {
+      if (isEditGoalsMode) return;
+      if (event.target.closest("input, button, select, textarea, label")) return;
+      goal._flipped = !goal._flipped;
+      renderGoals();
     };
 
-    const removeBtn = document.createElement("button");
-    removeBtn.innerText = "-";
-    removeBtn.onclick = () => {
-      const value = Number(input.value);
-      if (!value || value <= 0) return;
+    const front = document.createElement("div");
+    front.className = "goal-face goal-front";
 
-      goal.allocated = Math.max(0, goal.allocated - value);
+    const back = document.createElement("div");
+    back.className = "goal-face goal-back";
 
-      if (goal.allocations) {
+    const title = document.createElement("strong");
+    title.innerText = goal.name;
+    title.style.display = "block";
+    title.style.wordBreak = "break-word";
+    title.style.width = "100%";
+    title.style.paddingRight = "2.2em";
+    title.style.boxSizing = "border-box";
+    front.appendChild(title);
+
+    if (isEditGoalsMode) {
+      const editBtn = document.createElement("button");
+      editBtn.innerText = "✎";
+      editBtn.title = "Edit Goal";
+      editBtn.className = "edit-btn";
+
+      const btnFlex = document.createElement("div");
+      btnFlex.style.display = "flex";
+      btnFlex.style.gap = "2px";
+      btnFlex.style.position = "absolute";
+      btnFlex.style.top = "8px";
+      btnFlex.style.right = "8px";
+      btnFlex.style.zIndex = "2";
+
+      editBtn.style.position = "static";
+      editBtn.onclick = () => {
+        goal._editing = true;
+        renderGoals();
+      };
+
+      const deleteBtn = document.createElement("button");
+      deleteBtn.innerHTML = "&#128465;";
+      deleteBtn.title = "Delete Goal";
+      deleteBtn.className = "delete-btn";
+      deleteBtn.style.position = "static";
+      deleteBtn.style.marginLeft = "0";
+      deleteBtn.style.paddingLeft = "0";
+      deleteBtn.onclick = () => {
+        deletedGoals.push(goal);
+        goals.splice(idx, 1);
+        saveToStorage();
+        renderGoals();
+      };
+
+      btnFlex.appendChild(editBtn);
+      btnFlex.appendChild(deleteBtn);
+      front.appendChild(btnFlex);
+    }
+
+    front.appendChild(document.createElement("br"));
+    if (goal.due) {
+      front.appendChild(document.createTextNode(`Due: ${formatMD(goal.due)}`));
+      front.appendChild(document.createElement("br"));
+    }
+    front.appendChild(document.createTextNode(`Goal: $${goalAmount.toFixed(2)}`));
+    front.appendChild(document.createElement("br"));
+    front.appendChild(document.createTextNode(`Allocated: $${allocatedAmount.toFixed(2)}`));
+    front.appendChild(document.createElement("br"));
+    front.appendChild(document.createTextNode(`Progress: ${percent}%`));
+    front.appendChild(document.createElement("br"));
+    front.appendChild(
+      document.createTextNode(
+        funded ? "Funded" : `Remaining: $${Math.max(goalAmount - allocatedAmount, 0).toFixed(2)}`
+      )
+    );
+
+    if (isGoalsTestMode) {
+      const input = document.createElement("input");
+      input.type = "number";
+      input.placeholder = "Amount";
+      input.style.width = "70px";
+
+      const addBtn = document.createElement("button");
+      addBtn.innerText = "+";
+      addBtn.onclick = () => {
+        const value = Number(input.value);
+        if (!value || value <= 0) return;
+        if (value > getUnallocatedBalance()) {
+          alert("Not enough unallocated funds.");
+          return;
+        }
+
+        goal.allocations.push({ date: formatDate(currentDate), amount: value, applied: true });
+        saveToStorage();
+        renderDay();
+      };
+
+      const removeBtn = document.createElement("button");
+      removeBtn.innerText = "-";
+      removeBtn.onclick = () => {
+        const value = Number(input.value);
+        if (!value || value <= 0) return;
+
         let remaining = value;
-        for (
-          let i = goal.allocations.length - 1;
-          i >= 0 && remaining > 0;
-          i--
-        ) {
-          if (goal.allocations[i].amount <= remaining) {
-            remaining -= goal.allocations[i].amount;
+        for (let i = goal.allocations.length - 1; i >= 0 && remaining > 0; i--) {
+          const allocationAmount = Number(goal.allocations[i].amount || 0);
+          if (allocationAmount <= remaining) {
+            remaining -= allocationAmount;
             goal.allocations.splice(i, 1);
           } else {
-            goal.allocations[i].amount -= remaining;
+            goal.allocations[i].amount = allocationAmount - remaining;
             remaining = 0;
           }
         }
+
+        saveToStorage();
+        renderDay();
+      };
+
+      const controls = document.createElement("div");
+      controls.className = "goal-controls";
+      controls.appendChild(input);
+      controls.appendChild(addBtn);
+      controls.appendChild(removeBtn);
+      front.appendChild(controls);
+    }
+
+    const backTitle = document.createElement("strong");
+    backTitle.innerText = goal.name;
+    backTitle.className = "goal-back-title";
+    back.appendChild(backTitle);
+
+    const checklist = document.createElement("div");
+    checklist.className = "allocation-checklist";
+
+    if (!goal.allocations.length) {
+      const empty = document.createElement("div");
+      empty.className = "allocation-empty";
+      empty.innerText = "No allocations yet.";
+      checklist.appendChild(empty);
+    }
+
+    goal.allocations.forEach((allocation, allocationIdx) => {
+      const row = document.createElement("div");
+      row.className = "allocation-row";
+
+      const check = document.createElement("input");
+      check.type = "checkbox";
+      check.checked = isAllocationApplied(allocation);
+      check.disabled = isGoalsTestMode;
+      check.onchange = () => {
+        allocation.applied = check.checked;
+        saveToStorage();
+        renderDay();
+      };
+      row.appendChild(check);
+
+      const lineText = document.createElement("span");
+      lineText.className = "allocation-line";
+      lineText.innerText = `${formatMD(allocation.date)} - $${Number(allocation.amount).toFixed(2)}`;
+      row.appendChild(lineText);
+
+      if (isGoalsTestMode) {
+        const trashBtn = document.createElement("button");
+        trashBtn.type = "button";
+        trashBtn.className = "allocation-icon-btn allocation-trash-btn";
+        trashBtn.title = "Delete allocation";
+        trashBtn.innerHTML = "&#128465;";
+        trashBtn.onclick = () => {
+          goal.allocations.splice(allocationIdx, 1);
+          saveToStorage();
+          renderDay();
+        };
+
+        const editBtn = document.createElement("button");
+        editBtn.type = "button";
+        editBtn.className = "allocation-icon-btn allocation-edit-btn";
+        editBtn.title = "Edit allocation";
+        editBtn.innerHTML = "&#9998;";
+        editBtn.onclick = () => {
+          allocation._editing = !allocation._editing;
+          renderGoals();
+        };
+
+        row.insertBefore(trashBtn, lineText);
+        row.appendChild(editBtn);
       }
 
-      saveToStorage();
-      renderDay();
-    };
+      checklist.appendChild(row);
 
-    const controls = document.createElement("div");
-    controls.className = "goal-controls";
-    controls.appendChild(input);
-    controls.appendChild(addBtn);
-    controls.appendChild(removeBtn);
+      if (isGoalsTestMode && allocation._editing) {
+        const editor = document.createElement("div");
+        editor.className = "allocation-edit-row";
 
-    div.appendChild(controls);
-    goalsDiv.appendChild(div);
+        const dateInput = document.createElement("input");
+        dateInput.type = "date";
+        dateInput.className = "allocation-date-input";
+        dateInput.value = allocation.date;
+        dateInput.onchange = () => {
+          if (!dateInput.value) return;
+          allocation.date = dateInput.value;
+          saveToStorage();
+          renderDay();
+        };
+
+        const amountInput = document.createElement("input");
+        amountInput.type = "number";
+        amountInput.className = "allocation-amount-input";
+        amountInput.min = "0.01";
+        amountInput.step = "0.01";
+        amountInput.value = Number(allocation.amount).toFixed(2);
+        amountInput.onchange = () => {
+          const nextAmount = Number(amountInput.value);
+          if (!nextAmount || nextAmount <= 0) {
+            amountInput.value = Number(allocation.amount).toFixed(2);
+            return;
+          }
+          allocation.amount = nextAmount;
+          saveToStorage();
+          renderDay();
+        };
+
+        editor.appendChild(dateInput);
+        editor.appendChild(amountInput);
+        checklist.appendChild(editor);
+      }
+    });
+
+    back.appendChild(checklist);
+
+    inner.appendChild(front);
+    inner.appendChild(back);
+    card.appendChild(inner);
+    goalsDiv.appendChild(card);
   });
 
-  // Show deleted goals greyed out in edit mode
   if (isEditGoalsMode && deletedGoals.length > 0) {
     deletedGoals.forEach((goal, idx) => {
+      normalizeGoal(goal);
       const div = document.createElement("div");
       div.className = "goal-card goal-deleted";
       div.style.opacity = 0.5;
@@ -614,7 +872,7 @@ function renderGoals() {
       div.style.display = "flex";
       div.style.flexDirection = "column";
       div.style.alignItems = "center";
-      // Restore button
+
       const restoreBtn = document.createElement("button");
       restoreBtn.innerText = "Restore";
       restoreBtn.className = "restore-btn";
@@ -627,7 +885,7 @@ function renderGoals() {
       div.appendChild(document.createElement("br"));
       div.appendChild(document.createTextNode(goal.name));
       div.appendChild(restoreBtn);
-      div.appendChild(document.createTextNode(`Goal: $${goal.amount.toFixed(2)}`));
+      div.appendChild(document.createTextNode(`Goal: $${Number(goal.amount).toFixed(2)}`));
       goalsDiv.appendChild(div);
     });
   }
@@ -699,7 +957,7 @@ function renderDay() {
     });
   }
 
-  // Show allocations as entries
+  // Show all allocations as entries
   goals.forEach((g) => {
     if (g.allocations) {
       g.allocations.forEach((a) => {
@@ -710,7 +968,7 @@ function renderDay() {
           const span = document.createElement("span");
           span.className = "allocation";
           span.style.color = "blue";
-          span.innerText = `- $${a.amount.toFixed(2)} - Allocated to ${g.name}`;
+          span.innerText = `- $${Number(a.amount).toFixed(2)} - Allocated to ${g.name}`;
           div.appendChild(span);
 
           list.appendChild(div);

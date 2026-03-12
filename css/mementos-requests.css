@@ -71,7 +71,7 @@
   transform: translateY(-50%);
   width: 25px;
   height: 25px;
-  background-image: url("Pictures/red-p5-star.png");
+  background-image: url("../assets/Pictures/red-p5-star.png");
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;

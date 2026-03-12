@@ -40,7 +40,7 @@
   text-align: left;
 }
 
-/* Bullet point using Pictures/black-p5-star.png for each task */
+/* Bullet point using assets/Pictures/black-p5-star.png for each task */
 .task::before {
   content: "";
   position: absolute;
@@ -49,7 +49,7 @@
   transform: translateY(-50%);
   width: 25px;
   height: 25px;
-  background-image: url("Pictures/red-p5-star.png");
+  background-image: url("../assets/Pictures/red-p5-star.png");
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
@@ -75,7 +75,7 @@
   padding: 10px 20px;
   font-family: "ZCOOL KuaiLe", cursive;
   background-color: white;
-  color: Pictures/black;
+  color: assets/Pictures/black;
   border: 3px solid red;
   box-shadow: 0 0 10px red;
   border-radius: 8px;

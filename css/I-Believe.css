@@ -1,11 +1,11 @@
 /* Import Font */
-@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap");
 
 /* Base Styles */
 body {
   margin: 0;
   padding: 0;
-  font-family: "Press Start 2P", cursive;
+  font-family: "ZCOOL KuaiLe", cursive;
   background-color: #ff0000;
   color: #fff;
   overflow-y: auto;
@@ -20,7 +20,7 @@ h2 {
 button,
 input,
 select {
-  font-family: "Press Start 2P", cursive;
+  font-family: "ZCOOL KuaiLe", cursive;
 }
 
 /* Container */
@@ -205,7 +205,7 @@ button.completed-tasks {
   transform: translateY(-50%);
   width: 25px;
   height: 25px;
-  background: url("Pictures/red-p5-star.png") no-repeat center center;
+  background: url("../assets/Pictures/red-p5-star.png") no-repeat center center;
   background-size: contain;
 }
 .completed-tasks-list li span {

@@ -46,7 +46,7 @@ export default async function handler(req, res) {
     // Ensure /Persona-Tools folder exists
 
     // Download existing file if it exists
-    let existing = { entries: [], goals: [] };
+    let existing = { entries: [], goals: [], deletedGoals: [] };
     let response = null;
     try {
       response = await dbx.filesDownload({
@@ -61,14 +61,14 @@ export default async function handler(req, res) {
       }
     }
 
-    // Merge: replace entries and goals with new data
+    // Merge: replace entries, goals, and deletedGoals with new data
 
     const data = {
       ...existing,
+      savedAt: new Date().toISOString(),
       entries,
       goals,
       deletedGoals,
-      savedAt: new Date().toISOString()
     };
 
     await dbx.filesUpload({

@@ -4,12 +4,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Persona Tools</title>
-    <link rel="stylesheet" href="css/main.css" />
+    <script>
+      (() => {
+        const mode = window.localStorage.getItem("p5-navbar-font-mode");
+        if (mode === "readable") {
+          document.documentElement.classList.add("p5-font-readable");
+        }
+      })();
+    </script>
   </head>
   <body>
     <!-- Background Stars -->
     <iframe
-      src="p5-background.html"
+      src="assets/p5-background.html"
       style="
         position: fixed;
         top: 0;
@@ -72,25 +79,12 @@
         <h2>Settings</h2>
         <ul>
           <li>
-            <a href="/api/dropbox" class="color-randomize" title="Connect Dropbox"> Connect Dropbox </a>
-          </li>
-          <li style="margin: 0.5rem 0;">
-            <form id="dropbox-token-form">
-              <div style="display: flex; flex-direction: column; align-items: center;">
-                <input type="text" id="dropbox-token-input" style="width: 350px; max-width: 90vw; margin-bottom: 0.1em; text-align: center;" placeholder="Paste Dropbox token here"/>
-                <button type="submit" class="color-randomize" title="Save Dropbox Token">Save Token</button>
-              </div>
-            </form>
-          </li>
-          <li style="margin: 0.5rem 0; text-align: center;">
-            <button id="dropbox-logout-btn" class="color-randomize" title="Log out of Dropbox" style="padding: 0.5em 1.5em; font-size: 1em;">Log out of Dropbox</button>
+            <a href="settings.html" class="color-randomize" title="Open Settings">Open Settings</a>
           </li>
         </ul>
       </section>
     </main>
 
-    <script src="js/dropbox-token-input.js"></script>
-    <script src="js/dropbox-logout.js"></script>
     <script>
       window.addEventListener("DOMContentLoaded", () => {
         const colors = ["#d3d3d3", "#555555", "#ffffff"];

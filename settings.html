@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Persona Tools Settings</title>
+    <link rel="stylesheet" href="css/settings.css" />
+  </head>
+  <body>
+    <iframe
+      src="assets/p5-background.html"
+      style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        border: none;
+        z-index: -1;
+        pointer-events: none;
+      "
+      aria-hidden="true"
+    ></iframe>
+
+    <script src="js/navbar.js"></script>
+
+    <main class="settings-shell">
+      <h1>Settings</h1>
+
+      <section class="settings-card" aria-labelledby="font-settings-title">
+        <h2 id="font-settings-title">Site Font Mode</h2>
+        <p>
+          Readable mode changes Persona5MenuFont to ZCOOL KuaiLe and replaces
+          ExposeRegular with Persona5MenuFont across all pages.
+        </p>
+
+        <form id="font-settings-form" class="settings-form">
+          <label>
+            <input type="radio" name="navbar-font-mode" value="default" />
+            Default fonts
+          </label>
+          <label>
+            <input type="radio" name="navbar-font-mode" value="readable" />
+            Readable fonts
+          </label>
+        </form>
+
+        <p id="font-mode-status" class="status-text" aria-live="polite"></p>
+      </section>
+
+      <section class="settings-card" aria-labelledby="dropbox-settings-title">
+        <h2 id="dropbox-settings-title">Dropbox</h2>
+        <p>Connect, set token manually, or disconnect Dropbox.</p>
+
+        <div class="button-row">
+          <a href="/api/dropbox" class="p5-button">Connect Dropbox</a>
+        </div>
+
+        <form id="dropbox-token-form" class="settings-form">
+          <label for="dropbox-token-input">Manual access token</label>
+          <input
+            type="text"
+            id="dropbox-token-input"
+            placeholder="Paste Dropbox token here"
+          />
+          <button type="submit" class="p5-button">Save Token</button>
+        </form>
+
+        <div class="button-row">
+          <button id="dropbox-logout-btn" class="p5-button" type="button">
+            Log out of Dropbox
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <script src="js/settings.js"></script>
+    <script src="js/dropbox-token-input.js"></script>
+    <script src="js/dropbox-logout.js"></script>
+  </body>
+</html>

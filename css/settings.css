@@ -1,0 +1,107 @@
+@import url("https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap");
+@import url("https://fonts.cdnfonts.com/css/futura-pt");
+
+@font-face {
+  font-family: "Futura";
+  src: local("Futura"), local("Futura PT"), local("Futura Std");
+}
+
+@font-face {
+  font-family: "Persona5MenuFont";
+  src: url("/assets/fonts/Persona5MenuFont.ttf") format("truetype");
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: #ffffff;
+  font-family: "Futura", sans-serif;
+  text-shadow: 1px 1px 2px #000000;
+}
+
+.settings-shell {
+  max-width: 900px;
+  margin: 88px auto 2rem;
+  padding: 1rem;
+}
+
+h1 {
+  margin: 0 0 1rem;
+  text-align: center;
+  font-family: var(--p5-font-persona-menu, "Persona5MenuFont"), sans-serif;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.settings-card {
+  background: rgba(10, 10, 10, 0.92);
+  border: 2px solid #ff0000;
+  border-radius: 10px;
+  box-shadow: 0 0 14px rgba(255, 0, 0, 0.35);
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.settings-card h2 {
+  margin: 0 0 0.5rem;
+  font-family: "ZCOOL KuaiLe", sans-serif;
+  color: #ffffff;
+}
+
+.settings-card p {
+  margin: 0.2rem 0 0.8rem;
+}
+
+.settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin: 0.5rem 0;
+}
+
+.settings-form label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.settings-form input[type="text"] {
+  width: min(520px, 100%);
+  padding: 0.55rem 0.65rem;
+  border-radius: 6px;
+  border: 2px solid #ff0000;
+  background: #121212;
+  color: #ffffff;
+  font-family: "Futura", sans-serif;
+}
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+
+.p5-button {
+  display: inline-block;
+  border: 2px solid #ff0000;
+  background: #ffffff;
+  color: #000000;
+  border-radius: 7px;
+  padding: 0.5rem 0.9rem;
+  text-decoration: none;
+  cursor: pointer;
+  font-family: "ZCOOL KuaiLe", sans-serif;
+  transition: transform 0.16s ease, background-color 0.16s ease, color 0.16s ease;
+}
+
+.p5-button:hover {
+  transform: translateY(-1px);
+  background: #ff0000;
+  color: #ffffff;
+}
+
+.status-text {
+  min-height: 1.2rem;
+  color: #ffdfdf;
+}

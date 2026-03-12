@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap");
+
 button.color-randomize {
   padding: 0.5rem 1rem;
   border-radius: 0.25rem;
@@ -19,22 +21,32 @@ button.color-randomize:hover {
 /* Font Definitions */
 @font-face {
   font-family: "Persona5MenuFont";
-  src: url("/fonts/Persona5MenuFont.ttf") format("truetype");
+  src: url("/assets/fonts/Persona5MenuFont.ttf") format("truetype");
 }
 
 @font-face {
   font-family: "Persona5Main";
-  src: url("/fonts/Persona5Main.ttf") format("truetype");
+  src: url("/assets/fonts/Persona5Main.ttf") format("truetype");
 }
 
 @font-face {
   font-family: "P5Hatty";
-  src: url("/fonts/p5hatty.ttf") format("truetype");
+  src: url("/assets/fonts/p5hatty.ttf") format("truetype");
 }
 
 @font-face {
   font-family: "ExposeRegular";
-  src: url("/fonts/Expose-Regular.otf") format("opentype");
+  src: url("/assets/fonts/Expose-Regular.otf") format("opentype");
+}
+
+:root {
+  --p5-font-persona-menu: "Persona5MenuFont";
+  --p5-font-expose-regular: "ExposeRegular";
+}
+
+html.p5-font-readable {
+  --p5-font-persona-menu: "ZCOOL KuaiLe";
+  --p5-font-expose-regular: "Persona5MenuFont";
 }
 
 /* Global Styles */
@@ -43,7 +55,7 @@ a {
   margin: 0;
   padding: 2rem;
   color: white;
-  font-family: "ExposeRegular", sans-serif;
+  font-family: var(--p5-font-expose-regular, "ExposeRegular"), sans-serif;
   text-shadow: 1px 1px 2px black;
   font-size: 1.3rem;
 }
@@ -55,7 +67,7 @@ header {
 }
 
 h1 {
-  font-family: "Persona5MenuFont", sans-serif;
+  font-family: var(--p5-font-persona-menu, "Persona5MenuFont"), sans-serif;
   font-size: 3rem;
   color: white;
   text-transform: uppercase;

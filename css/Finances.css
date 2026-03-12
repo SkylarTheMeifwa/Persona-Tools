@@ -21,6 +21,7 @@
   align-items: center;
   justify-content: center;
   min-height: 120px;
+  container-type: inline-size;
 }
 
 body {
@@ -44,18 +45,18 @@ button {
 
 /* Ensure restore-btn is not affected by button selector */
 .restore-btn {
-  font-size: 3vw !important;
-  padding: 0 !important;
+  font-size: 18cqw !important;
+  padding: 4px 0 !important;
   margin: 0 !important;
   background: none !important;
   border: none !important;
   color: #000 !important;
-  width: 100% !important;
+  width: 90% !important;
   max-width: none !important;
   min-width: 0 !important;
   height: auto !important;
   min-height: 1em !important;
-  line-height: 1.1 !important;
+  line-height: 1.2 !important;
   display: block !important;
   text-align: center !important;
 }
@@ -116,11 +117,37 @@ select {
 .goal-card {
   background: white;
   border: 1px solid #ddd;
+  position: relative;
+  perspective: 1200px;
+}
+
+.goal-card-inner {
+  position: relative;
+  display: grid;
+  width: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.35s ease;
+  cursor: pointer;
+}
+
+.goal-card-inner.flipped {
+  transform: rotateY(180deg);
+}
+
+.goal-face {
+  grid-area: 1 / 1;
   padding: 8px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  height: auto; /* let height adjust */
+  justify-content: flex-start;
+  gap: 2px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  box-sizing: border-box;
+}
+
+.goal-back {
+  transform: rotateY(180deg);
 }
 
 .goal-funded {
@@ -141,7 +168,7 @@ select {
   font-size: 12px;
 }
 
-.goal-card button {
+.goal-controls button {
   width: 26px;
   height: 26px;
   padding: 0;
@@ -150,6 +177,77 @@ select {
   align-items: center;
   justify-content: center;
   cursor: pointer;
+}
+
+.goal-back-title {
+  display: block;
+  padding-right: 0;
+  margin-bottom: 6px;
+  word-break: break-word;
+}
+
+.allocation-checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 2px;
+}
+
+.allocation-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.allocation-line {
+  color: #222;
+  font-weight: 600;
+}
+
+.allocation-edit-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 48px;
+}
+
+.allocation-edit-row input {
+  margin: 0;
+  font-size: 11px;
+  padding: 2px 4px;
+}
+
+.allocation-date-input {
+  width: 14ch;
+  min-width: 14ch;
+  max-width: 14ch;
+}
+
+.allocation-amount-input {
+  width: 6ch;
+  min-width: 6ch;
+  max-width: 6ch;
+}
+
+.allocation-icon-btn {
+  width: auto !important;
+  height: auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: none !important;
+  border: none !important;
+  cursor: pointer;
+  font-size: 14px !important;
+  line-height: 1;
+}
+
+.allocation-empty {
+  font-size: 12px;
+  color: #666;
+  font-style: italic;
 }
 
 /* CALENDAR */
@@ -203,5 +301,10 @@ select {
   .entry {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .allocation-edit-row {
+    margin-left: 36px;
+    gap: 6px;
   }
 }

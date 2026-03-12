@@ -8,7 +8,7 @@
 
   <body>
     <iframe
-      src="p5-background.html"
+      src="assets/p5-background.html"
       style="
         position: fixed;
         top: 0;
@@ -21,12 +21,14 @@
       "
       aria-hidden="true"
     ></iframe>
+    <script src="js/navbar.js"></script>
     <h2>Day-by-Day Cash Flow</h2>
 
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
       <div id="goalsBannerContainer" style="flex: 1 1 auto;"></div>
       <button id="addGoalBtn" onclick="openAddGoalModal()" style="margin-left: 10px; display: none;">Add Goal</button>
       <button id="rearrangeGoalsBtn" onclick="openRearrangeGoalsModal()" style="margin-left: 10px; display: none;">Rearrange Goals</button>
+      <button id="toggleGoalsTestModeBtn" onclick="toggleGoalsTestMode()" style="margin-left: 10px;">Test Mode: Off</button>
       <button id="toggleEditGoalsBtn" onclick="toggleEditGoalsMode()" style="margin-left: 10px;">Edit Goals</button>
             <!-- Add Goal Modal -->
             <div id="addGoalModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.4); z-index:1000; align-items:center; justify-content:center;">
