@@ -28,10 +28,12 @@
       <h1>Settings</h1>
 
       <section class="settings-card" aria-labelledby="font-settings-title">
-        <h2 id="font-settings-title">Site Font Mode</h2>
+        <h2 id="font-settings-title">Sitewide Font Changer</h2>
         <p>
-          Readable mode changes Persona5MenuFont to ZCOOL KuaiLe and replaces
-          ExposeRegular with Persona5MenuFont across all pages.
+          Find the title fonts hard to read? Swap to a simpler font here.</br>
+        </p>
+        <p>
+          Readable fonts also changes the "ransom note font" on the homepage to a simpler font as well.
         </p>
 
         <form id="font-settings-form" class="settings-form">
@@ -54,24 +56,29 @@
 
         <div class="button-row">
           <a href="/api/dropbox" class="p5-button">Connect Dropbox</a>
+          <a id="dropbox-logout-btn" class="p5-button" type="button">Disconnect Dropbox</a>
         </div>
 
         <form id="dropbox-token-form" class="settings-form">
           <label for="dropbox-token-input">Manual access token</label>
-          <input
-            type="text"
-            id="dropbox-token-input"
-            placeholder="Paste Dropbox token here"
-          />
-          <button type="submit" class="p5-button">Save Token</button>
+          <div class="token-input-row">
+            <input
+              type="text"
+              id="dropbox-token-input"
+              placeholder="Paste Dropbox token here"
+            />
+            <a type="submit" class="p5-button">Save Token</a>
+          </div>
         </form>
-
-        <div class="button-row">
-          <button id="dropbox-logout-btn" class="p5-button" type="button">
-            Log out of Dropbox
-          </button>
-        </div>
       </section>
+
+      <section class="settings-card" aria-labelledby="notices-title">
+        <h2 id="notices-title">Important Notices</h2>
+        <p>While Dropbox integration is enabled, it currently only works on the Finances page. I plan to implement it on the rest of the site in the future.</p>
+        <p>Occationally the Dropbox connection does break, but I'm working on a fix for this issue.</p>
+        <p>Some of the pages are not displayed correctly on smaller devices and windows, I am currently working on a fix for this as well.</p>
+      </section>
+      
     </main>
 
     <script src="js/settings.js"></script>
