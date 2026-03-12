@@ -761,6 +761,7 @@ function renderGoals() {
     const goalAmount = Number(goal.amount || 0);
     const allocatedAmount = getGoalAllocatedAmount(goal);
     const appliedAmount = getGoalAppliedAmount(goal);
+    const displayedAllocatedAmount = isGoalsTestMode ? allocatedAmount : appliedAmount;
     goal.allocated = allocatedAmount;
     const percent = goalAmount > 0 ? ((appliedAmount / goalAmount) * 100).toFixed(1) : "0.0";
     const funded = isGoalFunded(goal);
@@ -908,7 +909,7 @@ function renderGoals() {
     }
     front.appendChild(document.createTextNode(`Goal: $${goalAmount.toFixed(2)}`));
     front.appendChild(document.createElement("br"));
-    front.appendChild(document.createTextNode(`Allocated: $${allocatedAmount.toFixed(2)}`));
+    front.appendChild(document.createTextNode(`Allocated: $${displayedAllocatedAmount.toFixed(2)}`));
     front.appendChild(document.createElement("br"));
     front.appendChild(document.createTextNode(`Progress: ${percent}%`));
     front.appendChild(document.createElement("br"));
