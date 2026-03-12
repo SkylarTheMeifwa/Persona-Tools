@@ -186,6 +186,23 @@
                 )
             }
 
+            if (data.type === 'SHOW_LOCAL_REMINDER') {
+                const title = data.title || 'Persona Tools Reminder'
+                const body = data.body || 'You have an upcoming due date.'
+                const url = data.url || '/index.html'
+                const badgeCount = Number.isFinite(data.badgeCount) ? Math.max(0, data.badgeCount) : 1
+
+                event.waitUntil(
+                    Promise.all([
+                        self.registration.showNotification(title, {
+                            body,
+                            data: { url },
+                        }),
+                        setBadgeIfSupported(badgeCount),
+                    ])
+                )
+            }
+
             if (data.type === 'SET_BADGE') {
                 const count = Number.isFinite(data.count) ? Math.max(0, data.count) : 1
                 event.waitUntil(setBadgeIfSupported(count))
@@ -204,7 +221,11 @@
      */
     self.addEventListener('fetch', event => {
     // Skip some of cross-origin requests, like those for Google Analytics.
-    if (HOSTNAME_WHITELIST.indexOf(new URL(event.request.url).hostname) > -1) {
+    // Also skip OAuth endpoints that require browser redirects
+    const url = new URL(event.request.url)
+    const isOAuthEndpoint = url.pathname === '/api/dropbox'
+    
+    if (HOSTNAME_WHITELIST.indexOf(url.hostname) > -1 && !isOAuthEndpoint) {
         // Stale-while-revalidate
         // similar to HTTP's stale-while-revalidate: https://www.mnot.net/blog/2007/12/12/stale
         // Upgrade from Jake's to Surma's: https://gist.github.com/surma/eb441223daaedf880801ad80006389f1

@@ -4,6 +4,8 @@
     <title>Day-by-Day Cash Flow Simulator</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="css/Finances.css" />
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/Pictures/black-p5-star-192.png" />
+    <link rel="apple-touch-icon" href="assets/Pictures/black-p5-star-192.png" />
   </head>
 
   <body>
@@ -88,6 +90,19 @@
       <input type="text" id="entryName" />
       Amount:
       <input type="number" id="entryAmount" />
+      <div class="entry-reminder-settings">
+        <div class="entry-reminder-row">
+          <label>
+            <input type="checkbox" id="entry-reminder-enabled" />
+            Notify me at
+          <input type="time" id="entry-reminder-time" value="09:00" />
+          <input type="checkbox" id="entry-reminder-display-amount" />
+            Display Amount
+          </label>
+        </div>
+        <div class="entry-reminder-grid">
+        </div>
+      </div>
 
       <button onclick="saveEntry('income')">Income</button>
       <button onclick="saveEntry('bill')">Bill</button>
@@ -101,6 +116,7 @@
 
     <div id="calendarView"></div>
 
+    <script src="js/reminders.js"></script>
     <script src="js/Finances.js"></script>
   </body>
 </html>

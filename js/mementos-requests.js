@@ -2,17 +2,82 @@
 let tasks = [];
 let editMode = false;
 let editingTaskId = null;
+const DEFAULT_TASK_REMINDER = {
+  enabled: true,
+  leadMinutes: 60,
+  repeatEveryMinutes: 0,
+  repeatCount: 0,
+};
+
+function toNonNegativeInt(value, fallback = 0) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed < 0) return fallback;
+  return Math.floor(parsed);
+}
+
+function normalizeTaskReminder(reminder) {
+  const source = reminder && typeof reminder === "object" ? reminder : DEFAULT_TASK_REMINDER;
+  return {
+    enabled: Boolean(source.enabled),
+    leadMinutes: toNonNegativeInt(source.leadMinutes, DEFAULT_TASK_REMINDER.leadMinutes),
+    repeatEveryMinutes: toNonNegativeInt(
+      source.repeatEveryMinutes,
+      DEFAULT_TASK_REMINDER.repeatEveryMinutes
+    ),
+    repeatCount: toNonNegativeInt(source.repeatCount, DEFAULT_TASK_REMINDER.repeatCount),
+  };
+}
+
+function parseDueParts(dueStr) {
+  if (!dueStr || typeof dueStr !== "string") {
+    return null;
+  }
+
+  const trimmed = dueStr.trim();
+  const firstFormat = trimmed.match(/^(\d{1,2})\/(\d{1,2})\s+(\d{1,2}):(\d{1,2})\s*(AM|PM)$/i);
+  if (firstFormat) {
+    return {
+      month: firstFormat[1],
+      day: firstFormat[2],
+      hour: firstFormat[3],
+      min: firstFormat[4],
+      ampm: firstFormat[5].toUpperCase(),
+    };
+  }
+
+  const legacyFormat = trimmed.match(/^(\d{1,2}):(\d{1,2})\s*(AM|PM)\s+(\d{1,2})\/(\d{1,2})$/i);
+  if (legacyFormat) {
+    return {
+      month: legacyFormat[4],
+      day: legacyFormat[5],
+      hour: legacyFormat[1],
+      min: legacyFormat[2],
+      ampm: legacyFormat[3].toUpperCase(),
+    };
+  }
+
+  return null;
+}
+
+function formatDueString(month, day, hour, min, ampm) {
+  const mm = String(month).padStart(2, "0");
+  const dd = String(day).padStart(2, "0");
+  const hh = String(hour).padStart(2, "0");
+  const mi = String(min).padStart(2, "0");
+  return `${mm}/${dd} ${hh}:${mi} ${ampm.toUpperCase()}`;
+}
 
 function parseDueDate(dueStr) {
-  if (!dueStr) return null;
-  const parts = dueStr.trim().split(" ");
-  if (parts.length !== 3) return null;
-  const [date, time, ampm] = parts;
-  const [month, day] = date.split("/").map(Number);
-  const [hh, mm] = time.split(":").map(Number);
+  const parts = parseDueParts(dueStr);
+  if (!parts) return null;
+
+  const month = Number(parts.month);
+  const day = Number(parts.day);
+  const hh = Number(parts.hour);
+  const mm = Number(parts.min);
   let hours = hh;
-  if (ampm.toUpperCase() === "PM" && hours !== 12) hours += 12;
-  if (ampm.toUpperCase() === "AM" && hours === 12) hours = 0;
+  if (parts.ampm === "PM" && hours !== 12) hours += 12;
+  if (parts.ampm === "AM" && hours === 12) hours = 0;
   const year = new Date().getFullYear();
   return new Date(year, month - 1, day, hours, mm);
 }
@@ -24,16 +89,13 @@ function openTaskInput(editTask = null) {
     : "";
 
   if (editTask && editTask.due) {
-    const parts = editTask.due.split(" ");
-    if (parts.length === 3) {
-      const [time, ampm, date] = parts;
-      const [month, day] = date.split("/");
-      const [hour, min] = time.split(":");
-      document.getElementById("task-month").value = month;
-      document.getElementById("task-day").value = day;
-      document.getElementById("task-hour").value = hour;
-      document.getElementById("task-min").value = min;
-      document.getElementById("task-ampm").value = ampm;
+    const parts = parseDueParts(editTask.due);
+    if (parts) {
+      document.getElementById("task-month").value = parts.month;
+      document.getElementById("task-day").value = parts.day;
+      document.getElementById("task-hour").value = parts.hour;
+      document.getElementById("task-min").value = parts.min;
+      document.getElementById("task-ampm").value = parts.ampm;
     }
   } else {
     document.getElementById("task-month").value = "";
@@ -42,6 +104,12 @@ function openTaskInput(editTask = null) {
     document.getElementById("task-min").value = "";
     document.getElementById("task-ampm").value = "";
   }
+
+  const reminder = normalizeTaskReminder(editTask ? editTask.reminder : DEFAULT_TASK_REMINDER);
+  document.getElementById("task-reminder-enabled").checked = reminder.enabled;
+  document.getElementById("task-reminder-before").value = reminder.leadMinutes;
+  document.getElementById("task-reminder-repeat").value = reminder.repeatEveryMinutes;
+  document.getElementById("task-reminder-count").value = reminder.repeatCount;
 
   editingTaskId = editTask ? editTask.id : null;
   document.getElementById("task-overlay").style.display = "flex";
@@ -64,6 +132,10 @@ function submitTask() {
   const hour = document.getElementById("task-hour").value.trim();
   const min = document.getElementById("task-min").value.trim();
   const ampm = document.getElementById("task-ampm").value.trim();
+  const reminderEnabled = document.getElementById("task-reminder-enabled").checked;
+  const reminderBefore = document.getElementById("task-reminder-before").value;
+  const reminderRepeat = document.getElementById("task-reminder-repeat").value;
+  const reminderCount = document.getElementById("task-reminder-count").value;
 
   let due = "";
   const hasPartialInput = month || day || hour || min || ampm;
@@ -75,7 +147,7 @@ function submitTask() {
   }
 
   if (hasAllDateTime) {
-    due = `${hour}:${min} ${ampm} ${month}/${day}`;
+    due = formatDueString(month, day, hour, min, ampm);
   }
 
   if (!desc || !category) {
@@ -83,16 +155,24 @@ function submitTask() {
     return;
   }
 
+  const reminder = normalizeTaskReminder({
+    enabled: reminderEnabled && hasAllDateTime,
+    leadMinutes: reminderBefore,
+    repeatEveryMinutes: reminderRepeat,
+    repeatCount: reminderCount,
+  });
+
   if (editingTaskId) {
     const task = tasks.find((t) => t.id === editingTaskId);
     if (task) {
       task.name = desc;
       task.category = category;
       task.due = due;
+      task.reminder = reminder;
     }
   } else {
     const id = Date.now().toString();
-    tasks.push({ id, name: desc, category, due, completed: false });
+    tasks.push({ id, name: desc, category, due, completed: false, reminder });
   }
 
   saveTasks();
@@ -106,7 +186,49 @@ function saveTasks() {
 
 function loadTasks() {
   const saved = localStorage.getItem("p5Tasks");
-  if (saved) tasks = JSON.parse(saved);
+  if (saved) {
+    tasks = JSON.parse(saved);
+    tasks = tasks.map((task) => ({
+      ...task,
+      reminder: normalizeTaskReminder(task.reminder),
+    }));
+  }
+}
+
+function getTaskReminderSummary(task) {
+  if (!task || !task.reminder || !task.reminder.enabled) {
+    return "Notifications off";
+  }
+
+  const lead = task.reminder.leadMinutes;
+  const repeatEvery = task.reminder.repeatEveryMinutes;
+  const repeatCount = task.reminder.repeatCount;
+  if (!repeatEvery || !repeatCount) {
+    return `Notify ${lead}m before`;
+  }
+
+  return `Notify ${lead}m before, repeat ${repeatEvery}m x${repeatCount}`;
+}
+
+function buildTaskReminders() {
+  return tasks
+    .filter((task) => !task.completed && task.due && task.reminder && task.reminder.enabled)
+    .map((task) => {
+      const dueDate = parseDueDate(task.due);
+      if (!dueDate || Number.isNaN(dueDate.getTime())) return null;
+
+      return {
+        id: `mementos:${task.id}:${dueDate.getTime()}`,
+        dueAt: dueDate.toISOString(),
+        title: "Mementos Task Reminder",
+        body: `${task.name} is due at ${task.due}.`,
+        url: "/mementos-requests.html",
+        startOffsetMinutes: task.reminder.leadMinutes,
+        repeatIntervalMinutes: task.reminder.repeatEveryMinutes,
+        repeatCount: task.reminder.repeatCount,
+      };
+    })
+    .filter(Boolean);
 }
 
 function toggleEditMode() {
@@ -212,6 +334,13 @@ function renderTasks() {
         if (task.completed) dueSpan.style.textDecoration = "line-through";
         dueSpan.style.marginLeft = "0.5rem";
         wrapper.appendChild(dueSpan);
+
+        const reminderSpan = document.createElement("small");
+        reminderSpan.textContent = `[${getTaskReminderSummary(task)}]`;
+        reminderSpan.style.color = "#bdbdbd";
+        reminderSpan.style.marginLeft = "0.5rem";
+        if (task.completed) reminderSpan.style.textDecoration = "line-through";
+        wrapper.appendChild(reminderSpan);
       }
 
       if (editMode) {
@@ -252,6 +381,13 @@ function renderTasks() {
 document.addEventListener("DOMContentLoaded", () => {
   loadTasks();
   renderTasks();
+
+  if (window.P5ReminderEngine) {
+    window.P5ReminderEngine.start({
+      getReminders: buildTaskReminders,
+    });
+  }
+
   document
     .getElementById("add-task-btn")
     .addEventListener("click", () => openTaskInput());

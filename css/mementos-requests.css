@@ -265,3 +265,34 @@ body {
   background: white;
   color: black;
 }
+
+.reminder-config {
+  border: 1px solid #666;
+  padding: 0.6rem;
+  text-align: left;
+}
+
+.reminder-enable-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+  font-size: 12px;
+}
+
+.reminder-enable-row input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+}
+
+.reminder-grid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.4rem 0.6rem;
+  align-items: center;
+  font-size: 11px;
+}
+
+.reminder-grid input[type="number"] {
+  width: 80px;
+}

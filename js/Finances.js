@@ -8,6 +8,216 @@ let isEditMode = false;
 let isEditGoalsMode = false;
 let isGoalsTestMode = false;
 let deletedGoals = [];
+const DEFAULT_ENTRY_REMINDER = {
+  enabled: false,
+  time: "09:00",
+  repeatEveryHours: 0,
+  repeatCount: 0,
+  displayAmount: false,
+};
+
+function toNonNegativeInt(value, fallback = 0) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed < 0) return fallback;
+  return Math.floor(parsed);
+}
+
+function normalizeEntryReminder(reminder) {
+  const source = reminder && typeof reminder === "object" ? reminder : DEFAULT_ENTRY_REMINDER;
+  const time = /^\d{2}:\d{2}$/.test(String(source.time || ""))
+    ? String(source.time)
+    : DEFAULT_ENTRY_REMINDER.time;
+
+  return {
+    enabled: Boolean(source.enabled),
+    time,
+    repeatEveryHours: toNonNegativeInt(source.repeatEveryHours, DEFAULT_ENTRY_REMINDER.repeatEveryHours),
+    repeatCount: toNonNegativeInt(source.repeatCount, DEFAULT_ENTRY_REMINDER.repeatCount),
+    displayAmount: Boolean(source.displayAmount),
+  };
+}
+
+function normalizeAllocationReminder(reminder) {
+  const normalized = normalizeEntryReminder(reminder);
+  return {
+    ...normalized,
+    repeatEveryHours: 0,
+    repeatCount: 0,
+  };
+}
+
+function formatMoney(amount) {
+  return `$${Number(amount || 0).toFixed(2)}`;
+}
+
+function buildReminderBody(name, amount, reminder) {
+  if (reminder && reminder.displayAmount) {
+    return `${name} - ${formatMoney(amount)}`;
+  }
+
+  return name;
+}
+
+function makeEntryId() {
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function normalizeEntries() {
+  Object.keys(entries).forEach((dateKey) => {
+    const dayEntries = Array.isArray(entries[dateKey]) ? entries[dateKey] : [];
+    entries[dateKey] = dayEntries.map((entry) => ({
+      ...entry,
+      id: entry.id || makeEntryId(),
+      reminder: normalizeEntryReminder(entry.reminder),
+    }));
+  });
+}
+
+function setEntryReminderFormState(disabled) {
+  const ids = [
+    "entry-reminder-time",
+    "entry-reminder-repeat-hours",
+    "entry-reminder-count",
+    "entry-reminder-display-amount",
+  ];
+
+  ids.forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.disabled = disabled;
+    }
+  });
+}
+
+function resetEntryReminderForm() {
+  const enabledEl = document.getElementById("entry-reminder-enabled");
+  const timeEl = document.getElementById("entry-reminder-time");
+  const repeatEveryEl = document.getElementById("entry-reminder-repeat-hours");
+  const repeatCountEl = document.getElementById("entry-reminder-count");
+  const displayAmountEl = document.getElementById("entry-reminder-display-amount");
+
+  if (enabledEl) enabledEl.checked = DEFAULT_ENTRY_REMINDER.enabled;
+  if (timeEl) timeEl.value = DEFAULT_ENTRY_REMINDER.time;
+  if (repeatEveryEl) repeatEveryEl.value = DEFAULT_ENTRY_REMINDER.repeatEveryHours;
+  if (repeatCountEl) repeatCountEl.value = DEFAULT_ENTRY_REMINDER.repeatCount;
+  if (displayAmountEl) displayAmountEl.checked = DEFAULT_ENTRY_REMINDER.displayAmount;
+
+  setEntryReminderFormState(!DEFAULT_ENTRY_REMINDER.enabled);
+}
+
+function readEntryReminderFromForm() {
+  const enabled = Boolean(document.getElementById("entry-reminder-enabled")?.checked);
+  const time = document.getElementById("entry-reminder-time")?.value || DEFAULT_ENTRY_REMINDER.time;
+  const repeatEveryHours = document.getElementById("entry-reminder-repeat-hours")?.value;
+  const repeatCount = document.getElementById("entry-reminder-count")?.value;
+  const displayAmount = Boolean(
+    document.getElementById("entry-reminder-display-amount")?.checked
+  );
+
+  return normalizeEntryReminder({
+    enabled,
+    time,
+    repeatEveryHours,
+    repeatCount,
+    displayAmount,
+  });
+}
+
+function applyReminderToEntryForm(entry) {
+  const reminder = normalizeEntryReminder(entry && entry.reminder ? entry.reminder : DEFAULT_ENTRY_REMINDER);
+
+  const enabledEl = document.getElementById("entry-reminder-enabled");
+  const timeEl = document.getElementById("entry-reminder-time");
+  const repeatEveryEl = document.getElementById("entry-reminder-repeat-hours");
+  const repeatCountEl = document.getElementById("entry-reminder-count");
+  const displayAmountEl = document.getElementById("entry-reminder-display-amount");
+
+  if (enabledEl) enabledEl.checked = reminder.enabled;
+  if (timeEl) timeEl.value = reminder.time;
+  if (repeatEveryEl) repeatEveryEl.value = reminder.repeatEveryHours;
+  if (repeatCountEl) repeatCountEl.value = reminder.repeatCount;
+  if (displayAmountEl) displayAmountEl.checked = reminder.displayAmount;
+  setEntryReminderFormState(!reminder.enabled);
+}
+
+function reminderSummary(reminder) {
+  if (!reminder || !reminder.enabled) {
+    return "Notifications off";
+  }
+
+  const repeatEvery = toNonNegativeInt(reminder.repeatEveryHours, 0);
+  const repeatCount = toNonNegativeInt(reminder.repeatCount, 0);
+  if (!repeatEvery || !repeatCount) {
+    return `Notify at ${reminder.time}${reminder.displayAmount ? ", show amount" : ""}`;
+  }
+
+  return `Notify at ${reminder.time}, repeat every ${repeatEvery}h x${repeatCount}${
+    reminder.displayAmount ? ", show amount" : ""
+  }`;
+}
+
+function buildFinanceEntryReminders() {
+  const reminders = [];
+
+  Object.keys(entries).forEach((dateKey) => {
+    const dayEntries = entries[dateKey];
+    if (!Array.isArray(dayEntries)) return;
+
+    dayEntries.forEach((entry) => {
+      const reminder = normalizeEntryReminder(entry.reminder);
+      if (!reminder.enabled) return;
+
+      const dueAt = new Date(`${dateKey}T${reminder.time}:00`);
+      if (Number.isNaN(dueAt.getTime())) return;
+
+      reminders.push({
+        id: `finances:${entry.id}:${dueAt.getTime()}`,
+        dueAt: dueAt.toISOString(),
+        title: "Finance Entry Reminder",
+        body: buildReminderBody(entry.name, entry.amount, reminder),
+        url: "/Finances.html",
+        startOffsetMinutes: 0,
+        repeatIntervalMinutes: reminder.repeatEveryHours * 60,
+        repeatCount: reminder.repeatCount,
+      });
+    });
+  });
+
+  return reminders;
+}
+
+function buildAllocationReminders() {
+  const reminders = [];
+
+  goals.forEach((goal) => {
+    if (!Array.isArray(goal.allocations)) return;
+
+    goal.allocations.forEach((allocation) => {
+      const reminder = normalizeAllocationReminder(allocation.reminder);
+      if (!reminder.enabled) return;
+
+      const dueAt = new Date(`${allocation.date}T${reminder.time}:00`);
+      if (Number.isNaN(dueAt.getTime())) return;
+
+      reminders.push({
+        id: `allocation:${allocation.id}:${dueAt.getTime()}`,
+        dueAt: dueAt.toISOString(),
+        title: "Allocation Reminder",
+        body: buildReminderBody(`Allocated to ${goal.name}`, allocation.amount, reminder),
+        url: "/Finances.html",
+        startOffsetMinutes: 0,
+        repeatIntervalMinutes: 0,
+        repeatCount: 0,
+      });
+    });
+  });
+
+  return reminders;
+}
+
+function buildFinanceReminders() {
+  return [...buildFinanceEntryReminders(), ...buildAllocationReminders()];
+}
 
 function toggleGoalsTestMode() {
   isGoalsTestMode = !isGoalsTestMode;
@@ -221,6 +431,7 @@ async function saveToDropbox(cleanGoals) {
 // Save locally + cloud
 function saveToStorage() {
   const cleanGoals = stripGoalsForStorage(goals);
+  normalizeEntries();
 
   // Local backup
   localStorage.setItem("cashflow_entries", JSON.stringify(entries));
@@ -307,6 +518,7 @@ function loadFromLocalStorage() {
   }
 
   normalizeGoals();
+  normalizeEntries();
 }
 
 loadFromLocalStorage();
@@ -365,6 +577,7 @@ async function loadFromDropbox() {
     }
 
     normalizeGoals();
+    normalizeEntries();
     renderDay();
 
     console.log("Loaded data from Dropbox");
@@ -425,9 +638,11 @@ function normalizeGoal(goal) {
   goal.allocations = goal.allocations
     .filter((allocation) => allocation && allocation.date && Number(allocation.amount) > 0)
     .map((allocation) => ({
+      id: allocation.id || makeEntryId(),
       date: allocation.date,
       amount: Number(allocation.amount),
       applied: Boolean(allocation.applied),
+      reminder: normalizeAllocationReminder(allocation.reminder),
       _editing: Boolean(allocation._editing),
     }));
   goal.allocated = getGoalAllocatedAmount(goal);
@@ -708,6 +923,45 @@ function renderGoals() {
       input.placeholder = "Amount";
       input.style.width = "70px";
 
+      const allocationReminder = normalizeEntryReminder(DEFAULT_ENTRY_REMINDER);
+
+      const reminderEditor = document.createElement("div");
+      reminderEditor.className = "allocation-reminder-editor";
+
+      const reminderRow = document.createElement("div");
+      reminderRow.className = "allocation-reminder-row";
+
+      const reminderEnabledLabel = document.createElement("label");
+      const reminderEnabledInput = document.createElement("input");
+      reminderEnabledInput.type = "checkbox";
+      reminderEnabledLabel.appendChild(reminderEnabledInput);
+      reminderEnabledLabel.appendChild(document.createTextNode("Notify me at"));
+
+      const reminderTimeInput = document.createElement("input");
+      reminderTimeInput.type = "time";
+      reminderTimeInput.id = `allocation-reminder-time-${idx}`;
+      reminderTimeInput.value = allocationReminder.time;
+      reminderTimeInput.disabled = true;
+
+      const displayAmountLabel = document.createElement("label");
+      const displayAmountInput = document.createElement("input");
+      displayAmountInput.type = "checkbox";
+      displayAmountInput.disabled = true;
+      displayAmountLabel.appendChild(displayAmountInput);
+      displayAmountLabel.appendChild(document.createTextNode("Display Amount"));
+
+      reminderRow.appendChild(reminderEnabledLabel);
+      reminderRow.appendChild(reminderTimeInput);
+      reminderRow.appendChild(displayAmountLabel);
+
+      reminderEnabledInput.onchange = () => {
+        const disabled = !reminderEnabledInput.checked;
+        reminderTimeInput.disabled = disabled;
+        displayAmountInput.disabled = disabled;
+      };
+
+      reminderEditor.appendChild(reminderRow);
+
       const addBtn = document.createElement("button");
       addBtn.innerText = "+";
       addBtn.onclick = () => {
@@ -718,7 +972,19 @@ function renderGoals() {
           return;
         }
 
-        goal.allocations.push({ date: formatDate(currentDate), amount: value, applied: true });
+        goal.allocations.push({
+          id: makeEntryId(),
+          date: formatDate(currentDate),
+          amount: value,
+          applied: true,
+          reminder: normalizeEntryReminder({
+            enabled: reminderEnabledInput.checked,
+            time: reminderTimeInput.value,
+            repeatEveryHours: 0,
+            repeatCount: 0,
+            displayAmount: displayAmountInput.checked,
+          }),
+        });
         saveToStorage();
         renderDay();
       };
@@ -751,6 +1017,7 @@ function renderGoals() {
       controls.appendChild(addBtn);
       controls.appendChild(removeBtn);
       front.appendChild(controls);
+      front.appendChild(reminderEditor);
     }
 
     const backTitle = document.createElement("strong");
@@ -785,7 +1052,9 @@ function renderGoals() {
 
       const lineText = document.createElement("span");
       lineText.className = "allocation-line";
-      lineText.innerText = `${formatMD(allocation.date)} - $${Number(allocation.amount).toFixed(2)}`;
+      lineText.innerText = `${formatMD(allocation.date)} - $${Number(allocation.amount).toFixed(2)}${
+        allocation.reminder && allocation.reminder.enabled ? " [R]" : ""
+      }`;
       row.appendChild(lineText);
 
       if (isGoalsTestMode) {
@@ -848,9 +1117,69 @@ function renderGoals() {
           renderDay();
         };
 
+        const reminderEditor = document.createElement("div");
+        reminderEditor.className = "allocation-reminder-editor";
+
+        const reminderConfig = normalizeAllocationReminder(allocation.reminder);
+
+        const reminderRow = document.createElement("div");
+        reminderRow.className = "allocation-reminder-row";
+
+        const reminderEnabledLabel = document.createElement("label");
+        const reminderEnabledInput = document.createElement("input");
+        reminderEnabledInput.type = "checkbox";
+        reminderEnabledInput.checked = reminderConfig.enabled;
+        reminderEnabledLabel.appendChild(reminderEnabledInput);
+        reminderEnabledLabel.appendChild(document.createTextNode("Enable Notification"));
+
+        const reminderTimeLabel = document.createElement("label");
+        reminderTimeLabel.textContent = "at";
+
+        const reminderTimeInput = document.createElement("input");
+        reminderTimeInput.type = "time";
+        reminderTimeInput.value = reminderConfig.time;
+        reminderTimeInput.disabled = !reminderConfig.enabled;
+
+        const displayAmountLabel = document.createElement("label");
+        const displayAmountInput = document.createElement("input");
+        displayAmountInput.type = "checkbox";
+        displayAmountInput.checked = reminderConfig.displayAmount;
+        displayAmountInput.disabled = !reminderConfig.enabled;
+        displayAmountLabel.appendChild(displayAmountInput);
+        displayAmountLabel.appendChild(document.createTextNode("Display Amount"));
+
+        reminderRow.appendChild(reminderEnabledLabel);
+        reminderRow.appendChild(reminderTimeLabel);
+        reminderRow.appendChild(reminderTimeInput);
+        reminderRow.appendChild(displayAmountLabel);
+
+        const saveAllocationReminder = () => {
+          allocation.reminder = normalizeAllocationReminder({
+            enabled: reminderEnabledInput.checked,
+            time: reminderTimeInput.value,
+            repeatEveryHours: 0,
+            repeatCount: 0,
+            displayAmount: displayAmountInput.checked,
+          });
+          saveToStorage();
+          renderDay();
+        };
+
+        reminderEnabledInput.onchange = () => {
+          const disabled = !reminderEnabledInput.checked;
+          reminderTimeInput.disabled = disabled;
+          displayAmountInput.disabled = disabled;
+          saveAllocationReminder();
+        };
+        reminderTimeInput.onchange = saveAllocationReminder;
+        displayAmountInput.onchange = saveAllocationReminder;
+
+        reminderEditor.appendChild(reminderRow);
+
         editor.appendChild(dateInput);
         editor.appendChild(amountInput);
         checklist.appendChild(editor);
+        checklist.appendChild(reminderEditor);
       }
     });
 
@@ -944,6 +1273,13 @@ function renderDay() {
         (e.type === "income" ? "+ " : "- ") + " $" + e.amount + " - " + e.name;
       div.appendChild(span);
 
+      if (e.reminder && e.reminder.enabled) {
+        const reminderSpan = document.createElement("small");
+        reminderSpan.innerText = `[${reminderSummary(e.reminder)}]`;
+        reminderSpan.style.color = "#444";
+        div.appendChild(reminderSpan);
+      }
+
       if (isEditMode) {
         const editBtn = document.createElement("button");
         editBtn.className = "edit-btn";
@@ -970,6 +1306,13 @@ function renderDay() {
           span.style.color = "blue";
           span.innerText = `- $${Number(a.amount).toFixed(2)} - Allocated to ${g.name}`;
           div.appendChild(span);
+
+          if (a.reminder && a.reminder.enabled) {
+            const reminderSpan = document.createElement("small");
+            reminderSpan.innerText = `[${reminderSummary(a.reminder)}]`;
+            reminderSpan.style.color = "#444";
+            div.appendChild(reminderSpan);
+          }
 
           list.appendChild(div);
         }
@@ -1059,7 +1402,8 @@ function renderCalendar() {
             const item = document.createElement("div");
             item.style.fontSize = "10px";
             item.style.color = e.type === "income" ? "green" : "red";
-            item.innerText = (e.type === "income" ? "+ " : "- ") + e.name;
+            const reminderTag = e.reminder && e.reminder.enabled ? " [R]" : "";
+            item.innerText = (e.type === "income" ? "+ " : "- ") + e.name + reminderTag;
             cell.appendChild(item);
           });
         }
@@ -1071,7 +1415,7 @@ function renderCalendar() {
                 const alloc = document.createElement("div");
                 alloc.style.fontSize = "10px";
                 alloc.style.color = "blue";
-                alloc.innerText = `- ${g.name}`;
+                alloc.innerText = `- ${g.name}${a.reminder && a.reminder.enabled ? " [R]" : ""}`;
                 cell.appendChild(alloc);
               }
             });
@@ -1110,20 +1454,35 @@ function saveEntry(type) {
   const name = document.getElementById("entryName").value;
   const amount = Number(document.getElementById("entryAmount").value);
   const dateStr = formatDate(currentDate);
+  const reminder = readEntryReminderFromForm();
 
   if (!name || !amount) return alert("Fill all fields");
   if (!entries[dateStr]) entries[dateStr] = [];
 
   if (editIndex !== null) {
-    entries[dateStr][editIndex] = { name, amount, type };
+    const existing = entries[dateStr][editIndex];
+    entries[dateStr][editIndex] = {
+      id: existing && existing.id ? existing.id : makeEntryId(),
+      name,
+      amount,
+      type,
+      reminder,
+    };
     editIndex = null;
   } else {
-    entries[dateStr].push({ name, amount, type });
+    entries[dateStr].push({
+      id: makeEntryId(),
+      name,
+      amount,
+      type,
+      reminder,
+    });
   }
 
   // Clear the form
   document.getElementById("entryName").value = "";
   document.getElementById("entryAmount").value = "";
+  resetEntryReminderForm();
 
   saveToStorage();
   renderDay();
@@ -1134,6 +1493,7 @@ function editEntry(index) {
   const entry = entries[dateStr][index];
   document.getElementById("entryName").value = entry.name;
   document.getElementById("entryAmount").value = entry.amount;
+  applyReminderToEntryForm(entry);
   editIndex = index;
 }
 
@@ -1164,4 +1524,21 @@ function recalculate() {
 }
 
 renderDay();
+document.addEventListener("DOMContentLoaded", () => {
+  const reminderEnabledInput = document.getElementById("entry-reminder-enabled");
+  if (reminderEnabledInput) {
+    reminderEnabledInput.addEventListener("change", (event) => {
+      setEntryReminderFormState(!event.target.checked);
+    });
+  }
+
+  resetEntryReminderForm();
+
+  if (window.P5ReminderEngine) {
+    window.P5ReminderEngine.start({
+      getReminders: buildFinanceReminders,
+    });
+  }
+});
+
 window.saveToStorage = saveToStorage;

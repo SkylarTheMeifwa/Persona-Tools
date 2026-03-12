@@ -104,6 +104,67 @@ select {
   padding-top: 10px;
 }
 
+.entry-reminder-settings {
+  padding: 4px 0;
+  margin: 8px 0;
+}
+
+.entry-reminder-settings label {
+  font-size: 12px;
+}
+
+.entry-reminder-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+}
+
+.entry-reminder-row label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.entry-reminder-row input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+}
+
+.entry-reminder-row input[type="time"] {
+  width: auto;
+  max-width: 140px;
+}
+
+.entry-reminder-grid {
+  margin-top: 6px;
+  display: grid;
+  grid-template-columns: auto minmax(90px, 160px);
+  align-items: center;
+  gap: 4px 8px;
+}
+
+.entry-reminder-grid input {
+  max-width: 160px;
+}
+
+.allocation-reminder-row label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+}
+
+.allocation-reminder-row input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+}
+
+.allocation-reminder-row input[type="time"] {
+  width: auto;
+  max-width: 120px;
+}
+
 /* GOALS GRID */
 
 #goalsView {
@@ -144,6 +205,7 @@ select {
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   box-sizing: border-box;
+  min-width: 0;
 }
 
 .goal-back {
@@ -191,25 +253,49 @@ select {
   flex-direction: column;
   gap: 5px;
   margin-top: 2px;
+  min-width: 0;
 }
 
 .allocation-row {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 6px;
   font-size: 12px;
+  min-width: 0;
 }
 
 .allocation-line {
   color: #222;
   font-weight: 600;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .allocation-edit-row {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 8px;
-  margin-left: 48px;
+  margin-left: 0;
+  padding-left: 18px;
+  min-width: 0;
+}
+
+.allocation-reminder-editor {
+  width: 100%;
+  max-width: 100%;
+  margin-top: 4px;
+}
+
+.allocation-reminder-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-left: 0;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .allocation-edit-row input {
@@ -293,6 +379,14 @@ select {
 }
 
 @media (max-width: 480px) {
+  .entry-reminder-row {
+    align-items: flex-start;
+  }
+
+  .entry-reminder-grid {
+    grid-template-columns: 1fr;
+  }
+
   .calendar-cell {
     min-height: 60px;
     font-size: 10px;
@@ -304,7 +398,9 @@ select {
   }
 
   .allocation-edit-row {
-    margin-left: 36px;
+    margin-left: 0;
+    padding-left: 10px;
     gap: 6px;
   }
+
 }

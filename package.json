@@ -21,5 +21,8 @@
   "dependencies": {
     "dropbox": "^10.34.0",
     "workbox-precaching": "^7.4.0"
+  },
+  "devDependencies": {
+    "sharp": "^0.34.5"
   }
 }
