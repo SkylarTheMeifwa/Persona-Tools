@@ -12,13 +12,13 @@
 "orientation": "portrait",
 "icons": [
     {
-        "src": "assets/Pictures/black-p5-star-192.png",
+        "src": "assets/Pictures/ren-shiny.png",
         "sizes": "192x192",
         "type": "image/png",
         "purpose": "any"
     },
     {
-        "src": "assets/Pictures/black-p5-star-512.png",
+        "src": "assets/Pictures/ren-shiny.png",
         "sizes": "512x512",
         "type": "image/png",
         "purpose": "any"

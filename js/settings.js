@@ -19,6 +19,25 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   };
 
+  const params = new URLSearchParams(window.location.search);
+  const dropboxToken = params.get("dropbox_token");
+  const dropboxError = params.get("dropbox_error");
+
+  if (dropboxToken) {
+    localStorage.setItem("dropbox_token", dropboxToken);
+    setStatus("Dropbox connected.");
+    window.history.replaceState({}, document.title, "/settings.html");
+  } else if (dropboxError) {
+    if (dropboxError === "code_used") {
+      setStatus("Dropbox login expired. Please click Connect Dropbox again.");
+    } else if (dropboxError === "state_mismatch") {
+      setStatus("Dropbox login could not be verified. Please try again.");
+    } else {
+      setStatus("Dropbox login failed. Please try again.");
+    }
+    window.history.replaceState({}, document.title, "/settings.html");
+  }
+
   let swRegistrationPromise = null;
 
   const getServiceWorkerRegistration = async () => {

@@ -223,9 +223,9 @@
     // Skip some of cross-origin requests, like those for Google Analytics.
     // Also skip OAuth endpoints that require browser redirects
     const url = new URL(event.request.url)
-    const isOAuthEndpoint = url.pathname === '/api/dropbox'
+    const isApiEndpoint = url.pathname.startsWith('/api/')
     
-    if (HOSTNAME_WHITELIST.indexOf(url.hostname) > -1 && !isOAuthEndpoint) {
+    if (HOSTNAME_WHITELIST.indexOf(url.hostname) > -1 && !isApiEndpoint) {
         // Stale-while-revalidate
         // similar to HTTP's stale-while-revalidate: https://www.mnot.net/blog/2007/12/12/stale
         // Upgrade from Jake's to Surma's: https://gist.github.com/surma/eb441223daaedf880801ad80006389f1
