@@ -72,6 +72,19 @@
         </form>
       </section>
 
+      <section class="settings-card" aria-labelledby="notifications-settings-title">
+        <h2 id="notifications-settings-title">Notifications and Badges</h2>
+        <p>Enable push notifications and control app icon badges for supported browsers.</p>
+
+        <div class="button-row">
+          <button id="enable-notifications-btn" class="p5-button" type="button">Enable Notifications</button>
+          <button id="send-test-notification-btn" class="p5-button" type="button">Send Test Notification</button>
+          <button id="clear-badge-btn" class="p5-button" type="button">Clear Badge</button>
+        </div>
+
+        <p id="notification-status" class="status-text" aria-live="polite"></p>
+      </section>
+
       <section class="settings-card" aria-labelledby="notices-title">
         <h2 id="notices-title">Important Notices</h2>
         <p>While Dropbox integration is enabled, it currently only works on the Finances page. I plan to implement it on the rest of the site in the future.</p>
