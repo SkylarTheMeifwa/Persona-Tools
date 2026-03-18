@@ -4,6 +4,7 @@ window.addEventListener("DOMContentLoaded", () => {
   const status = document.getElementById("font-mode-status");
   const notificationStatus = document.getElementById("notification-status");
   const enableNotificationsBtn = document.getElementById("enable-notifications-btn");
+  const syncNotificationsBtn = document.getElementById("sync-notifications-btn");
   const sendTestNotificationBtn = document.getElementById("send-test-notification-btn");
   const clearBadgeBtn = document.getElementById("clear-badge-btn");
 
@@ -270,6 +271,42 @@ window.addEventListener("DOMContentLoaded", () => {
         setNotificationStatus("Badge clear requested.");
       } catch (error) {
         setNotificationStatus(`Unable to clear badge: ${error.message}`);
+      }
+    });
+  }
+
+  if (syncNotificationsBtn) {
+    syncNotificationsBtn.addEventListener("click", async () => {
+      const originalLabel = syncNotificationsBtn.textContent;
+      syncNotificationsBtn.disabled = true;
+      syncNotificationsBtn.textContent = "Syncing...";
+
+      try {
+        if (Notification.permission === "granted") {
+          await registerPushSubscription();
+        }
+
+        const response = await fetch("/api/push-cron", { method: "GET" });
+        const payload = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          throw new Error(payload.error || "Manual sync failed.");
+        }
+
+        const mode = payload.mode || "unknown";
+        const scheduledCount = Number.isFinite(payload.scheduledCount)
+          ? payload.scheduledCount
+          : 0;
+        const sentCount = Number.isFinite(payload.sentCount) ? payload.sentCount : 0;
+
+        setNotificationStatus(
+          `Sync complete (${mode}). Scheduled ${scheduledCount}, sent ${sentCount}.`
+        );
+      } catch (error) {
+        setNotificationStatus(`Unable to sync notifications: ${error.message}`);
+      } finally {
+        syncNotificationsBtn.disabled = false;
+        syncNotificationsBtn.textContent = originalLabel;
       }
     });
   }

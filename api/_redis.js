@@ -34,4 +34,5 @@ export async function redisCommand(command) {
 
 export const deviceHashKey = (deviceId) => `p5:device:${deviceId}`;
 export const sentReminderKey = (deliveryId) => `p5:sent:${deliveryId}`;
+export const scheduledReminderKey = (deliveryId) => `p5:scheduled:${deliveryId}`;
 export const DEVICES_SET_KEY = "p5:devices";
