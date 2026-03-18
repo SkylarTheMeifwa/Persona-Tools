@@ -3,8 +3,16 @@
   const navbarFontModeStorageKey = "p5-navbar-font-mode";
   const navbarFontMode = window.localStorage.getItem(navbarFontModeStorageKey);
   const isReadableMode = navbarFontMode === "readable";
+  const fontAwesomeKitUrl = "https://kit.fontawesome.com/bad9427839.js";
 
   document.documentElement.classList.toggle("p5-font-readable", isReadableMode);
+
+  if (!document.querySelector(`script[src="${fontAwesomeKitUrl}"]`)) {
+    const fontAwesomeScript = document.createElement("script");
+    fontAwesomeScript.src = fontAwesomeKitUrl;
+    fontAwesomeScript.crossOrigin = "anonymous";
+    document.head.appendChild(fontAwesomeScript);
+  }
 
   // Inject navbar CSS if not already present
   if (!document.querySelector('link[href="css/navbar.css"]')) {
@@ -21,6 +29,19 @@
       container.innerHTML = html.trim();
       const nav = container.firstChild;
       const statSubnav = nav.querySelector(".p5-stat-subnav");
+      const statToggle = nav.querySelector(".p5-dropdown-toggle");
+      const statToggleIcon = statToggle
+        ? statToggle.querySelector("i.fa-solid")
+        : null;
+
+      const setStatToggleIcon = (visible) => {
+        if (!statToggleIcon) {
+          return;
+        }
+
+        statToggleIcon.classList.toggle("fa-angle-down", !visible);
+        statToggleIcon.classList.toggle("fa-angle-up", visible);
+      };
 
       if (isReadableMode) {
         nav.classList.add("font-readable");
@@ -45,10 +66,12 @@
           document.body.classList.add("has-stat-subnav");
           statSubnav.hidden = false;
           window.localStorage.setItem(statSubnavStorageKey, "true");
+          setStatToggleIcon(true);
         } else {
           document.body.classList.remove("has-stat-subnav");
           statSubnav.hidden = true;
           window.localStorage.setItem(statSubnavStorageKey, "false");
+          setStatToggleIcon(false);
         }
       };
 
@@ -65,8 +88,6 @@
           }
         }
       });
-
-      const statToggle = nav.querySelector(".p5-dropdown-toggle");
 
       if (statToggle && statPageFiles.includes(currentFile)) {
         statToggle.classList.add("active");

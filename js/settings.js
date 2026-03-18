@@ -40,6 +40,32 @@ window.addEventListener("DOMContentLoaded", () => {
 
   let swRegistrationPromise = null;
 
+  const base64UrlToUint8Array = (base64String) => {
+    const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+    const normalized = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+    const raw = window.atob(normalized);
+    const output = new Uint8Array(raw.length);
+
+    for (let i = 0; i < raw.length; i += 1) {
+      output[i] = raw.charCodeAt(i);
+    }
+
+    return output;
+  };
+
+  const getPushDeviceId = () => {
+    const storageKey = "p5PushDeviceId";
+    let deviceId = localStorage.getItem(storageKey);
+
+    if (!deviceId) {
+      deviceId =
+        ("dev-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10)).toLowerCase();
+      localStorage.setItem(storageKey, deviceId);
+    }
+
+    return deviceId;
+  };
+
   const getServiceWorkerRegistration = async () => {
     if (!("serviceWorker" in navigator)) {
       throw new Error("Service workers are not supported in this browser.");
@@ -58,6 +84,52 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
     return swRegistrationPromise;
+  };
+
+  const registerPushSubscription = async () => {
+    if (!window.isSecureContext) {
+      throw new Error("Push requires HTTPS or localhost.");
+    }
+
+    const registration = await getServiceWorkerRegistration();
+    const keyResponse = await fetch("/api/push-public-key");
+
+    if (!keyResponse.ok) {
+      const payload = await keyResponse.json().catch(() => ({}));
+      throw new Error(payload.error || "Unable to fetch push configuration.");
+    }
+
+    const { publicKey } = await keyResponse.json();
+    if (!publicKey) {
+      throw new Error("Missing push public key.");
+    }
+
+    let subscription = await registration.pushManager.getSubscription();
+    if (!subscription) {
+      subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: base64UrlToUint8Array(publicKey),
+      });
+    }
+
+    const response = await fetch("/api/push-subscribe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        deviceId: getPushDeviceId(),
+        subscription,
+      }),
+    });
+
+    if (!response.ok) {
+      const payload = await response.json().catch(() => ({}));
+      throw new Error(payload.error || "Unable to save push subscription.");
+    }
+  };
+
+  window.P5Push = {
+    getPushDeviceId,
+    registerPushSubscription,
   };
 
   const updateNotificationUiState = () => {
@@ -148,7 +220,8 @@ window.addEventListener("DOMContentLoaded", () => {
         await getServiceWorkerRegistration();
         const permission = await Notification.requestPermission();
         if (permission === "granted") {
-          setNotificationStatus("Notifications enabled.");
+          await registerPushSubscription();
+          setNotificationStatus("Notifications enabled for closed-app push reminders.");
         } else if (permission === "denied") {
           setNotificationStatus("Notifications denied. Enable them in browser site settings.");
         } else {

@@ -265,6 +265,12 @@ select {
   min-width: 0;
 }
 
+.allocation-row input[type="checkbox"] {
+  margin: 0;
+  width: auto;
+  max-width: none;
+}
+
 .allocation-line {
   color: #222;
   font-weight: 600;
@@ -330,6 +336,17 @@ select {
   line-height: 1;
 }
 
+.allocation-icon-svg {
+  width: 14px;
+  height: 14px;
+  display: block;
+  fill: currentColor;
+}
+
+.allocation-edit-btn {
+  color: #111;
+}
+
 .allocation-empty {
   font-size: 12px;
   color: #666;
@@ -340,19 +357,80 @@ select {
 
 #calendarView {
   margin-top: 30px;
-  overflow-x: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.calendar-month {
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.calendar-month-title {
+  margin-bottom: 8px;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+  width: 100%;
+  min-width: 0;
+}
+
+.calendar-weekday {
+  font-weight: bold;
+  text-align: center;
+  font-size: 12px;
+}
+
+.calendar-empty {
+  min-height: 0;
 }
 
 .calendar-cell {
   border: 1px solid #ccc;
   padding: 6px;
-  min-height: 90px;
+  min-height: 96px;
   font-size: 12px;
   cursor: pointer;
   background-color: #e3e3e3;
   transition: 0.2s;
   display: flex;
   flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.calendar-day-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.calendar-day-number {
+  line-height: 1;
+}
+
+.calendar-holiday {
+  color: purple;
+  font-size: 10px;
+  font-weight: normal;
+  line-height: 1.2;
+}
+
+.calendar-balance {
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.calendar-entry,
+.calendar-allocation {
+  font-size: 10px;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 
 .calendar-cell:hover {
@@ -371,8 +449,19 @@ select {
 /* Responsive */
 
 @media (max-width: 768px) {
+  .calendar-grid {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    width: 100%;
+    min-width: 0;
+    gap: 4px;
+  }
+
+  .calendar-weekday {
+    font-size: 11px;
+  }
+
   .calendar-cell {
-    min-height: 70px;
+    min-height: 78px;
     font-size: 11px;
     padding: 4px;
   }
@@ -387,9 +476,26 @@ select {
     grid-template-columns: 1fr;
   }
 
+  .calendar-grid {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    width: 100%;
+    min-width: 0;
+    gap: 2px;
+  }
+
   .calendar-cell {
-    min-height: 60px;
+    min-height: 68px;
     font-size: 10px;
+    padding: 3px;
+  }
+
+  .calendar-holiday {
+    font-size: 9px;
+  }
+
+  .calendar-entry,
+  .calendar-allocation {
+    font-size: 9px;
   }
 
   .entry {

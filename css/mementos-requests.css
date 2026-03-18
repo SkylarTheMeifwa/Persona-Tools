@@ -144,7 +144,9 @@
 }
 
 #edit-btn,
-#add-task-btn {
+#add-task-btn,
+#export-data-btn,
+#import-data-btn {
   padding: 10px 20px;
   font-family: "ZCOOL KuaiLe", cursive;
   background-color: white;
@@ -159,7 +161,9 @@
 }
 
 #edit-btn:hover,
-#add-task-btn:hover {
+#add-task-btn:hover,
+#export-data-btn:hover,
+#import-data-btn:hover {
   background-color: red;
   color: white;
   box-shadow: 0 0 15px white;

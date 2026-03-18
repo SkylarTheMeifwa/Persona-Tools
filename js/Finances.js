@@ -63,13 +63,28 @@ function makeEntryId() {
 }
 
 function normalizeEntries() {
+  if (!entries || typeof entries !== "object" || Array.isArray(entries)) {
+    entries = {};
+    return;
+  }
+
   Object.keys(entries).forEach((dateKey) => {
     const dayEntries = Array.isArray(entries[dateKey]) ? entries[dateKey] : [];
-    entries[dateKey] = dayEntries.map((entry) => ({
-      ...entry,
-      id: entry.id || makeEntryId(),
-      reminder: normalizeEntryReminder(entry.reminder),
-    }));
+    entries[dateKey] = dayEntries
+      .filter((entry) => entry && typeof entry === "object")
+      .map((entry) => {
+        const normalizedType = entry.type === "income" ? "income" : "expense";
+        const normalizedAmount = Number(entry.amount);
+
+        return {
+          ...entry,
+          id: entry.id || makeEntryId(),
+          name: typeof entry.name === "string" ? entry.name : String(entry.name || ""),
+          amount: Number.isFinite(normalizedAmount) ? normalizedAmount : 0,
+          type: normalizedType,
+          reminder: normalizeEntryReminder(entry.reminder),
+        };
+      });
   });
 }
 
@@ -865,7 +880,7 @@ function renderGoals() {
 
     if (isEditGoalsMode) {
       const editBtn = document.createElement("button");
-      editBtn.innerText = "✎";
+      editBtn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i>';
       editBtn.title = "Edit Goal";
       editBtn.className = "edit-btn";
 
@@ -884,7 +899,7 @@ function renderGoals() {
       };
 
       const deleteBtn = document.createElement("button");
-      deleteBtn.innerHTML = "&#128465;";
+      deleteBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
       deleteBtn.title = "Delete Goal";
       deleteBtn.className = "delete-btn";
       deleteBtn.style.position = "static";
@@ -1064,7 +1079,7 @@ function renderGoals() {
         trashBtn.type = "button";
         trashBtn.className = "allocation-icon-btn allocation-trash-btn";
         trashBtn.title = "Delete allocation";
-        trashBtn.innerHTML = "&#128465;";
+        trashBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
         trashBtn.onclick = () => {
           goal.allocations.splice(allocationIdx, 1);
           saveToStorage();
@@ -1075,13 +1090,13 @@ function renderGoals() {
         editBtn.type = "button";
         editBtn.className = "allocation-icon-btn allocation-edit-btn";
         editBtn.title = "Edit allocation";
-        editBtn.innerHTML = "&#9998;";
+        editBtn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i>';
         editBtn.onclick = () => {
           allocation._editing = !allocation._editing;
           renderGoals();
         };
 
-        row.insertBefore(trashBtn, lineText);
+        row.insertBefore(trashBtn, check);
         row.appendChild(editBtn);
       }
 
@@ -1263,7 +1278,7 @@ function renderDay() {
       if (isEditMode) {
         const delBtn = document.createElement("button");
         delBtn.className = "delete-btn";
-        delBtn.innerHTML = "&#128465;";
+        delBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
         delBtn.title = "Delete";
         delBtn.onclick = () => deleteEntry(index);
         div.appendChild(delBtn);
@@ -1285,7 +1300,7 @@ function renderDay() {
       if (isEditMode) {
         const editBtn = document.createElement("button");
         editBtn.className = "edit-btn";
-        editBtn.innerHTML = "&#9998;";
+        editBtn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i>';
         editBtn.title = "Edit";
         editBtn.onclick = () => editEntry(index);
         div.appendChild(editBtn);
@@ -1330,6 +1345,7 @@ function renderDay() {
 function renderCalendar() {
   const calendarDiv = document.getElementById("calendarView");
   calendarDiv.innerHTML = "<h3>Calendar View</h3>";
+  const isNarrow = window.matchMedia("(max-width: 768px)").matches;
 
   let renderDate = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
 
@@ -1337,22 +1353,25 @@ function renderCalendar() {
     const month = renderDate.getMonth();
     const year = renderDate.getFullYear();
 
+    const monthSection = document.createElement("section");
+    monthSection.className = "calendar-month";
+
     const title = document.createElement("h4");
+    title.className = "calendar-month-title";
     title.innerText =
       renderDate.toLocaleString("default", { month: "long" }) + " " + year;
-    calendarDiv.appendChild(title);
+    monthSection.appendChild(title);
 
     const grid = document.createElement("div");
-    grid.style.display = "grid";
-    grid.style.gridTemplateColumns = "repeat(7, 1fr)";
-    grid.style.gap = "4px";
+    grid.className = "calendar-grid";
 
     // add weekday headers
-    const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const weekdays = isNarrow
+      ? ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+      : ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     weekdays.forEach((wd) => {
       const hd = document.createElement("div");
-      hd.style.fontWeight = "bold";
-      hd.style.textAlign = "center";
+      hd.className = "calendar-weekday";
       hd.innerText = wd;
       grid.appendChild(hd);
     });
@@ -1360,8 +1379,11 @@ function renderCalendar() {
     const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-    for (let i = 0; i < firstDay; i++)
-      grid.appendChild(document.createElement("div"));
+    for (let i = 0; i < firstDay; i++) {
+      const spacer = document.createElement("div");
+      spacer.className = "calendar-empty";
+      grid.appendChild(spacer);
+    }
 
     for (let day = 1; day <= daysInMonth; day++) {
       const cellDate = new Date(year, month, day);
@@ -1373,22 +1395,18 @@ function renderCalendar() {
         const balance = calculateBalanceUpTo(cellDate);
         // Create top line container
         const topRow = document.createElement("div");
-        topRow.style.display = "flex";
-        topRow.style.alignItems = "center";
-        topRow.style.gap = "4px";
-        topRow.style.whiteSpace = "nowrap"; // FORCE single line
+        topRow.className = "calendar-day-row";
 
         // Day number
         const dayNumber = document.createElement("strong");
+        dayNumber.className = "calendar-day-number";
         dayNumber.innerText = day;
         topRow.appendChild(dayNumber);
 
         if (holidays[dateStr]) {
           const holidayText = document.createElement("div");
           holidayText.innerText = holidays[dateStr].name; // ← FIXED
-          holidayText.style.color = "purple";
-          holidayText.style.fontSize = "10px";
-          holidayText.style.fontWeight = "normal";
+          holidayText.className = "calendar-holiday";
           topRow.appendChild(holidayText);
         }
 
@@ -1396,13 +1414,14 @@ function renderCalendar() {
 
         // Balance underneath
         const balanceLine = document.createElement("div");
+        balanceLine.className = "calendar-balance";
         balanceLine.innerText = "$" + balance.toFixed(2);
         cell.appendChild(balanceLine);
 
         if (entries[dateStr]) {
           entries[dateStr].forEach((e) => {
             const item = document.createElement("div");
-            item.style.fontSize = "10px";
+            item.className = "calendar-entry";
             item.style.color = e.type === "income" ? "green" : "red";
             const reminderTag = e.reminder && e.reminder.enabled ? " [R]" : "";
             item.innerText = (e.type === "income" ? "+ " : "- ") + e.name + reminderTag;
@@ -1415,7 +1434,7 @@ function renderCalendar() {
             g.allocations.forEach((a) => {
               if (a.date === dateStr) {
                 const alloc = document.createElement("div");
-                alloc.style.fontSize = "10px";
+                alloc.className = "calendar-allocation";
                 alloc.style.color = "blue";
                 alloc.innerText = `- ${g.name}${a.reminder && a.reminder.enabled ? " [R]" : ""}`;
                 cell.appendChild(alloc);
@@ -1437,7 +1456,8 @@ function renderCalendar() {
       grid.appendChild(cell);
     }
 
-    calendarDiv.appendChild(grid);
+    monthSection.appendChild(grid);
+    calendarDiv.appendChild(monthSection);
     renderDate = new Date(year, month + 1, 1);
   }
 }
@@ -1539,6 +1559,8 @@ document.addEventListener("DOMContentLoaded", () => {
   if (window.P5ReminderEngine) {
     window.P5ReminderEngine.start({
       getReminders: buildFinanceReminders,
+      maxLateMinutes: 2,
+      syncSource: "finances",
     });
   }
 });

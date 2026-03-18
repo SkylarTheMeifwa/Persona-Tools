@@ -87,3 +87,44 @@ I do not claim ownership of any Persona content or intellectual property.
 Please support the official Persona games!
 
 ---
+
+## Closed-App Reminder Notifications Setup
+
+Closed-app reminders use Web Push plus a server-side cron that sends due notifications.
+
+### Requirements
+- Deploy on Vercel (or another host that supports serverless cron).
+- Create an Upstash Redis database.
+- Generate Web Push VAPID keys.
+
+### Environment Variables
+Set these in your deployment settings:
+
+- `UPSTASH_REDIS_REST_URL`
+- `UPSTASH_REDIS_REST_TOKEN`
+- `WEB_PUSH_SUBJECT` (example: `mailto:you@example.com`)
+- `WEB_PUSH_PUBLIC_KEY`
+- `WEB_PUSH_PRIVATE_KEY`
+
+### Generate VAPID Keys
+You can generate keys with `web-push`:
+
+```bash
+npx web-push generate-vapid-keys
+```
+
+Copy the generated public/private keys into the env vars above.
+
+### API Endpoints Added
+- `POST /api/push-subscribe`: stores browser push subscription for this device.
+- `POST /api/push-reminders`: syncs reminder schedules to the backend.
+- `GET /api/push-public-key`: returns VAPID public key for browser subscription.
+- `GET /api/push-cron`: cron worker that sends due reminder pushes.
+
+### Cron Schedule
+`vercel.json` runs `/api/push-cron` every minute.
+
+### Important Behavior Notes
+- Users must click **Enable Notifications** on the Settings page at least once per device/browser.
+- Reminder pages sync schedules only when opened, edited, or periodically while active.
+- If a subscription expires, it is removed automatically and the user must re-enable notifications.

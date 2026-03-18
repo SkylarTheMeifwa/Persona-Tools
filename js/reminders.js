@@ -1,9 +1,118 @@
 (function () {
   const DELIVERY_LOG_KEY = "p5ReminderDeliveryLog";
   const CHECK_INTERVAL_MS = 60 * 1000;
-  const DELIVERY_GRACE_MS = 6 * 60 * 60 * 1000;
+  const DEFAULT_DELIVERY_GRACE_MS = 2 * 60 * 1000;
+  const SYNC_INTERVAL_MS = 60 * 1000;
 
   let runningTimer = null;
+  let deliveryGraceMs = DEFAULT_DELIVERY_GRACE_MS;
+  let lastSyncAt = 0;
+  let lastSyncedSnapshot = "";
+
+  function getPushDeviceId() {
+    const storageKey = "p5PushDeviceId";
+    let deviceId = localStorage.getItem(storageKey);
+
+    if (!deviceId) {
+      deviceId =
+        ("dev-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10)).toLowerCase();
+      localStorage.setItem(storageKey, deviceId);
+    }
+
+    return deviceId;
+  }
+
+  function base64UrlToUint8Array(base64String) {
+    const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+    const normalized = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+    const raw = window.atob(normalized);
+    const output = new Uint8Array(raw.length);
+
+    for (let i = 0; i < raw.length; i += 1) {
+      output[i] = raw.charCodeAt(i);
+    }
+
+    return output;
+  }
+
+  async function ensurePushSubscription() {
+    if (!("Notification" in window) || Notification.permission !== "granted") {
+      return;
+    }
+
+    if (!("serviceWorker" in navigator) || !window.isSecureContext) {
+      return;
+    }
+
+    const registration =
+      (await navigator.serviceWorker.getRegistration()) ||
+      (await navigator.serviceWorker.register("service-worker.js"));
+
+    let subscription = await registration.pushManager.getSubscription();
+
+    if (!subscription) {
+      const keyResponse = await fetch("/api/push-public-key");
+      if (!keyResponse.ok) return;
+
+      const { publicKey } = await keyResponse.json();
+      if (!publicKey) return;
+
+      subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: base64UrlToUint8Array(publicKey),
+      });
+    }
+
+    await fetch("/api/push-subscribe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        deviceId: getPushDeviceId(),
+        subscription,
+      }),
+    });
+  }
+
+  async function syncRemindersToServer(source, reminders, force = false) {
+    if (!source || !window.isSecureContext || !navigator.onLine) {
+      return;
+    }
+
+    const now = Date.now();
+    const snapshot = JSON.stringify(reminders);
+    const shouldSync = force || snapshot !== lastSyncedSnapshot || now - lastSyncAt >= SYNC_INTERVAL_MS;
+
+    if (!shouldSync) {
+      return;
+    }
+
+    try {
+      if (window.P5Push && typeof window.P5Push.registerPushSubscription === "function") {
+        await window.P5Push.registerPushSubscription();
+      } else {
+        await ensurePushSubscription();
+      }
+
+      const response = await fetch("/api/push-reminders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          deviceId: getPushDeviceId(),
+          source,
+          reminders,
+        }),
+      });
+
+      if (!response.ok) {
+        return;
+      }
+
+      lastSyncAt = now;
+      lastSyncedSnapshot = snapshot;
+    } catch (_) {
+      // Ignore sync failures and keep local reminder behavior active.
+    }
+  }
 
   function readDeliveryLog() {
     try {
@@ -75,7 +184,7 @@
 
     for (let i = 1; i <= repeatCount; i += 1) {
       const nextTime = firstTrigger + i * repeatIntervalMinutes * 60 * 1000;
-      if (nextTime <= dueAt + DELIVERY_GRACE_MS) {
+      if (nextTime <= dueAt + deliveryGraceMs) {
         times.push(nextTime);
       }
     }
@@ -99,7 +208,7 @@
 
         if (alreadySentAt) continue;
         if (now < occurrence) continue;
-        if (now - occurrence > DELIVERY_GRACE_MS) continue;
+        if (now - occurrence > deliveryGraceMs) continue;
 
         const sent = await showNotification(reminder);
         if (sent) {
@@ -116,10 +225,20 @@
 
   function start(options) {
     const getReminders = typeof options.getReminders === "function" ? options.getReminders : () => [];
+    const maxLateMinutes = Number(options?.maxLateMinutes);
+    const syncSource = String(options?.syncSource || "").trim().toLowerCase();
+    const enableServerSync = options?.enableServerSync !== false;
+    deliveryGraceMs = Number.isFinite(maxLateMinutes) && maxLateMinutes >= 0
+      ? maxLateMinutes * 60 * 1000
+      : DEFAULT_DELIVERY_GRACE_MS;
 
     const tick = async () => {
       const reminders = getReminders();
-      if (!Array.isArray(reminders) || reminders.length === 0) return;
+      if (!Array.isArray(reminders)) return;
+      if (enableServerSync && syncSource) {
+        await syncRemindersToServer(syncSource, reminders);
+      }
+      if (reminders.length === 0) return;
       await evaluateAndNotify(reminders);
     };
 

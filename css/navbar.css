@@ -96,13 +96,6 @@ body.has-stat-subnav.stat-subnav-collapsed {
   text-shadow: 0 0 8px rgba(255, 200, 200, 0.6), 1px 1px 2px rgba(0, 0, 0, 0.8);
 }
 
-/* Home link gets a slight left indicator */
-.p5-navbar > ul:first-of-type > li:first-child > a::before {
-  content: "▶ ";
-  font-size: 0.6rem;
-  vertical-align: middle;
-}
-
 /* ===== Dropdown ===== */
 
 .p5-dropdown {
@@ -112,11 +105,6 @@ body.has-stat-subnav.stat-subnav-collapsed {
 .p5-dropdown-toggle {
   cursor: pointer;
   user-select: none;
-}
-
-.p5-dropdown-toggle::after {
-  content: " ▾";
-  font-size: 0.7rem;
 }
 
 .p5-dropdown-menu {

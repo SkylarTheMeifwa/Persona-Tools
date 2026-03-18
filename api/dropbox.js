@@ -19,6 +19,7 @@ export default function handler(req, res) {
     `?client_id=${clientId}` +
     "&response_type=code" +
     "&token_access_type=offline" +
+    "&force_reapprove=true" +
     `&redirect_uri=${encodeURIComponent(redirectUri)}` +
     `&state=${encodeURIComponent(state)}`;
 
