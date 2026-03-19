@@ -133,10 +133,23 @@
     if (!("Notification" in window)) return false;
     if (Notification.permission !== "granted") return false;
 
+    const buildBodyWithTitle = (titleText, bodyText) => {
+      const safeTitle = String(titleText || "").trim();
+      const safeBody = String(bodyText || "").trim();
+
+      if (!safeTitle) return safeBody || "You have an upcoming due date.";
+      if (!safeBody) return safeTitle;
+
+      return `${safeTitle}: ${safeBody}`;
+    };
+
+    const title = reminder.title || "Persona Tools Reminder";
+    const body = reminder.body || "You have an upcoming due date.";
+
     const payload = {
       type: "SHOW_LOCAL_REMINDER",
-      title: reminder.title || "Persona Tools Reminder",
-      body: reminder.body || "You have an upcoming due date.",
+      title,
+      body,
       url: reminder.url || "/index.html",
       badgeCount: Number.isFinite(reminder.badgeCount) ? Math.max(0, reminder.badgeCount) : 1,
     };
@@ -159,7 +172,7 @@
     }
 
     try {
-      new Notification(payload.title, { body: payload.body });
+      new Notification("", { body: buildBodyWithTitle(payload.title, payload.body) });
       return true;
     } catch (_) {
       return false;

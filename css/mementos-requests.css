@@ -51,7 +51,7 @@
 /* Task Row */
 .task {
   display: flex;
-  align-items: center; /* vertically center checkbox, text, due date */
+  align-items: flex-start;
   justify-content: flex-start;
   padding: 0.4rem 0;
   font-size: 12px;
@@ -60,7 +60,13 @@
   padding-left: 32px;
   font-family: "Futura", sans-serif;
   text-align: left;
-  gap: 0.3rem; /* space between task text and due date */
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.task span {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .task::before {
@@ -92,13 +98,12 @@
 
 .task small {
   color: grey;
-  margin-left: 0.5rem;
-  white-space: nowrap; /* prevent line break */
-  font-size: 11px; /* smaller font for due date */
-  align-self: center; /* vertical center in flex */
-  line-height: 1; /* tighter line height */
-  /* Optional tweak to nudge vertical alignment */
-  /* transform: translateY(1px); */
+  margin-left: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  font-size: 11px;
+  line-height: 1.2;
+  flex: 1 1 100%;
 }
 
 .task.completed span,
@@ -234,11 +239,20 @@ body {
   text-align: center;
 }
 
-#task-day,
 #task-min,
-#task-month,
 #task-hour {
-  width: 24px;
+  width: 15px;
+}
+
+#task-date {
+  width: 100px;
+}
+
+#task-date::-webkit-calendar-picker-indicator,
+.notification-row input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 1;
+  cursor: pointer;
 }
 
 #task-ampm {
@@ -270,33 +284,69 @@ body {
   color: black;
 }
 
-.reminder-config {
+.notification-config {
   border: 1px solid #666;
   padding: 0.6rem;
   text-align: left;
 }
 
-.reminder-enable-row {
+.notification-header-row {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: space-between;
+  gap: 0.6rem;
   margin-bottom: 0.6rem;
   font-size: 12px;
 }
 
-.reminder-enable-row input[type="checkbox"] {
-  width: auto;
-  margin: 0;
-}
-
-.reminder-grid {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 0.4rem 0.6rem;
-  align-items: center;
+#add-notification-btn {
+  border: 1px solid #fff;
+  background: #1f1f1f;
+  color: #fff;
+  padding: 0.35rem 0.6rem;
+  cursor: pointer;
   font-size: 11px;
 }
 
-.reminder-grid input[type="number"] {
-  width: 80px;
+#task-notifications-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.notification-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.notification-row input[type="datetime-local"] {
+  width: 100%;
+  text-align: left;
+}
+
+.remove-notification-btn {
+  border: 1px solid #fff;
+  background: #6c0000;
+  color: #fff;
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+  white-space: nowrap;
+  font-size: 11px;
+}
+
+.notification-empty {
+  color: #bdbdbd;
+  font-size: 11px;
+}
+
+@media (max-width: 600px) {
+  .page-wrapper {
+    padding: 1rem;
+  }
+
+  .category {
+    width: 84%;
+    max-width: 300px;
+  }
 }

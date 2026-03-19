@@ -114,6 +114,16 @@
         })
 
         self.addEventListener('push', event => {
+            const buildBodyWithTitle = (titleText, bodyText) => {
+                const safeTitle = String(titleText || '').trim()
+                const safeBody = String(bodyText || '').trim()
+
+                if (!safeTitle) return safeBody || 'You have a new update.'
+                if (!safeBody) return safeTitle
+
+                return `${safeTitle}: ${safeBody}`
+            }
+
             const payload = (() => {
                 if (!event.data) {
                     return {}
@@ -128,13 +138,14 @@
 
             const title = payload.title || 'Persona Tools'
             const body = payload.body || 'You have a new update.'
+            const bodyWithTitle = buildBodyWithTitle(title, body)
             const url = payload.url || NOTIFICATION_DEFAULT_URL
             const badgeCount = Number.isFinite(payload.badgeCount) ? Math.max(0, payload.badgeCount) : 1
 
             event.waitUntil(
                 Promise.all([
-                    self.registration.showNotification(title, {
-                        body,
+                    self.registration.showNotification('', {
+                        body: bodyWithTitle,
                         data: { url },
                     }),
                     setBadgeIfSupported(badgeCount),
@@ -177,8 +188,8 @@
             if (data.type === 'SHOW_TEST_NOTIFICATION') {
                 event.waitUntil(
                     Promise.all([
-                        self.registration.showNotification('Persona Tools Test', {
-                            body: 'Notifications are enabled and ready.',
+                        self.registration.showNotification('', {
+                            body: 'Persona Tools Test: Notifications are enabled and ready.',
                             data: { url: '/settings.html' },
                         }),
                         setBadgeIfSupported(1),
@@ -189,13 +200,14 @@
             if (data.type === 'SHOW_LOCAL_REMINDER') {
                 const title = data.title || 'Persona Tools Reminder'
                 const body = data.body || 'You have an upcoming due date.'
+                const bodyWithTitle = buildBodyWithTitle(title, body)
                 const url = data.url || '/index.html'
                 const badgeCount = Number.isFinite(data.badgeCount) ? Math.max(0, data.badgeCount) : 1
 
                 event.waitUntil(
                     Promise.all([
-                        self.registration.showNotification(title, {
-                            body,
+                        self.registration.showNotification('', {
+                            body: bodyWithTitle,
                             data: { url },
                         }),
                         setBadgeIfSupported(badgeCount),

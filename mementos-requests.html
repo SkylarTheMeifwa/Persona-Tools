@@ -46,11 +46,9 @@
     <div id="task-overlay">
       <input type="text" id="task-category" placeholder="Category" />
       <input type="text" id="task-desc" placeholder="Task Description" />
-      <label for="task-month" class="month-label">Date (Optional):</label>
+      <label for="task-date" class="month-label">Date (Optional):</label>
       <div class="date-time-row">
-        <input type="text" id="task-month" placeholder="MM" />
-        <label for="task-day" class="day-label">/</label>
-        <input type="text" id="task-day" placeholder="DD" />
+        <input type="date" id="task-date" />
         <label for="task-hour" class="hour-label"> at </label>
         <input type="text" id="task-hour" placeholder="HH" />
         <label for="task-min" class="min-label">:</label>
@@ -61,19 +59,12 @@
           <option value="PM">PM</option>
         </select>
       </div>
-      <div class="reminder-config">
-        <label class="reminder-enable-row">
-          <input type="checkbox" id="task-reminder-enabled" checked />
-          Enable due date notifications
-        </label>
-        <div class="reminder-grid">
-          <label for="task-reminder-before">Send before (minutes)</label>
-          <input type="number" id="task-reminder-before" min="0" step="1" value="60" />
-          <label for="task-reminder-repeat">Repeat every (minutes)</label>
-          <input type="number" id="task-reminder-repeat" min="0" step="1" value="0" />
-          <label for="task-reminder-count">Repeat count</label>
-          <input type="number" id="task-reminder-count" min="0" step="1" value="0" />
+      <div class="notification-config">
+        <div class="notification-header-row">
+          <label>Task Notifications</label>
+          <button id="add-notification-btn" type="button">Add Notification</button>
         </div>
+        <div id="task-notifications-list"></div>
       </div>
       <div style="display: flex; justify-content: center; gap: 1rem">
         <button id="submit-task-btn">Add Task</button>
