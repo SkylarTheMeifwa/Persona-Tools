@@ -1,5 +1,5 @@
-const startDate = new Date("2026-02-25");
-const endDate = new Date("2026-04-12");
+const startDate = new Date("2026-01-02");
+const endDate = new Date("2026-12-31");
 
 let entries = {};
 let currentDate = new Date(startDate);
@@ -385,20 +385,7 @@ function saveRearrangedGoals() {
   closeRearrangeGoalsModal();
 }
 
-const goals = [
-  { name: "March Rent Part 2", amount: 367.66, allocated: 0, allocations: [], },
-  { name: "April Rent", amount: 730, allocated: 0, allocations: [], },
-  { name: "New Tire", amount: 130, allocated: 0, allocations: [] },
-  { name: "Trip to See My Love", amount: 150, allocated: 0, allocations: [], },
-  { name: "Beach Trip", amount: 250, allocated: 0, allocations: [], },
-  { name: "At Home Run", amount: 150, allocated: 0, allocations: [], },
-  { name: "Scrapbook", amount: 10, allocated: 0, allocations: [] },
-  { name: "Capture Card", amount: 110.74, allocated: 0, allocations: [] },
-  { name: "PS5 Reimbursement", amount: 101.31, allocated: 0, allocations: [] },
-  { name: "Satin Pillowcases", amount: 40, allocated: 0, allocations: [], },
-  { name: "Pillows", amount: 27.25, allocated: 0, allocations: [] },  
-  { name: "PS5 Remainder", amount: 121.24, allocated: 0, allocations: [] },
-];
+const goals = [];
 
 const holidays = {
   "2026-04-03": {
@@ -610,6 +597,28 @@ function formatDate(date) {
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
+}
+
+function formatMonthValue(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  return `${year}-${month}`;
+}
+
+function parseMonthValue(value) {
+  const [yearPart, monthPart] = String(value).split("-");
+  const year = Number(yearPart);
+  const month = Number(monthPart);
+
+  if (!Number.isInteger(year) || !Number.isInteger(month)) {
+    return null;
+  }
+
+  if (month < 1 || month > 12) {
+    return null;
+  }
+
+  return new Date(year, month - 1, 1);
 }
 
 function formatMD(dateStr) {
@@ -1347,119 +1356,169 @@ function renderCalendar() {
   calendarDiv.innerHTML = "<h3>Calendar View</h3>";
   const isNarrow = window.matchMedia("(max-width: 768px)").matches;
 
-  let renderDate = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+  const minMonth = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+  const maxMonth = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
+  const currentMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
 
-  while (renderDate <= endDate) {
-    const month = renderDate.getMonth();
-    const year = renderDate.getFullYear();
+  const controls = document.createElement("div");
+  controls.className = "calendar-controls";
 
-    const monthSection = document.createElement("section");
-    monthSection.className = "calendar-month";
+  const monthLabel = document.createElement("label");
+  monthLabel.className = "calendar-month-label";
+  monthLabel.setAttribute("for", "calendar-month-select");
+  monthLabel.innerText = "Month:";
 
-    const title = document.createElement("h4");
-    title.className = "calendar-month-title";
-    title.innerText =
-      renderDate.toLocaleString("default", { month: "long" }) + " " + year;
-    monthSection.appendChild(title);
+  const monthSelect = document.createElement("select");
+  monthSelect.id = "calendar-month-select";
+  monthSelect.className = "calendar-month-select";
 
-    const grid = document.createElement("div");
-    grid.className = "calendar-grid";
-
-    // add weekday headers
-    const weekdays = isNarrow
-      ? ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
-      : ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    weekdays.forEach((wd) => {
-      const hd = document.createElement("div");
-      hd.className = "calendar-weekday";
-      hd.innerText = wd;
-      grid.appendChild(hd);
+  for (let monthCursor = new Date(minMonth); monthCursor <= maxMonth; monthCursor.setMonth(monthCursor.getMonth() + 1)) {
+    const option = document.createElement("option");
+    option.value = formatMonthValue(monthCursor);
+    option.innerText = monthCursor.toLocaleDateString("en-US", {
+      month: "long",
+      year: "numeric",
     });
+    monthSelect.appendChild(option);
+  }
 
-    const firstDay = new Date(year, month, 1).getDay();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
+  monthSelect.value = formatMonthValue(currentMonth);
+  monthSelect.onchange = () => {
+    const selectedMonth = parseMonthValue(monthSelect.value);
+    if (!selectedMonth) return;
 
-    for (let i = 0; i < firstDay; i++) {
-      const spacer = document.createElement("div");
-      spacer.className = "calendar-empty";
-      grid.appendChild(spacer);
+    const maxDayInMonth = new Date(
+      selectedMonth.getFullYear(),
+      selectedMonth.getMonth() + 1,
+      0
+    ).getDate();
+    const day = Math.min(currentDate.getDate(), maxDayInMonth);
+    const nextDate = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth(), day);
+
+    if (nextDate < startDate) {
+      currentDate = new Date(startDate);
+    } else if (nextDate > endDate) {
+      currentDate = new Date(endDate);
+    } else {
+      currentDate = nextDate;
     }
 
-    for (let day = 1; day <= daysInMonth; day++) {
-      const cellDate = new Date(year, month, day);
-      const dateStr = formatDate(cellDate);
-      const cell = document.createElement("div");
-      cell.classList.add("calendar-cell");
+    renderDay();
+  };
 
-      if (cellDate >= startDate && cellDate <= endDate) {
-        const balance = calculateBalanceUpTo(cellDate);
-        // Create top line container
-        const topRow = document.createElement("div");
-        topRow.className = "calendar-day-row";
+  controls.appendChild(monthLabel);
+  controls.appendChild(monthSelect);
+  calendarDiv.appendChild(controls);
 
-        // Day number
-        const dayNumber = document.createElement("strong");
-        dayNumber.className = "calendar-day-number";
-        dayNumber.innerText = day;
-        topRow.appendChild(dayNumber);
+  const month = currentMonth.getMonth();
+  const year = currentMonth.getFullYear();
 
-        if (holidays[dateStr]) {
-          const holidayText = document.createElement("div");
-          holidayText.innerText = holidays[dateStr].name; // ← FIXED
-          holidayText.className = "calendar-holiday";
-          topRow.appendChild(holidayText);
-        }
+  const monthSection = document.createElement("section");
+  monthSection.className = "calendar-month";
 
-        cell.appendChild(topRow);
+  const title = document.createElement("h4");
+  title.className = "calendar-month-title";
+  title.innerText =
+    currentMonth.toLocaleString("default", { month: "long" }) + " " + year;
+  monthSection.appendChild(title);
 
-        // Balance underneath
-        const balanceLine = document.createElement("div");
-        balanceLine.className = "calendar-balance";
-        balanceLine.innerText = "$" + balance.toFixed(2);
-        cell.appendChild(balanceLine);
+  const grid = document.createElement("div");
+  grid.className = "calendar-grid";
 
-        if (entries[dateStr]) {
-          entries[dateStr].forEach((e) => {
-            const item = document.createElement("div");
-            item.className = "calendar-entry";
-            item.style.color = e.type === "income" ? "green" : "red";
-            const reminderTag = e.reminder && e.reminder.enabled ? " [R]" : "";
-            item.innerText = (e.type === "income" ? "+ " : "- ") + e.name + reminderTag;
-            cell.appendChild(item);
-          });
-        }
+  // add weekday headers
+  const weekdays = isNarrow
+    ? ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+    : ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  weekdays.forEach((wd) => {
+    const hd = document.createElement("div");
+    hd.className = "calendar-weekday";
+    hd.innerText = wd;
+    grid.appendChild(hd);
+  });
 
-        goals.forEach((g) => {
-          if (g.allocations) {
-            g.allocations.forEach((a) => {
-              if (a.date === dateStr) {
-                const alloc = document.createElement("div");
-                alloc.className = "calendar-allocation";
-                alloc.style.color = "blue";
-                alloc.innerText = `- ${g.name}${a.reminder && a.reminder.enabled ? " [R]" : ""}`;
-                cell.appendChild(alloc);
-              }
-            });
-          }
-        });
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-        if (balance < 0) cell.classList.add("calendar-negative");
-        if (dateStr === formatDate(currentDate))
-          cell.classList.add("calendar-selected");
+  for (let i = 0; i < firstDay; i++) {
+    const spacer = document.createElement("div");
+    spacer.className = "calendar-empty";
+    grid.appendChild(spacer);
+  }
 
-        cell.onclick = () => {
-          currentDate = new Date(cellDate);
-          renderDay();
-        };
+  for (let day = 1; day <= daysInMonth; day++) {
+    const cellDate = new Date(year, month, day);
+    const dateStr = formatDate(cellDate);
+    const cell = document.createElement("div");
+    cell.classList.add("calendar-cell");
+
+    if (cellDate >= startDate && cellDate <= endDate) {
+      const balance = calculateBalanceUpTo(cellDate);
+      // Create top line container
+      const topRow = document.createElement("div");
+      topRow.className = "calendar-day-row";
+
+      // Day number
+      const dayNumber = document.createElement("strong");
+      dayNumber.className = "calendar-day-number";
+      dayNumber.innerText = day;
+      topRow.appendChild(dayNumber);
+
+      if (holidays[dateStr]) {
+        const holidayText = document.createElement("div");
+        holidayText.innerText = holidays[dateStr].name;
+        holidayText.className = "calendar-holiday";
+        topRow.appendChild(holidayText);
       }
 
-      grid.appendChild(cell);
+      cell.appendChild(topRow);
+
+      // Balance underneath
+      const balanceLine = document.createElement("div");
+      balanceLine.className = "calendar-balance";
+      balanceLine.innerText = "$" + balance.toFixed(2);
+      cell.appendChild(balanceLine);
+
+      if (entries[dateStr]) {
+        entries[dateStr].forEach((e) => {
+          const item = document.createElement("div");
+          item.className = "calendar-entry";
+          item.style.color = e.type === "income" ? "green" : "red";
+          const reminderTag = e.reminder && e.reminder.enabled ? " [R]" : "";
+          item.innerText = (e.type === "income" ? "+ " : "- ") + e.name + reminderTag;
+          cell.appendChild(item);
+        });
+      }
+
+      goals.forEach((g) => {
+        if (g.allocations) {
+          g.allocations.forEach((a) => {
+            if (a.date === dateStr) {
+              const alloc = document.createElement("div");
+              alloc.className = "calendar-allocation";
+              alloc.style.color = "blue";
+              alloc.innerText = `- ${g.name}${a.reminder && a.reminder.enabled ? " [R]" : ""}`;
+              cell.appendChild(alloc);
+            }
+          });
+        }
+      });
+
+      if (balance < 0) cell.classList.add("calendar-negative");
+      if (dateStr === formatDate(currentDate)) {
+        cell.classList.add("calendar-selected");
+      }
+
+      cell.onclick = () => {
+        currentDate = new Date(cellDate);
+        renderDay();
+      };
     }
 
-    monthSection.appendChild(grid);
-    calendarDiv.appendChild(monthSection);
-    renderDate = new Date(year, month + 1, 1);
+    grid.appendChild(cell);
   }
+
+  monthSection.appendChild(grid);
+  calendarDiv.appendChild(monthSection);
 }
 function toggleEditMode() {
   isEditMode = !isEditMode;

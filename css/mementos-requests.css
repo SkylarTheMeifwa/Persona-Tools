@@ -51,93 +51,101 @@
 /* Task Row */
 .task {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: flex-start;
   padding: 0.4rem 0;
   font-size: 12px;
   line-height: 1.5;
-  position: relative;
-  padding-left: 32px;
   font-family: "Futura", sans-serif;
   text-align: left;
-  gap: 0.3rem;
-  flex-wrap: wrap;
+  gap: 0.45rem;
 }
 
-.task span {
-  min-width: 0;
-  overflow-wrap: anywhere;
+.task input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: red;
+  margin: 0;
+  cursor: pointer;
 }
 
-.task::before {
-  content: "";
-  position: absolute;
-  left: 4px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 25px;
-  height: 25px;
+.task-star {
+  width: 20px;
+  height: 20px;
   background-image: url("../assets/Pictures/red-p5-star.png");
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
-  pointer-events: none;
-  opacity: 1;
+  flex: 0 0 20px;
 }
 
-.task input[type="checkbox"] {
-  margin-right: 0.5rem;
-  width: 16px;
-  height: 16px;
-  accent-color: red;
-  transform: scale(1.2);
-  cursor: pointer;
-  position: static;
-  left: auto;
+.task-text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  flex: 0 1 auto;
 }
 
-.task small {
-  color: grey;
+.task-actions {
   margin-left: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.task-due {
+  display: block;
+  color: grey;
   white-space: normal;
   overflow-wrap: anywhere;
   font-size: 11px;
   line-height: 1.2;
-  flex: 1 1 100%;
+  margin: -0.2rem 0 0.35rem 2rem;
 }
 
-.task.completed span,
-.task.completed small {
-  text-decoration: line-through;
-  color: grey;
-}
-
-.task .delete-task-btn {
-  font-size: 10px;
-  margin-left: auto;
-  background: red;
-  color: white;
+.task-icon-btn {
+  margin-left: 0;
+  padding: 0;
+  background: none;
+  color: #ff0000;
   border: none;
-  padding: 2px 6px;
-  border-radius: 4px;
+  box-shadow: none;
+  font-size: 16px;
+  line-height: 1;
   cursor: pointer;
-  display: none;
 }
 
-.edit-mode .task.completed .delete-task-btn {
-  display: inline-block;
+.task-icon-btn:hover {
+  color: #ff6a6a;
 }
 
-.edit-mode .task:not(.completed) .edit-task-btn {
-  font-size: 10px;
-  margin-left: auto;
-  background: red;
-  color: white;
+.task-icon-btn:focus-visible {
+  outline: 1px solid #ff0000;
+  outline-offset: 2px;
+}
+
+.task-edit-btn,
+.task-delete-btn {
+  color: #ff0000;
+}
+
+.task-collapse-btn {
+  margin-left: 0;
   border: none;
-  padding: 2px 6px;
-  border-radius: 4px;
+  background: none;
+  color: #ff0000;
+  padding: 0;
   cursor: pointer;
-  display: inline-block;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.task-collapse-btn:hover {
+  color: #ff6a6a;
+}
+
+.task-collapse-btn:focus-visible {
+  outline: 1px solid #ff0000;
+  outline-offset: 1px;
 }
 
 /* Control Buttons */
@@ -145,7 +153,7 @@
   display: flex;
   justify-content: center;
   gap: 1rem;
-  margin-top: 2rem;
+  margin: 0 0 2rem 0;
 }
 
 #edit-btn,
@@ -239,6 +247,17 @@ body {
   text-align: center;
 }
 
+.category-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  text-align: left;
+}
+
+.category-input-group label {
+  font-size: 12px;
+}
+
 #task-min,
 #task-hour {
   width: 15px;
@@ -290,6 +309,78 @@ body {
   text-align: left;
 }
 
+.subtask-config {
+  border: 1px solid #666;
+  padding: 0.6rem;
+  text-align: left;
+}
+
+.subtask-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin-bottom: 0.6rem;
+  font-size: 12px;
+}
+
+#add-subtask-btn {
+  border: 1px solid #fff;
+  background: #1f1f1f;
+  color: #fff;
+  padding: 0.35rem 0.6rem;
+  cursor: pointer;
+  font-size: 11px;
+}
+
+#task-subtasks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.subtask-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.subtask-row .task-subtask-completed {
+  width: auto;
+  margin: 0;
+  accent-color: red;
+}
+
+.subtask-row .task-subtask-name {
+  flex: 1;
+  text-align: left;
+}
+
+.add-nested-subtask-btn {
+  border: 1px solid #fff;
+  background: #1f1f1f;
+  color: #fff;
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+  white-space: nowrap;
+  font-size: 11px;
+}
+
+.remove-subtask-btn {
+  border: 1px solid #fff;
+  background: #6c0000;
+  color: #fff;
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+  white-space: nowrap;
+  font-size: 11px;
+}
+
+.subtask-empty {
+  color: #bdbdbd;
+  font-size: 11px;
+}
+
 .notification-header-row {
   display: flex;
   align-items: center;
@@ -338,6 +429,71 @@ body {
 .notification-empty {
   color: #bdbdbd;
   font-size: 11px;
+}
+
+.subtask-list {
+  margin: 0.2rem 0 0.6rem 1.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.subtask-item {
+  --subtask-level: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 11px;
+  color: #ddd;
+  margin-left: 0;
+  padding-left: calc(var(--subtask-level) * 14px);
+}
+
+.subtask-collapse-btn {
+  margin-left: 0.1rem;
+  border: none;
+  background: none;
+  color: #ff0000;
+  padding: 0;
+  cursor: pointer;
+  font-size: 10px;
+  line-height: 1;
+}
+
+.subtask-collapse-btn i {
+  pointer-events: none;
+}
+
+.subtask-star {
+  width: 14px;
+  height: 14px;
+  background-image: url("../assets/Pictures/red-p5-star.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  flex: 0 0 14px;
+}
+
+.subtask-text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  flex: 0 1 auto;
+}
+
+.subtask-collapse-btn:hover {
+  color: #ff6a6a;
+}
+
+.subtask-collapse-btn:focus-visible {
+  outline: 1px solid #ff0000;
+  outline-offset: 1px;
+}
+
+.subtask-item input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  accent-color: red;
 }
 
 @media (max-width: 600px) {

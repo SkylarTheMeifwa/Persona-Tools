@@ -366,6 +366,22 @@ select {
   width: 100%;
 }
 
+.calendar-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.calendar-month-label {
+  font-weight: 600;
+}
+
+.calendar-month-select {
+  font: inherit;
+  padding: 4px 6px;
+}
+
 .calendar-month-title {
   margin-bottom: 8px;
 }
@@ -468,6 +484,10 @@ select {
 }
 
 @media (max-width: 480px) {
+  .calendar-controls {
+    flex-wrap: wrap;
+  }
+
   .entry-reminder-row {
     align-items: flex-start;
   }

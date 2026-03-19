@@ -51,9 +51,311 @@ function normalizeTaskNotifications(notifications) {
   return Array.from(unique).sort((a, b) => new Date(a) - new Date(b));
 }
 
+function makeSubtaskId(seed = 0) {
+  return `subtask-${Date.now()}-${seed}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function normalizeSubtasks(subtasks) {
+  const source = Array.isArray(subtasks) ? subtasks : [];
+  return source
+    .map((subtask, index) => {
+      if (subtask && typeof subtask === "object") {
+        const normalizedName = String(subtask.name || "").trim();
+        return {
+          id:
+            typeof subtask.id === "string" && subtask.id.trim()
+              ? subtask.id.trim()
+              : makeSubtaskId(index),
+          name: normalizedName,
+          completed: Boolean(subtask.completed),
+          collapsed: Boolean(subtask.collapsed),
+          children: normalizeSubtasks(subtask.children),
+        };
+      }
+
+      return {
+        id: makeSubtaskId(index),
+        name: String(subtask || "").trim(),
+        completed: false,
+        collapsed: false,
+        children: [],
+      };
+    })
+    .filter((subtask) => subtask.name);
+}
+
+function flattenSubtasksForEditor(subtasks, level = 0, parentId = "") {
+  const normalized = normalizeSubtasks(subtasks);
+  return normalized.flatMap((subtask) => [
+    {
+      id: subtask.id,
+      parentId,
+      level,
+      name: subtask.name,
+      completed: subtask.completed,
+      collapsed: Boolean(subtask.collapsed),
+    },
+    ...flattenSubtasksForEditor(subtask.children, level + 1, subtask.id),
+  ]);
+}
+
 function clearNotificationRows() {
   const list = document.getElementById("task-notifications-list");
   list.innerHTML = "";
+}
+
+function clearSubtaskRows() {
+  const list = document.getElementById("task-subtasks-list");
+  list.innerHTML = "";
+}
+
+function updateSubtaskEmptyState() {
+  const list = document.getElementById("task-subtasks-list");
+  const hasRows = list.querySelector(".subtask-row");
+  const empty = list.querySelector(".subtask-empty");
+
+  if (!hasRows && !empty) {
+    const emptyState = document.createElement("div");
+    emptyState.className = "subtask-empty";
+    emptyState.textContent = "No subtasks yet.";
+    list.appendChild(emptyState);
+  }
+
+  if (hasRows && empty) {
+    empty.remove();
+  }
+}
+
+function removeSubtaskRowWithDescendants(row) {
+  const level = Number(row.dataset.level || 0);
+  let cursor = row.nextElementSibling;
+
+  while (cursor && Number(cursor.dataset.level || 0) > level) {
+    const next = cursor.nextElementSibling;
+    cursor.remove();
+    cursor = next;
+  }
+
+  row.remove();
+}
+
+function getRowInsertionPointAfterBranch(row) {
+  const baseLevel = Number(row.dataset.level || 0);
+  let cursor = row.nextElementSibling;
+
+  while (cursor && Number(cursor.dataset.level || 0) > baseLevel) {
+    cursor = cursor.nextElementSibling;
+  }
+
+  return cursor;
+}
+
+function addSubtaskRow({
+  name = "",
+  completed = false,
+  collapsed = false,
+  id = "",
+  parentId = "",
+  level = 0,
+  insertBefore = null,
+} = {}) {
+  const list = document.getElementById("task-subtasks-list");
+  const empty = list.querySelector(".subtask-empty");
+  if (empty) empty.remove();
+
+  const row = document.createElement("div");
+  row.className = "subtask-row";
+  row.dataset.subtaskId = id || makeSubtaskId(level);
+  row.dataset.parentId = parentId;
+  row.dataset.level = String(level);
+  row.dataset.collapsed = collapsed ? "1" : "0";
+  row.style.marginLeft = `${level * 16}px`;
+
+  const completedToggle = document.createElement("input");
+  completedToggle.type = "checkbox";
+  completedToggle.className = "task-subtask-completed";
+  completedToggle.checked = Boolean(completed);
+  row.appendChild(completedToggle);
+
+  const input = document.createElement("input");
+  input.type = "text";
+  input.className = "task-subtask-name";
+  input.placeholder = "Subtask";
+  input.value = name;
+  row.appendChild(input);
+
+  const addNestedBtn = document.createElement("button");
+  addNestedBtn.type = "button";
+  addNestedBtn.className = "add-nested-subtask-btn";
+  addNestedBtn.textContent = "Add Nested";
+  addNestedBtn.addEventListener("click", () => {
+    const insertionPoint = getRowInsertionPointAfterBranch(row);
+    addSubtaskRow({
+      parentId: row.dataset.subtaskId,
+      level: Number(row.dataset.level || 0) + 1,
+      insertBefore: insertionPoint,
+    });
+  });
+  row.appendChild(addNestedBtn);
+
+  const removeBtn = document.createElement("button");
+  removeBtn.type = "button";
+  removeBtn.className = "remove-subtask-btn";
+  removeBtn.textContent = "Remove";
+  removeBtn.addEventListener("click", () => {
+    removeSubtaskRowWithDescendants(row);
+    updateSubtaskEmptyState();
+  });
+  row.appendChild(removeBtn);
+
+  if (insertBefore) {
+    list.insertBefore(row, insertBefore);
+  } else {
+    list.appendChild(row);
+  }
+
+  return row;
+}
+
+function setSubtaskRows(subtasks) {
+  clearSubtaskRows();
+  flattenSubtasksForEditor(subtasks).forEach((subtask) => {
+    addSubtaskRow({
+      name: subtask.name,
+      completed: subtask.completed,
+      collapsed: subtask.collapsed,
+      id: subtask.id,
+      parentId: subtask.parentId,
+      level: subtask.level,
+    });
+  });
+  updateSubtaskEmptyState();
+}
+
+function getSubtaskRowsValues() {
+  const rows = document.querySelectorAll("#task-subtasks-list .subtask-row");
+  const rowValues = Array.from(rows).map((row, index) => {
+    const level = toNonNegativeInt(row.dataset.level, 0);
+    const parentId = level > 0 ? String(row.dataset.parentId || "").trim() : "";
+    const id = String(row.dataset.subtaskId || "").trim() || makeSubtaskId(index);
+    const name = row.querySelector(".task-subtask-name")?.value || "";
+    const completed = Boolean(row.querySelector(".task-subtask-completed")?.checked);
+    const collapsed = String(row.dataset.collapsed || "0") === "1";
+
+    return {
+      id,
+      parentId,
+      level,
+      name,
+      completed,
+      collapsed,
+    };
+  });
+
+  const normalizedRows = rowValues
+    .map((row) => ({
+      ...row,
+      name: String(row.name || "").trim(),
+    }))
+    .filter((row) => row.name);
+
+  const nodeMap = new Map();
+  normalizedRows.forEach((row) => {
+    nodeMap.set(row.id, {
+      id: row.id,
+      name: row.name,
+      completed: row.completed,
+      collapsed: row.collapsed,
+      children: [],
+    });
+  });
+
+  const roots = [];
+  normalizedRows.forEach((row) => {
+    const node = nodeMap.get(row.id);
+    if (row.parentId && nodeMap.has(row.parentId)) {
+      nodeMap.get(row.parentId).children.push(node);
+    } else {
+      roots.push(node);
+    }
+  });
+
+  return normalizeSubtasks(roots);
+}
+
+function findSubtaskById(subtasks, subtaskId) {
+  if (!Array.isArray(subtasks) || !subtaskId) return null;
+
+  for (const subtask of subtasks) {
+    if (subtask.id === subtaskId) {
+      return subtask;
+    }
+
+    const match = findSubtaskById(subtask.children, subtaskId);
+    if (match) {
+      return match;
+    }
+  }
+
+  return null;
+}
+
+function appendSubtaskItems(task, subtasks, subtaskList, level = 0) {
+  normalizeSubtasks(subtasks).forEach((subtask) => {
+    const subtaskRow = document.createElement("div");
+    subtaskRow.className = "subtask-item";
+    subtaskRow.style.setProperty("--subtask-level", String(level));
+
+    const hasChildren = Array.isArray(subtask.children) && subtask.children.length > 0;
+
+    const subtaskStar = document.createElement("span");
+    subtaskStar.className = "subtask-star";
+    subtaskStar.setAttribute("aria-hidden", "true");
+    subtaskRow.appendChild(subtaskStar);
+
+    const subtaskCheckbox = document.createElement("input");
+    subtaskCheckbox.type = "checkbox";
+    subtaskCheckbox.checked = Boolean(subtask.completed);
+    subtaskCheckbox.addEventListener("click", (event) => {
+      event.stopPropagation();
+    });
+    subtaskCheckbox.addEventListener("change", (event) => {
+      toggleSubtaskCompleted(task.id, subtask.id, event.target.checked);
+    });
+    subtaskRow.appendChild(subtaskCheckbox);
+
+    const subtaskText = document.createElement("span");
+    subtaskText.className = "subtask-text";
+    subtaskText.textContent = subtask.name;
+    if (subtask.completed) {
+      subtaskText.style.textDecoration = "line-through";
+      subtaskText.style.color = "#9f9f9f";
+    }
+    subtaskRow.appendChild(subtaskText);
+
+    if (hasChildren) {
+      const collapseBtn = document.createElement("button");
+      collapseBtn.type = "button";
+      collapseBtn.className = "subtask-collapse-btn";
+      collapseBtn.innerHTML = subtask.collapsed
+        ? '<i class="fa-solid fa-chevron-right" aria-hidden="true"></i>'
+        : '<i class="fa-solid fa-chevron-down" aria-hidden="true"></i>';
+      collapseBtn.title = subtask.collapsed ? "Expand subtasks" : "Collapse subtasks";
+      collapseBtn.setAttribute("aria-label", collapseBtn.title);
+      collapseBtn.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        toggleSubtaskCollapsed(task.id, subtask.id, !subtask.collapsed);
+      });
+      subtaskRow.appendChild(collapseBtn);
+    }
+
+    subtaskList.appendChild(subtaskRow);
+
+    if (hasChildren && !subtask.collapsed) {
+      appendSubtaskItems(task, subtask.children, subtaskList, level + 1);
+    }
+  });
 }
 
 function updateNotificationEmptyState() {
@@ -247,11 +549,72 @@ function parseDueDate(dueStr) {
   return new Date(year, month - 1, day, hours, mm);
 }
 
+function getUniqueCategories() {
+  return Array.from(
+    new Set(
+      tasks
+        .map((task) => String(task.category || "").trim())
+        .filter(Boolean)
+    )
+  ).sort((a, b) => a.localeCompare(b));
+}
+
+function syncCategoryInputState() {
+  const categorySelect = document.getElementById("task-category-select");
+  const categoryNewInput = document.getElementById("task-category-new");
+  const isNewCategory = categorySelect.value === "__new__";
+
+  categoryNewInput.style.display = isNewCategory ? "block" : "none";
+  if (!isNewCategory) {
+    categoryNewInput.value = "";
+  }
+}
+
+function populateCategoryOptions(selectedCategory = "") {
+  const categorySelect = document.getElementById("task-category-select");
+  const categoryNewInput = document.getElementById("task-category-new");
+  const categories = getUniqueCategories();
+  const hasExistingCategory = selectedCategory && categories.includes(selectedCategory);
+
+  categorySelect.innerHTML = "";
+
+  const placeholderOption = document.createElement("option");
+  placeholderOption.value = "";
+  placeholderOption.textContent = "Select a category";
+  categorySelect.appendChild(placeholderOption);
+
+  categories.forEach((category) => {
+    const option = document.createElement("option");
+    option.value = category;
+    option.textContent = category;
+    categorySelect.appendChild(option);
+  });
+
+  const newCategoryOption = document.createElement("option");
+  newCategoryOption.value = "__new__";
+  newCategoryOption.textContent = "+ Create New Category";
+  categorySelect.appendChild(newCategoryOption);
+
+  if (selectedCategory) {
+    if (hasExistingCategory) {
+      categorySelect.value = selectedCategory;
+    } else {
+      categorySelect.value = "__new__";
+      categoryNewInput.value = selectedCategory;
+    }
+  } else if (categories.length === 0) {
+    categorySelect.value = "__new__";
+  } else {
+    categorySelect.value = "";
+  }
+
+  syncCategoryInputState();
+}
+
 function openTaskInput(editTask = null) {
   document.getElementById("task-desc").value = editTask ? editTask.name : "";
-  document.getElementById("task-category").value = editTask
-    ? editTask.category
-    : "";
+  populateCategoryOptions(editTask ? editTask.category : "");
+  setSubtaskRows(editTask ? editTask.subtasks : []);
 
   if (editTask && editTask.due) {
     const parts = parseDueParts(editTask.due);
@@ -296,12 +659,17 @@ function closeTaskInput() {
 
 function submitTask() {
   const desc = document.getElementById("task-desc").value.trim();
-  const category = document.getElementById("task-category").value.trim();
+  const categorySelectValue = document
+    .getElementById("task-category-select")
+    .value.trim();
+  const categoryNewValue = document.getElementById("task-category-new").value.trim();
+  const category = categorySelectValue === "__new__" ? categoryNewValue : categorySelectValue;
   const dateValue = document.getElementById("task-date").value.trim();
   const hour = document.getElementById("task-hour").value.trim();
   const min = document.getElementById("task-min").value.trim();
   const ampm = document.getElementById("task-ampm").value.trim();
   const notifications = normalizeTaskNotifications(getNotificationRowsValues());
+  const subtasks = getSubtaskRowsValues();
 
   let due = "";
   const hasPartialInput = dateValue || hour || min || ampm;
@@ -328,6 +696,8 @@ function submitTask() {
       task.category = category;
       task.due = due;
       task.notifications = notifications;
+      task.subtasks = subtasks;
+      task.subtasksCollapsed = Boolean(task.subtasksCollapsed);
     }
   } else {
     const id = Date.now().toString();
@@ -339,6 +709,8 @@ function submitTask() {
       completed: false,
       reminder: normalizeTaskReminder(DEFAULT_TASK_REMINDER),
       notifications,
+      subtasks,
+      subtasksCollapsed: false,
     });
   }
 
@@ -371,6 +743,8 @@ function normalizeTasks(payload) {
       completed: Boolean(task.completed),
       reminder: normalizeTaskReminder(task.reminder),
       notifications: normalizeTaskNotifications(task.notifications),
+      subtasks: normalizeSubtasks(task.subtasks),
+      subtasksCollapsed: Boolean(task.subtasksCollapsed),
     }))
     .filter((task) => task.name && task.category);
 }
@@ -585,6 +959,39 @@ function toggleTaskCompleted(id, completed) {
   }
 }
 
+function toggleTaskSubtasksCollapsed(taskId, collapsed) {
+  const task = tasks.find((t) => t.id === taskId);
+  if (!task) return;
+
+  task.subtasksCollapsed = Boolean(collapsed);
+  saveTasks();
+  renderTasks();
+}
+
+function toggleSubtaskCompleted(taskId, subtaskId, completed) {
+  const task = tasks.find((t) => t.id === taskId);
+  if (!task || !Array.isArray(task.subtasks)) return;
+
+  const subtask = findSubtaskById(task.subtasks, subtaskId);
+  if (!subtask) return;
+
+  subtask.completed = completed;
+  saveTasks();
+  renderTasks();
+}
+
+function toggleSubtaskCollapsed(taskId, subtaskId, collapsed) {
+  const task = tasks.find((t) => t.id === taskId);
+  if (!task || !Array.isArray(task.subtasks)) return;
+
+  const subtask = findSubtaskById(task.subtasks, subtaskId);
+  if (!subtask) return;
+
+  subtask.collapsed = Boolean(collapsed);
+  saveTasks();
+  renderTasks();
+}
+
 function renderTasks() {
   const container = document.getElementById("daily-categories");
   container.innerHTML = "";
@@ -630,8 +1037,13 @@ function renderTasks() {
     section.appendChild(header);
 
     grouped[category].forEach((task) => {
-      const wrapper = document.createElement("label");
+      const wrapper = document.createElement("div");
       wrapper.className = "task";
+
+      const taskStar = document.createElement("span");
+      taskStar.className = "task-star";
+      taskStar.setAttribute("aria-hidden", "true");
+      wrapper.appendChild(taskStar);
 
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
@@ -643,6 +1055,7 @@ function renderTasks() {
       wrapper.appendChild(checkbox);
 
       const taskText = document.createElement("span");
+      taskText.className = "task-text";
       taskText.textContent = task.name + " ";
       if (task.completed) {
         taskText.style.textDecoration = "line-through";
@@ -650,44 +1063,80 @@ function renderTasks() {
       }
       wrapper.appendChild(taskText);
 
-      if (task.due) {
-        const dueSpan = document.createElement("small");
-        dueSpan.textContent = `(Due: ${formatDueDisplay(task.due)})`;
-        dueSpan.style.color = "grey";
-        if (task.completed) dueSpan.style.textDecoration = "line-through";
-        dueSpan.style.marginLeft = "0.5rem";
-        wrapper.appendChild(dueSpan);
+      const hasSubtasks = Array.isArray(task.subtasks) && task.subtasks.length > 0;
+      const taskActions = document.createElement("div");
+      taskActions.className = "task-actions";
+      let taskCollapseBtn = null;
+      if (hasSubtasks) {
+        taskCollapseBtn = document.createElement("button");
+        taskCollapseBtn.type = "button";
+        taskCollapseBtn.className = "task-collapse-btn";
+        taskCollapseBtn.innerHTML = task.subtasksCollapsed
+          ? '<i class="fa-solid fa-chevron-right" aria-hidden="true"></i>'
+          : '<i class="fa-solid fa-chevron-down" aria-hidden="true"></i>';
+        taskCollapseBtn.title = task.subtasksCollapsed ? "Expand subtasks" : "Collapse subtasks";
+        taskCollapseBtn.setAttribute("aria-label", taskCollapseBtn.title);
+        taskCollapseBtn.addEventListener("click", (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          toggleTaskSubtasksCollapsed(task.id, !task.subtasksCollapsed);
+        });
+      }
+
+      if (taskCollapseBtn) {
+        taskActions.appendChild(taskCollapseBtn);
       }
 
       if (editMode) {
         if (!task.completed) {
           const editTaskBtn = document.createElement("button");
-          editTaskBtn.textContent = "Edit Task";
-          editTaskBtn.style.marginLeft = "auto";
-          editTaskBtn.style.background = "red";
-          editTaskBtn.style.color = "white";
-          editTaskBtn.style.fontSize = "10px";
+          editTaskBtn.type = "button";
+          editTaskBtn.className = "task-icon-btn task-edit-btn";
+          editTaskBtn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i>';
+          editTaskBtn.title = "Edit Task";
+          editTaskBtn.setAttribute("aria-label", "Edit Task");
           editTaskBtn.addEventListener("click", (e) => {
             e.preventDefault();
             openTaskInput(task);
           });
-          wrapper.appendChild(editTaskBtn);
+          taskActions.appendChild(editTaskBtn);
         } else {
           const delBtn = document.createElement("button");
-          delBtn.textContent = "Delete";
-          delBtn.style.marginLeft = "auto";
-          delBtn.style.background = "red";
-          delBtn.style.color = "white";
-          delBtn.style.fontSize = "10px";
+          delBtn.type = "button";
+          delBtn.className = "task-icon-btn task-delete-btn";
+          delBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
+          delBtn.title = "Delete Task";
+          delBtn.setAttribute("aria-label", "Delete Task");
           delBtn.addEventListener("click", (e) => {
             e.preventDefault();
             deleteTask(task.id);
           });
-          wrapper.appendChild(delBtn);
+          taskActions.appendChild(delBtn);
         }
       }
 
+      if (taskActions.childElementCount > 0) {
+        wrapper.appendChild(taskActions);
+      }
+
       section.appendChild(wrapper);
+
+      if (task.due) {
+        const dueSpan = document.createElement("small");
+        dueSpan.className = "task-due";
+        dueSpan.textContent = `(Due: ${formatDueDisplay(task.due)})`;
+        if (task.completed) dueSpan.style.textDecoration = "line-through";
+        section.appendChild(dueSpan);
+      }
+
+      if (hasSubtasks && !task.subtasksCollapsed) {
+        const subtaskList = document.createElement("div");
+        subtaskList.className = "subtask-list";
+
+        appendSubtaskItems(task, task.subtasks, subtaskList, 0);
+
+        section.appendChild(subtaskList);
+      }
     });
 
     container.appendChild(section);
@@ -728,4 +1177,10 @@ document.addEventListener("DOMContentLoaded", () => {
   document
     .getElementById("add-notification-btn")
     .addEventListener("click", () => addNotificationRow());
+  document
+    .getElementById("task-category-select")
+    .addEventListener("change", syncCategoryInputState);
+  document
+    .getElementById("add-subtask-btn")
+    .addEventListener("click", () => addSubtaskRow({ level: 0 }));
 });

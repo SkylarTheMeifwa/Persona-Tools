@@ -33,7 +33,6 @@
     <div class="page-wrapper">
       <h1>Persona 5:</h1>
       <h2>The To-Do List</h2>
-      <div id="daily-categories"></div>
       <div class="controls">
         <button id="add-task-btn">Add Task</button>
         <button id="edit-btn">Edit List</button>
@@ -41,11 +40,23 @@
         <button id="import-data-btn">Import Data</button>
         <input type="file" id="import-file" accept="application/json" style="display: none" />
       </div>
+      <div id="daily-categories"></div>
     </div>
 
     <div id="task-overlay">
-      <input type="text" id="task-category" placeholder="Category" />
+      <div class="category-input-group">
+        <label for="task-category-select">Category</label>
+        <select id="task-category-select"></select>
+        <input type="text" id="task-category-new" placeholder="New Category" style="display: none" />
+      </div>
       <input type="text" id="task-desc" placeholder="Task Description" />
+      <div class="subtask-config">
+        <div class="subtask-header-row">
+          <label>Subtasks</label>
+          <button id="add-subtask-btn" type="button">Add Subtask</button>
+        </div>
+        <div id="task-subtasks-list"></div>
+      </div>
       <label for="task-date" class="month-label">Date (Optional):</label>
       <div class="date-time-row">
         <input type="date" id="task-date" />
