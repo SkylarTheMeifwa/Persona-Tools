@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Groceries Planner</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/Groceries.css" />
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/Pictures/black-p5-star-192.png" />
+    <link rel="apple-touch-icon" href="assets/Pictures/black-p5-star-192.png" />
+  </head>
+
+  <body>
+    <iframe
+      src="assets/p5-background.html"
+      style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        border: none;
+        z-index: -1;
+        pointer-events: none;
+      "
+      aria-hidden="true"
+    ></iframe>
+
+    <script src="js/navbar.js"></script>
+
+    <main class="groceries-page">
+      <header class="groceries-header">
+        <div class="groceries-header-copy">
+          <h1>Groceries Planner</h1>
+          <p>Plan grocery runs across three stores, check items off as you shop, and keep an eye on your estimated checkout totals.</p>
+        </div>
+        <div class="groceries-header-actions">
+          <button id="reset-groceries" type="button" class="secondary-action">Reset Planner</button>
+        </div>
+      </header>
+
+      <section class="combined-summary" aria-live="polite">
+        <div class="section-heading">
+          <div>
+            <h2>All Stores Planned</h2>
+            <p>Your full grocery plan across all three stores.</p>
+          </div>
+        </div>
+        <div class="summary-grid" id="combined-summary-grid"></div>
+      </section>
+
+      <section id="store-grid" class="store-grid" aria-label="Store grocery plans"></section>
+    </main>
+
+    <script src="js/Groceries.js"></script>
+  </body>
+</html>

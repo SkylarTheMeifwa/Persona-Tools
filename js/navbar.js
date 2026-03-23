@@ -1,5 +1,6 @@
 (function () {
   const statSubnavStorageKey = "p5-stat-subnav-visible";
+  const financeSubnavStorageKey = "p5-finance-subnav-visible";
   const navbarFontModeStorageKey = "p5-navbar-font-mode";
   const navbarFontMode = window.localStorage.getItem(navbarFontModeStorageKey);
   const isReadableMode = navbarFontMode === "readable";
@@ -28,19 +29,72 @@
       const container = document.createElement("div");
       container.innerHTML = html.trim();
       const nav = container.firstChild;
-      const statSubnav = nav.querySelector(".p5-stat-subnav");
-      const statToggle = nav.querySelector(".p5-dropdown-toggle");
-      const statToggleIcon = statToggle
-        ? statToggle.querySelector("i.fa-solid")
-        : null;
+      const dropdowns = nav.querySelectorAll(".p5-dropdown:not(.p5-stat-dropdown):not(.p5-finance-dropdown)");
 
-      const setStatToggleIcon = (visible) => {
-        if (!statToggleIcon) {
+      const closeAllDropdowns = () => {
+        dropdowns.forEach((dropdown) => {
+          dropdown.classList.remove("p5-dropdown-open");
+          const toggle = dropdown.querySelector(".p5-dropdown-toggle");
+          if (toggle) {
+            toggle.setAttribute("aria-expanded", "false");
+          }
+        });
+      };
+
+      const setDropdownOpen = (dropdown, open) => {
+        if (!dropdown) {
           return;
         }
 
-        statToggleIcon.classList.toggle("fa-angle-down", !visible);
-        statToggleIcon.classList.toggle("fa-angle-up", visible);
+        const toggle = dropdown.querySelector(".p5-dropdown-toggle");
+        dropdown.classList.toggle("p5-dropdown-open", open);
+        if (toggle) {
+          toggle.setAttribute("aria-expanded", open ? "true" : "false");
+        }
+      };
+
+      // Factory function to create a subnav toggle manager
+      const createSubnavManager = (config) => {
+        const {
+          subnav,
+          toggle,
+          storageKey,
+          bodyClass,
+          pageFiles,
+          links,
+          nonLinks,
+          collapsedClass,
+        } = config;
+
+        if (!subnav || !toggle) {
+          return null;
+        }
+
+        const toggleIcon = toggle.querySelector("i.fa-solid");
+
+        const setToggleIcon = (visible) => {
+          if (!toggleIcon) {
+            return;
+          }
+          toggleIcon.classList.toggle("fa-angle-down", !visible);
+          toggleIcon.classList.toggle("fa-angle-up", visible);
+        };
+
+        const setVisible = (visible) => {
+          if (visible) {
+            document.body.classList.add(bodyClass);
+            subnav.hidden = false;
+            window.localStorage.setItem(storageKey, "true");
+            setToggleIcon(true);
+          } else {
+            document.body.classList.remove(bodyClass);
+            subnav.hidden = true;
+            window.localStorage.setItem(storageKey, "false");
+            setToggleIcon(false);
+          }
+        };
+
+        return { toggle, setVisible, setToggleIcon, toggleIcon, pageFiles, links, nonLinks, collapsedClass, bodyClass };
       };
 
       if (isReadableMode) {
@@ -50,32 +104,51 @@
       // Mark the active link based on the current page filename
       const currentFile =
         decodeURIComponent(window.location.pathname.split("/").pop() || "index.html");
-      const statPageFiles = [
-        "I-Belieeevee-We-Can-Flyyy-Up-In-The-Sky.html",
-        "You'll-Never-See-It-Comiiingggg.html",
-      ];
-      const hasStoredSubnavVisible =
-        window.localStorage.getItem(statSubnavStorageKey) === "true";
 
-      const setStatSubnavVisible = (visible) => {
-        if (!statSubnav) {
-          return;
-        }
+      // Create managers for both stat and finance subnavs
+      const statManager = createSubnavManager({
+        subnav: nav.querySelector(".p5-stat-subnav"),
+        toggle: nav.querySelector(".p5-stat-dropdown-toggle"),
+        storageKey: statSubnavStorageKey,
+        bodyClass: "has-stat-subnav",
+        pageFiles: [
+          "I-Belieeevee-We-Can-Flyyy-Up-In-The-Sky.html",
+          "You'll-Never-See-It-Comiiingggg.html",
+        ],
+        links: nav.querySelectorAll(
+          '.p5-dropdown-menu a[href="I-Belieeevee-We-Can-Flyyy-Up-In-The-Sky.html"], .p5-dropdown-menu a[href="You%27ll-Never-See-It-Comiiingggg.html"], .p5-stat-subnav a'
+        ),
+        nonLinks: nav.querySelectorAll(
+          'a[href="index.html"], a[href="Finances.html"], a[href="Groceries.html"], a[href="settings.html"], a[href="mementos-requests.html"], a[href="Time-To-Retake-Your-Desires.html"]'
+        ),
+        collapsedClass: "stat-subnav-collapsed",
+      });
 
-        if (visible) {
-          document.body.classList.add("has-stat-subnav");
-          statSubnav.hidden = false;
-          window.localStorage.setItem(statSubnavStorageKey, "true");
-          setStatToggleIcon(true);
-        } else {
-          document.body.classList.remove("has-stat-subnav");
-          statSubnav.hidden = true;
-          window.localStorage.setItem(statSubnavStorageKey, "false");
-          setStatToggleIcon(false);
-        }
-      };
+      const financeManager = createSubnavManager({
+        subnav: nav.querySelector(".p5-finance-subnav"),
+        toggle: nav.querySelector(".p5-finance-dropdown-toggle"),
+        storageKey: financeSubnavStorageKey,
+        bodyClass: "has-finance-subnav",
+        pageFiles: ["Finances.html", "Groceries.html"],
+        links: nav.querySelectorAll(
+          '.p5-dropdown-menu a[href="Finances.html"], .p5-dropdown-menu a[href="Groceries.html"], .p5-finance-subnav a'
+        ),
+        nonLinks: nav.querySelectorAll(
+          'a[href="index.html"], a[href="I-Belieeevee-We-Can-Flyyy-Up-In-The-Sky.html"], a[href="You%27ll-Never-See-It-Comiiingggg.html"], a[href="settings.html"], a[href="mementos-requests.html"], a[href="Time-To-Retake-Your-Desires.html"]'
+        ),
+        collapsedClass: "finance-subnav-collapsed",
+      });
 
-      setStatSubnavVisible(hasStoredSubnavVisible);
+      // Initialize both managers with stored state
+      if (statManager) {
+        const hasStoredVisible = window.localStorage.getItem(statSubnavStorageKey) === "true";
+        statManager.setVisible(hasStoredVisible);
+      }
+
+      if (financeManager) {
+        const hasStoredVisible = window.localStorage.getItem(financeSubnavStorageKey) === "true";
+        financeManager.setVisible(hasStoredVisible);
+      }
 
       nav.querySelectorAll("a[href]").forEach((a) => {
         const linkFile = decodeURIComponent(a.getAttribute("href")).split("/").pop();
@@ -89,39 +162,89 @@
         }
       });
 
-      if (statToggle && statPageFiles.includes(currentFile)) {
-        statToggle.classList.add("active");
+      if (statManager && statManager.pageFiles.includes(currentFile)) {
+        statManager.toggle.classList.add("active");
       }
 
-      const statLinks = nav.querySelectorAll(
-        '.p5-dropdown-menu a[href="I-Belieeevee-We-Can-Flyyy-Up-In-The-Sky.html"], .p5-dropdown-menu a[href="You%27ll-Never-See-It-Comiiingggg.html"], .p5-stat-subnav a'
-      );
-      const nonStatLinks = nav.querySelectorAll(
-        'a[href="index.html"], a[href="Finances.html"], a[href="settings.html"], a[href="mementos-requests.html"], a[href="Time-To-Retake-Your-Desires.html"]'
-      );
+      if (financeManager && financeManager.pageFiles.includes(currentFile)) {
+        financeManager.toggle.classList.add("active");
+      }
 
-      if (statToggle) {
-        statToggle.addEventListener("click", (event) => {
+      dropdowns.forEach((dropdown) => {
+        const toggle = dropdown.querySelector(".p5-dropdown-toggle");
+        if (!toggle) {
+          return;
+        }
+
+        toggle.setAttribute("aria-haspopup", "true");
+        toggle.setAttribute("aria-expanded", "false");
+
+        toggle.addEventListener("click", (event) => {
           event.preventDefault();
 
-          const isVisible = document.body.classList.contains("has-stat-subnav");
-          setStatSubnavVisible(!isVisible);
-
-          document.body.classList.remove("stat-subnav-collapsed");
+          const isOpen = dropdown.classList.contains("p5-dropdown-open");
+          closeAllDropdowns();
+          setDropdownOpen(dropdown, !isOpen);
         });
-      }
 
-      statLinks.forEach((link) => {
-        link.addEventListener("click", () => {
-          setStatSubnavVisible(true);
+        toggle.addEventListener("keydown", (event) => {
+          if (event.key === "Escape") {
+            closeAllDropdowns();
+            toggle.focus();
+          }
+        });
+
+        dropdown.querySelectorAll(".p5-dropdown-menu a").forEach((link) => {
+          link.addEventListener("click", () => {
+            closeAllDropdowns();
+          });
         });
       });
 
-      nonStatLinks.forEach((link) => {
-        link.addEventListener("click", () => {
-          setStatSubnavVisible(false);
-          document.body.classList.remove("stat-subnav-collapsed");
+      // Setup event listeners for both subnav managers
+      const setupSubnavManager = (manager) => {
+        if (!manager) {
+          return;
+        }
+
+        manager.toggle.addEventListener("click", (event) => {
+          event.preventDefault();
+          closeAllDropdowns();
+
+          const isVisible = document.body.classList.contains(
+            manager.bodyClass || `has-${manager.collapsedClass.split("-")[0]}-subnav`
+          );
+          manager.setVisible(!isVisible);
+          document.body.classList.remove(manager.collapsedClass);
         });
+
+        manager.links.forEach((link) => {
+          link.addEventListener("click", () => {
+            manager.setVisible(true);
+          });
+        });
+
+        manager.nonLinks.forEach((link) => {
+          link.addEventListener("click", () => {
+            manager.setVisible(false);
+            document.body.classList.remove(manager.collapsedClass);
+          });
+        });
+      };
+
+      setupSubnavManager(statManager);
+      setupSubnavManager(financeManager);
+
+      document.addEventListener("click", (event) => {
+        if (!nav.contains(event.target)) {
+          closeAllDropdowns();
+        }
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          closeAllDropdowns();
+        }
       });
 
       document.body.insertAdjacentElement("afterbegin", nav);

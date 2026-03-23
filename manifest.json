@@ -39,9 +39,14 @@
 ],
 "shortcuts": [
     {
-        "name": "Finances",
+        "name": "Daily Cash Flow",
         "url": "/Finances.html",
-        "description": "Day to Day Finance Tracker"
+        "description": "Day-by-Day Cash Flow Tracker"
+    },
+    {
+        "name": "Groceries",
+        "url": "/Groceries.html",
+        "description": "Plan groceries and check off items across three stores"
     },
     {
         "name": "Social Stats (with Knowledge)",

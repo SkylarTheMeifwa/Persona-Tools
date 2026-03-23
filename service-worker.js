@@ -30,6 +30,7 @@
         '/',
         '/index.html',
         '/Finances.html',
+        '/Groceries.html',
         '/I-Belieeevee-We-Can-Flyyy-Up-In-The-Sky.html',
         "/You'll-Never-See-It-Comiiingggg.html",
         '/mementos-requests.html',

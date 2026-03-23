@@ -150,6 +150,176 @@ function getRowInsertionPointAfterBranch(row) {
   return cursor;
 }
 
+function updateSubtaskRowIndent(row) {
+  const level = toNonNegativeInt(row.dataset.level, 0);
+  row.style.marginLeft = `${level * 16}px`;
+}
+
+function getRowLevel(row) {
+  return toNonNegativeInt(row?.dataset?.level, 0);
+}
+
+function getRowParentId(row) {
+  return String(row?.dataset?.parentId || "").trim();
+}
+
+function getPreviousSiblingRow(row) {
+  const level = getRowLevel(row);
+  const parentId = getRowParentId(row);
+  let cursor = row.previousElementSibling;
+
+  while (cursor) {
+    if (getRowLevel(cursor) === level && getRowParentId(cursor) === parentId) {
+      return cursor;
+    }
+    cursor = cursor.previousElementSibling;
+  }
+
+  return null;
+}
+
+function getNextSiblingRow(row) {
+  const level = getRowLevel(row);
+  const parentId = getRowParentId(row);
+  let cursor = getRowInsertionPointAfterBranch(row);
+
+  while (cursor) {
+    if (getRowLevel(cursor) === level && getRowParentId(cursor) === parentId) {
+      return cursor;
+    }
+    cursor = getRowInsertionPointAfterBranch(cursor);
+  }
+
+  return null;
+}
+
+function updateMoveBackButton(row) {
+  const moveBackBtn = row.querySelector(".move-subtask-back-btn");
+  if (!moveBackBtn) return;
+
+  moveBackBtn.innerHTML = '<i class="fa-solid fa-arrow-left" aria-hidden="true"></i>';
+
+  const level = toNonNegativeInt(row.dataset.level, 0);
+  const promoted = row.dataset.promoted === "1";
+
+  if (promoted) {
+    moveBackBtn.disabled = true;
+    moveBackBtn.title = "This subtask will be saved as a regular task";
+    moveBackBtn.setAttribute("aria-label", "Will be saved as a regular task");
+    return;
+  }
+
+  moveBackBtn.disabled = false;
+  moveBackBtn.title =
+    level > 0 ? "Move this subtask back one level" : "Save this subtask as a regular task";
+  moveBackBtn.setAttribute(
+    "aria-label",
+    level > 0 ? "Move subtask back one level" : "Make this subtask a regular task"
+  );
+}
+
+function updateNestUnderButton(row) {
+  const moveForwardBtn = row.querySelector(".move-subtask-forward-btn");
+  if (!moveForwardBtn) return;
+
+  moveForwardBtn.innerHTML = '<i class="fa-solid fa-arrow-right" aria-hidden="true"></i>';
+
+  const previousRow = row.previousElementSibling;
+  if (!previousRow) {
+    moveForwardBtn.disabled = true;
+    moveForwardBtn.title = "No task above to nest under";
+    moveForwardBtn.setAttribute("aria-label", "Cannot nest under task above");
+    return;
+  }
+
+  moveForwardBtn.disabled = false;
+  moveForwardBtn.title = "Nest under task above";
+  moveForwardBtn.setAttribute("aria-label", "Nest under task above");
+}
+
+function refreshSubtaskEditorControls() {
+  const rows = document.querySelectorAll("#task-subtasks-list .subtask-row");
+  rows.forEach((row) => {
+    updateMoveBackButton(row);
+    updateNestUnderButton(row);
+  });
+}
+
+function getSubtaskBranchRows(row) {
+  const branch = [row];
+  const baseLevel = toNonNegativeInt(row.dataset.level, 0);
+  let cursor = row.nextElementSibling;
+
+  while (cursor && toNonNegativeInt(cursor.dataset.level, 0) > baseLevel) {
+    branch.push(cursor);
+    cursor = cursor.nextElementSibling;
+  }
+
+  return branch;
+}
+
+function findPreviousRowAtLevel(row, targetLevel) {
+  let cursor = row.previousElementSibling;
+
+  while (cursor) {
+    if (toNonNegativeInt(cursor.dataset.level, 0) === targetLevel) {
+      return cursor;
+    }
+    cursor = cursor.previousElementSibling;
+  }
+
+  return null;
+}
+
+function moveSubtaskRowBack(row) {
+  const currentLevel = toNonNegativeInt(row.dataset.level, 0);
+
+  if (row.dataset.promoted === "1") {
+    return;
+  }
+
+  if (currentLevel === 0) {
+    row.dataset.parentId = "";
+    row.dataset.promoted = "1";
+    refreshSubtaskEditorControls();
+    return;
+  }
+
+  const branchRows = getSubtaskBranchRows(row);
+  const nextLevel = currentLevel - 1;
+  const nextParentLevel = nextLevel - 1;
+  const nextParentRow = nextParentLevel >= 0 ? findPreviousRowAtLevel(row, nextParentLevel) : null;
+
+  branchRows.forEach((branchRow) => {
+    const branchLevel = toNonNegativeInt(branchRow.dataset.level, 0);
+    branchRow.dataset.level = String(Math.max(branchLevel - 1, 0));
+    updateSubtaskRowIndent(branchRow);
+  });
+
+  row.dataset.parentId = nextParentRow ? String(nextParentRow.dataset.subtaskId || "") : "";
+  row.dataset.promoted = "0";
+  refreshSubtaskEditorControls();
+}
+
+function moveSubtaskRowForward(row) {
+  const previousRow = row.previousElementSibling;
+  if (!previousRow) return;
+
+  const branchRows = getSubtaskBranchRows(row);
+  const currentLevel = getRowLevel(row);
+  const targetLevel = getRowLevel(previousRow) + 1;
+  const levelDelta = targetLevel - currentLevel;
+
+  branchRows.forEach((branchRow) => {
+    branchRow.dataset.level = String(Math.max(getRowLevel(branchRow) + levelDelta, 0));
+    updateSubtaskRowIndent(branchRow);
+  });
+
+  row.dataset.parentId = String(previousRow.dataset.subtaskId || "");
+  row.dataset.promoted = "0";
+  refreshSubtaskEditorControls();
+}
+
 function addSubtaskRow({
   name = "",
   completed = false,
@@ -157,6 +327,7 @@ function addSubtaskRow({
   id = "",
   parentId = "",
   level = 0,
+  promoted = false,
   insertBefore = null,
 } = {}) {
   const list = document.getElementById("task-subtasks-list");
@@ -169,13 +340,25 @@ function addSubtaskRow({
   row.dataset.parentId = parentId;
   row.dataset.level = String(level);
   row.dataset.collapsed = collapsed ? "1" : "0";
-  row.style.marginLeft = `${level * 16}px`;
+  row.dataset.promoted = promoted ? "1" : "0";
+  row.dataset.completed = completed ? "1" : "0";
+  updateSubtaskRowIndent(row);
 
-  const completedToggle = document.createElement("input");
-  completedToggle.type = "checkbox";
-  completedToggle.className = "task-subtask-completed";
-  completedToggle.checked = Boolean(completed);
-  row.appendChild(completedToggle);
+  const moveBackBtn = document.createElement("button");
+  moveBackBtn.type = "button";
+  moveBackBtn.className = "move-subtask-back-btn";
+  moveBackBtn.addEventListener("click", () => {
+    moveSubtaskRowBack(row);
+  });
+  row.appendChild(moveBackBtn);
+
+  const moveForwardBtn = document.createElement("button");
+  moveForwardBtn.type = "button";
+  moveForwardBtn.className = "move-subtask-forward-btn";
+  moveForwardBtn.addEventListener("click", () => {
+    moveSubtaskRowForward(row);
+  });
+  row.appendChild(moveForwardBtn);
 
   const input = document.createElement("input");
   input.type = "text";
@@ -187,7 +370,9 @@ function addSubtaskRow({
   const addNestedBtn = document.createElement("button");
   addNestedBtn.type = "button";
   addNestedBtn.className = "add-nested-subtask-btn";
-  addNestedBtn.textContent = "Add Nested";
+  addNestedBtn.innerHTML = '<i class="fa-solid fa-plus" aria-hidden="true"></i>';
+  addNestedBtn.title = "Add nested subtask";
+  addNestedBtn.setAttribute("aria-label", "Add nested subtask");
   addNestedBtn.addEventListener("click", () => {
     const insertionPoint = getRowInsertionPointAfterBranch(row);
     addSubtaskRow({
@@ -201,10 +386,13 @@ function addSubtaskRow({
   const removeBtn = document.createElement("button");
   removeBtn.type = "button";
   removeBtn.className = "remove-subtask-btn";
-  removeBtn.textContent = "Remove";
+  removeBtn.innerHTML = '<i class="fa-solid fa-trash" aria-hidden="true"></i>';
+  removeBtn.title = "Delete subtask";
+  removeBtn.setAttribute("aria-label", "Delete subtask");
   removeBtn.addEventListener("click", () => {
     removeSubtaskRowWithDescendants(row);
     updateSubtaskEmptyState();
+    refreshSubtaskEditorControls();
   });
   row.appendChild(removeBtn);
 
@@ -230,6 +418,7 @@ function setSubtaskRows(subtasks) {
     });
   });
   updateSubtaskEmptyState();
+  refreshSubtaskEditorControls();
 }
 
 function getSubtaskRowsValues() {
@@ -239,8 +428,9 @@ function getSubtaskRowsValues() {
     const parentId = level > 0 ? String(row.dataset.parentId || "").trim() : "";
     const id = String(row.dataset.subtaskId || "").trim() || makeSubtaskId(index);
     const name = row.querySelector(".task-subtask-name")?.value || "";
-    const completed = Boolean(row.querySelector(".task-subtask-completed")?.checked);
+    const completed = String(row.dataset.completed || "0") === "1";
     const collapsed = String(row.dataset.collapsed || "0") === "1";
+    const promoted = String(row.dataset.promoted || "0") === "1";
 
     return {
       id,
@@ -249,6 +439,7 @@ function getSubtaskRowsValues() {
       name,
       completed,
       collapsed,
+      promoted,
     };
   });
 
@@ -266,21 +457,42 @@ function getSubtaskRowsValues() {
       name: row.name,
       completed: row.completed,
       collapsed: row.collapsed,
+      promoted: row.promoted,
       children: [],
     });
   });
 
-  const roots = [];
+  const rootNodes = [];
   normalizedRows.forEach((row) => {
     const node = nodeMap.get(row.id);
     if (row.parentId && nodeMap.has(row.parentId)) {
       nodeMap.get(row.parentId).children.push(node);
     } else {
-      roots.push(node);
+      rootNodes.push(node);
     }
   });
 
-  return normalizeSubtasks(roots);
+  const subtasks = [];
+  const promotedTasks = [];
+
+  rootNodes.forEach((node) => {
+    if (node.promoted) {
+      promotedTasks.push({
+        name: node.name,
+        completed: node.completed,
+        subtasksCollapsed: Boolean(node.collapsed),
+        subtasks: normalizeSubtasks(node.children),
+      });
+      return;
+    }
+
+    subtasks.push(node);
+  });
+
+  return {
+    subtasks: normalizeSubtasks(subtasks),
+    promotedTasks,
+  };
 }
 
 function findSubtaskById(subtasks, subtaskId) {
@@ -303,13 +515,13 @@ function findSubtaskById(subtasks, subtaskId) {
 function appendSubtaskItems(task, subtasks, subtaskList, level = 0) {
   normalizeSubtasks(subtasks).forEach((subtask) => {
     const subtaskRow = document.createElement("div");
-    subtaskRow.className = "subtask-item";
+    subtaskRow.className = "task subtask-item";
     subtaskRow.style.setProperty("--subtask-level", String(level));
 
     const hasChildren = Array.isArray(subtask.children) && subtask.children.length > 0;
 
     const subtaskStar = document.createElement("span");
-    subtaskStar.className = "subtask-star";
+    subtaskStar.className = "task-star";
     subtaskStar.setAttribute("aria-hidden", "true");
     subtaskRow.appendChild(subtaskStar);
 
@@ -325,18 +537,21 @@ function appendSubtaskItems(task, subtasks, subtaskList, level = 0) {
     subtaskRow.appendChild(subtaskCheckbox);
 
     const subtaskText = document.createElement("span");
-    subtaskText.className = "subtask-text";
-    subtaskText.textContent = subtask.name;
+    subtaskText.className = "task-text";
+    subtaskText.textContent = subtask.name + " ";
     if (subtask.completed) {
       subtaskText.style.textDecoration = "line-through";
-      subtaskText.style.color = "#9f9f9f";
+      subtaskText.style.color = "grey";
     }
     subtaskRow.appendChild(subtaskText);
 
     if (hasChildren) {
+      const taskActions = document.createElement("div");
+      taskActions.className = "task-actions";
+
       const collapseBtn = document.createElement("button");
       collapseBtn.type = "button";
-      collapseBtn.className = "subtask-collapse-btn";
+      collapseBtn.className = "task-collapse-btn";
       collapseBtn.innerHTML = subtask.collapsed
         ? '<i class="fa-solid fa-chevron-right" aria-hidden="true"></i>'
         : '<i class="fa-solid fa-chevron-down" aria-hidden="true"></i>';
@@ -347,7 +562,8 @@ function appendSubtaskItems(task, subtasks, subtaskList, level = 0) {
         event.stopPropagation();
         toggleSubtaskCollapsed(task.id, subtask.id, !subtask.collapsed);
       });
-      subtaskRow.appendChild(collapseBtn);
+      taskActions.appendChild(collapseBtn);
+      subtaskRow.appendChild(taskActions);
     }
 
     subtaskList.appendChild(subtaskRow);
@@ -392,7 +608,9 @@ function addNotificationRow(value = "") {
   const removeBtn = document.createElement("button");
   removeBtn.type = "button";
   removeBtn.className = "remove-notification-btn";
-  removeBtn.textContent = "Remove";
+  removeBtn.innerHTML = '<i class="fa-solid fa-trash" aria-hidden="true"></i>';
+  removeBtn.title = "Delete notification";
+  removeBtn.setAttribute("aria-label", "Delete notification");
   removeBtn.addEventListener("click", () => {
     row.remove();
     updateNotificationEmptyState();
@@ -669,7 +887,7 @@ function submitTask() {
   const min = document.getElementById("task-min").value.trim();
   const ampm = document.getElementById("task-ampm").value.trim();
   const notifications = normalizeTaskNotifications(getNotificationRowsValues());
-  const subtasks = getSubtaskRowsValues();
+  const { subtasks, promotedTasks } = getSubtaskRowsValues();
 
   let due = "";
   const hasPartialInput = dateValue || hour || min || ampm;
@@ -689,8 +907,21 @@ function submitTask() {
     return;
   }
 
+  const promotedTaskEntries = promotedTasks.map((task, index) => ({
+    id: `${Date.now()}-promoted-${index}-${Math.random().toString(36).slice(2, 8)}`,
+    name: task.name,
+    category,
+    due: "",
+    completed: Boolean(task.completed),
+    reminder: normalizeTaskReminder(DEFAULT_TASK_REMINDER),
+    notifications: [],
+    subtasks: normalizeSubtasks(task.subtasks),
+    subtasksCollapsed: Boolean(task.subtasksCollapsed),
+  }));
+
   if (editingTaskId) {
-    const task = tasks.find((t) => t.id === editingTaskId);
+    const taskIndex = tasks.findIndex((t) => t.id === editingTaskId);
+    const task = taskIndex >= 0 ? tasks[taskIndex] : null;
     if (task) {
       task.name = desc;
       task.category = category;
@@ -698,6 +929,10 @@ function submitTask() {
       task.notifications = notifications;
       task.subtasks = subtasks;
       task.subtasksCollapsed = Boolean(task.subtasksCollapsed);
+
+      if (promotedTaskEntries.length) {
+        tasks.splice(taskIndex + 1, 0, ...promotedTaskEntries);
+      }
     }
   } else {
     const id = Date.now().toString();
@@ -712,6 +947,10 @@ function submitTask() {
       subtasks,
       subtasksCollapsed: false,
     });
+
+    if (promotedTaskEntries.length) {
+      tasks.push(...promotedTaskEntries);
+    }
   }
 
   saveTasks();
