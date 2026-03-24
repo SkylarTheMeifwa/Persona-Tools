@@ -1152,7 +1152,7 @@ function buildTaskReminders() {
               body: task.due
                 ? `${task.name}. Due: ${formatDueDisplay(task.due)}.`
                 : `${task.name}.`,
-              url: "/mementos-requests.html",
+              url: window.location.pathname,
               startOffsetMinutes: 0,
               repeatIntervalMinutes: 0,
               repeatCount: 0,
@@ -1174,7 +1174,7 @@ function buildTaskReminders() {
           dueAt: dueDate.toISOString(),
           title: "Task Reminder",
           body: `${task.name} is due at ${formatDueDisplay(task.due)}.`,
-          url: "/mementos-requests.html",
+          url: window.location.pathname,
           startOffsetMinutes: task.reminder.leadMinutes,
           repeatIntervalMinutes: task.reminder.repeatEveryMinutes,
           repeatCount: task.reminder.repeatCount,

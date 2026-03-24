@@ -1,4 +1,5 @@
 window.addEventListener("DOMContentLoaded", () => {
+  const serviceWorkerUrl = "../service-worker.js";
   const modeStorageKey = "p5-navbar-font-mode";
   const fontForm = document.getElementById("font-settings-form");
   const status = document.getElementById("font-mode-status");
@@ -27,7 +28,7 @@ window.addEventListener("DOMContentLoaded", () => {
   if (dropboxToken) {
     localStorage.setItem("dropbox_token", dropboxToken);
     setStatus("Dropbox connected.");
-    window.history.replaceState({}, document.title, "/settings.html");
+    window.history.replaceState({}, document.title, window.location.pathname);
   } else if (dropboxError) {
     if (dropboxError === "code_used") {
       setStatus("Dropbox login expired. Please click Connect Dropbox again.");
@@ -36,7 +37,7 @@ window.addEventListener("DOMContentLoaded", () => {
     } else {
       setStatus("Dropbox login failed. Please try again.");
     }
-    window.history.replaceState({}, document.title, "/settings.html");
+    window.history.replaceState({}, document.title, window.location.pathname);
   }
 
   let swRegistrationPromise = null;
@@ -80,7 +81,7 @@ window.addEventListener("DOMContentLoaded", () => {
             return existingRegistration;
           }
 
-          return navigator.serviceWorker.register("service-worker.js");
+          return navigator.serviceWorker.register(serviceWorkerUrl);
         });
     }
 
@@ -250,7 +251,7 @@ window.addEventListener("DOMContentLoaded", () => {
           return;
         }
 
-        registration.active.postMessage({ type: "SHOW_TEST_NOTIFICATION" });
+        registration.active.postMessage({ type: "SHOW_TEST_NOTIFICATION", url: window.location.pathname });
         setNotificationStatus("Test notification sent.");
       } catch (error) {
         setNotificationStatus(`Unable to send test notification: ${error.message}`);

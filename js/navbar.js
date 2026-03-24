@@ -1,4 +1,5 @@
 (function () {
+  const pagePrefix = window.location.pathname.includes("/pages/") ? "../" : "";
   const statSubnavStorageKey = "p5-stat-subnav-visible";
   const financeSubnavStorageKey = "p5-finance-subnav-visible";
   const navbarFontModeStorageKey = "p5-navbar-font-mode";
@@ -16,14 +17,14 @@
   }
 
   // Inject navbar CSS if not already present
-  if (!document.querySelector('link[href="css/navbar.css"]')) {
+  if (!document.querySelector(`link[href="${pagePrefix}css/navbar.css"]`)) {
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "css/navbar.css";
+    link.href = `${pagePrefix}css/navbar.css`;
     document.head.appendChild(link);
   }
 
-  fetch("assets/navbar.html")
+  fetch(`${pagePrefix}assets/navbar.html`)
     .then((res) => res.text())
     .then((html) => {
       const container = document.createElement("div");
@@ -119,7 +120,7 @@
           '.p5-dropdown-menu a[href="I-Belieeevee-We-Can-Flyyy-Up-In-The-Sky.html"], .p5-dropdown-menu a[href="You%27ll-Never-See-It-Comiiingggg.html"], .p5-stat-subnav a'
         ),
         nonLinks: nav.querySelectorAll(
-          'a[href="index.html"], a[href="Finances.html"], a[href="Groceries.html"], a[href="settings.html"], a[href="mementos-requests.html"], a[href="Time-To-Retake-Your-Desires.html"]'
+          'a[href="../index.html"], a[href="Finances.html"], a[href="Groceries.html"], a[href="settings.html"], a[href="mementos-requests.html"], a[href="Time-To-Retake-Your-Desires.html"]'
         ),
         collapsedClass: "stat-subnav-collapsed",
       });
@@ -134,7 +135,7 @@
           '.p5-dropdown-menu a[href="Finances.html"], .p5-dropdown-menu a[href="Groceries.html"], .p5-finance-subnav a'
         ),
         nonLinks: nav.querySelectorAll(
-          'a[href="index.html"], a[href="I-Belieeevee-We-Can-Flyyy-Up-In-The-Sky.html"], a[href="You%27ll-Never-See-It-Comiiingggg.html"], a[href="settings.html"], a[href="mementos-requests.html"], a[href="Time-To-Retake-Your-Desires.html"]'
+          'a[href="../index.html"], a[href="I-Belieeevee-We-Can-Flyyy-Up-In-The-Sky.html"], a[href="You%27ll-Never-See-It-Comiiingggg.html"], a[href="settings.html"], a[href="mementos-requests.html"], a[href="Time-To-Retake-Your-Desires.html"]'
         ),
         collapsedClass: "finance-subnav-collapsed",
       });

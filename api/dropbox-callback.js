@@ -24,14 +24,14 @@ export default async function handler(req, res) {
   }
 
   if (!code) {
-    return res.redirect("/settings.html?dropbox_error=missing_code");
+    return res.redirect("/pages/settings.html?dropbox_error=missing_code");
   }
 
   const cookies = parseCookieMap(req.headers.cookie || "");
   const expectedState = cookies.dropbox_oauth_state;
 
   if (!state || !expectedState || state !== expectedState) {
-    return res.redirect("/settings.html?dropbox_error=state_mismatch");
+    return res.redirect("/pages/settings.html?dropbox_error=state_mismatch");
   }
 
   const redirectUri = "https://persona-tools.vercel.app/api/dropbox-callback";
@@ -56,7 +56,7 @@ export default async function handler(req, res) {
     if (!data.access_token) {
       const isCodeReuse = data.error === "invalid_grant";
       const reason = isCodeReuse ? "code_used" : "token_exchange_failed";
-      return res.redirect(`/settings.html?dropbox_error=${reason}`);
+      return res.redirect(`/pages/settings.html?dropbox_error=${reason}`);
     }
 
     res.setHeader(
@@ -65,9 +65,9 @@ export default async function handler(req, res) {
     );
 
     return res.redirect(
-      `/settings.html?dropbox_token=${encodeURIComponent(data.access_token)}`
+      `/pages/settings.html?dropbox_token=${encodeURIComponent(data.access_token)}`
     );
   } catch (_) {
-    return res.redirect("/settings.html?dropbox_error=network_failure");
+    return res.redirect("/pages/settings.html?dropbox_error=network_failure");
   }
 }

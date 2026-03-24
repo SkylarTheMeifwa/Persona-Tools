@@ -4,14 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>P5 Skill Tracker</title>
-    <link rel="stylesheet" href="css/Last-Surprise.css" />
-    <link rel="icon" type="image/png" sizes="192x192" href="assets/Pictures/black-p5-star-192.png" />
-    <link rel="apple-touch-icon" href="assets/Pictures/black-p5-star-192.png" />
+    <link rel="stylesheet" href="../css/I-Believe.css" />
+    <link rel="manifest" href="../config/manifest.json" />
+    <link rel="icon" type="image/png" href="../assets/Pictures/black-p5-star.png" />
+    <link rel="apple-touch-icon" href="../assets/Pictures/black-p5-star.png" />
   </head>
   <body>
     <!-- Background Stars -->
     <iframe
-      src="assets/p5-background.html"
+      src="../assets/p5-background.html"
       style="
         position: fixed;
         top: 0;
@@ -24,7 +25,7 @@
       "
       aria-hidden="true"
     ></iframe>
-    <script src="js/navbar.js"></script>
+    <script src="../js/navbar.js"></script>
 
     <main
       class="container"
@@ -39,6 +40,55 @@
       <!-- Skill Cards -->
       <section id="skills">
         <!-- Repeat for each skill -->
+        <article class="skill-card" id="physics">
+          <div class="skill-header">
+            <h3 class="skill-title">Physics</h3>
+            <button
+              class="skill-settings-btn"
+              title="Settings"
+              onclick="openSkillSettings('physics', this)"
+              aria-label="Open settings for Physics"
+              type="button"
+            >
+              <img
+                src="../assets/Pictures/settings-icon.png"
+                alt="Settings Icon"
+                class="icon"
+              />
+            </button>
+          </div>
+
+          <div
+            class="xp-bar"
+            role="progressbar"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="0"
+            aria-label="Experience progress bar for Physics"
+          >
+            <div class="xp-fill" id="physics-fill"></div>
+          </div>
+          <p class="rank-label" id="physics-rank">Rank</p>
+          <button
+            class="add-xp"
+            onclick="openTaskInput('physics')"
+            type="button"
+          >
+            Add
+          </button>
+          <button class="add-xp" onclick="resetSkill('physics')" type="button">
+            Reset
+          </button>
+          <button
+            class="add-xp"
+            onclick="toggleCompletedTasks('physics', this)"
+            type="button"
+          >
+            Show Tasks
+          </button>
+          <ul class="completed-tasks-list" id="completed-physics" hidden></ul>
+        </article>
+
         <article class="skill-card" id="self-care">
           <div class="skill-header">
             <h3 class="skill-title">Self Care</h3>
@@ -50,7 +100,7 @@
               type="button"
             >
               <img
-                src="assets/Pictures/settings-icon.png"
+                src="../assets/Pictures/settings-icon.png"
                 alt="Settings Icon"
                 class="icon"
               />
@@ -103,7 +153,7 @@
               type="button"
             >
               <img
-                src="assets/Pictures/settings-icon.png"
+                src="../assets/Pictures/settings-icon.png"
                 alt="Settings Icon"
                 class="icon"
               />
@@ -160,7 +210,7 @@
               type="button"
             >
               <img
-                src="assets/Pictures/settings-icon.png"
+                src="../assets/Pictures/settings-icon.png"
                 alt="Settings Icon"
                 class="icon"
               />
@@ -217,7 +267,7 @@
               type="button"
             >
               <img
-                src="assets/Pictures/settings-icon.png"
+                src="../assets/Pictures/settings-icon.png"
                 alt="Settings Icon"
                 class="icon"
               />
@@ -317,6 +367,6 @@
     </div>
 
     <!-- Scripts -->
-    <script src="js/Last-Surprise.js"></script>
+    <script src="../js/I-Believe.js"></script>
   </body>
 </html>

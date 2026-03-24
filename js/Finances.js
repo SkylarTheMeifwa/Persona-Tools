@@ -10,7 +10,7 @@ let isGoalsTestMode = false;
 let deletedGoals = [];
 const DEFAULT_ENTRY_REMINDER = {
   enabled: false,
-  time: "09:00",
+  time: "19:00",
   repeatEveryHours: 0,
   repeatCount: 0,
   displayAmount: false,
@@ -190,7 +190,7 @@ function buildFinanceEntryReminders() {
         dueAt: dueAt.toISOString(),
         title: "Finance Entry Reminder",
         body: buildReminderBody(entry.name, entry.amount, reminder),
-        url: "/Finances.html",
+        url: window.location.pathname,
         startOffsetMinutes: 0,
         repeatIntervalMinutes: reminder.repeatEveryHours * 60,
         repeatCount: reminder.repeatCount,
@@ -219,7 +219,7 @@ function buildAllocationReminders() {
         dueAt: dueAt.toISOString(),
         title: "Allocation Reminder",
         body: buildReminderBody(`Allocated to ${goal.name}`, allocation.amount, reminder),
-        url: "/Finances.html",
+        url: window.location.pathname,
         startOffsetMinutes: 0,
         repeatIntervalMinutes: 0,
         repeatCount: 0,

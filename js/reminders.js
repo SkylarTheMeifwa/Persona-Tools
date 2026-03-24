@@ -1,4 +1,5 @@
 (function () {
+  const serviceWorkerUrl = "../service-worker.js";
   const DELIVERY_LOG_KEY = "p5ReminderDeliveryLog";
   const CHECK_INTERVAL_MS = 60 * 1000;
   const DEFAULT_DELIVERY_GRACE_MS = 2 * 60 * 1000;
@@ -46,7 +47,7 @@
 
     const registration =
       (await navigator.serviceWorker.getRegistration()) ||
-      (await navigator.serviceWorker.register("service-worker.js"));
+      (await navigator.serviceWorker.register(serviceWorkerUrl));
 
     let subscription = await registration.pushManager.getSubscription();
 
@@ -150,7 +151,7 @@
       type: "SHOW_LOCAL_REMINDER",
       title,
       body,
-      url: reminder.url || "/index.html",
+      url: reminder.url || window.location.pathname,
       badgeCount: Number.isFinite(reminder.badgeCount) ? Math.max(0, reminder.badgeCount) : 1,
     };
 
@@ -158,7 +159,7 @@
       try {
         const registration =
           (await navigator.serviceWorker.getRegistration()) ||
-          (await navigator.serviceWorker.register("service-worker.js"));
+          (await navigator.serviceWorker.register(serviceWorkerUrl));
 
         if (registration.active) {
           registration.active.postMessage(payload);

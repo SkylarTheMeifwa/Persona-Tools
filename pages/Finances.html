@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Day-by-Day Cash Flow Simulator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../css/Finances.css" />
+    <link rel="manifest" href="../config/manifest.json" />
+    <link rel="icon" type="image/png" href="../assets/Pictures/black-p5-star.png" />
+    <link rel="apple-touch-icon" href="../assets/Pictures/black-p5-star.png" />
+  </head>
+
+  <body>
+    <iframe
+      src="../assets/p5-background.html"
+      style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        border: none;
+        z-index: -1;
+        pointer-events: none;
+      "
+      aria-hidden="true"
+    ></iframe>
+    <script src="../js/navbar.js"></script>
+    <h2>Day-by-Day Cash Flow</h2>
+
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+      <div id="goalsBannerContainer" style="flex: 1 1 auto;"></div>
+      <button id="addGoalBtn" onclick="openAddGoalModal()" style="margin-left: 10px; display: none;">Add Goal</button>
+      <button id="rearrangeGoalsBtn" onclick="openRearrangeGoalsModal()" style="margin-left: 10px; display: none;">Rearrange Goals</button>
+      <button id="toggleGoalsTestModeBtn" onclick="toggleGoalsTestMode()" style="margin-left: 10px;">Test: Off</button>
+      <button id="toggleEditGoalsBtn" onclick="toggleEditGoalsMode()" style="margin-left: 10px;">Edit Goals</button>
+            <!-- Add Goal Modal -->
+            <div id="addGoalModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.4); z-index:1000; align-items:center; justify-content:center;">
+              <div style="background:#fff; padding:24px; border-radius:8px; min-width:320px; max-width:90vw; margin:auto; box-shadow:0 2px 16px #0002;">
+                <h3>Add New Goal</h3>
+                <form id="addGoalForm" onsubmit="submitAddGoal(event)">
+                  <div style="margin-bottom:10px;">
+                    <label>Name:<br><input id="addGoalName" required style="width:100%"></label>
+                  </div>
+                  <div style="margin-bottom:10px;">
+                    <label>Amount:<br><input id="addGoalAmount" type="number" min="0.01" step="0.01" required style="width:100%"></label>
+                  </div>
+                  <div style="margin-bottom:10px;">
+                    <label>Due Date (optional):<br><input id="addGoalDue" type="date" style="width:100%"></label>
+                  </div>
+                  <div style="text-align:right;">
+                    <button type="button" onclick="closeAddGoalModal()">Cancel</button>
+                    <button type="submit">Add Goal</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+        <!-- Rearrange Goals Modal -->
+        <div id="rearrangeGoalsModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.4); z-index:1000; align-items:center; justify-content:center;">
+          <div style="background:#fff; padding:24px; border-radius:8px; min-width:320px; max-width:90vw; margin:auto; box-shadow:0 2px 16px #0002;">
+            <h3>Rearrange Goals</h3>
+            <ul id="rearrangeGoalsList" style="list-style:none; padding:0; margin:0 0 16px 0;"></ul>
+            <div style="text-align:right;">
+              <button onclick="closeRearrangeGoalsModal()">Cancel</button>
+              <button onclick="saveRearrangedGoals()">Save Order</button>
+            </div>
+          </div>
+        </div>
+    </div>
+    <div id="goalsView"></div>
+
+    <hr />
+
+    <div style="display: flex; justify-content: space-between;">
+      <div>
+        <button onclick="prevDay()">Previous</button>
+        <button onclick="nextDay()">Next</button>
+      </div>
+      <button id="toggleEditModeBtn" onclick="toggleEditMode()">
+        Edit Entries
+      </button>
+    </div>
+
+    <h3 id="currentDate"></h3>
+    <h3 id="currentBalance"></h3>
+
+    <div id="entriesList"></div>
+
+    <div id="entryForm">
+      <h4>Add Entry</h4>
+      Name:
+      <input type="text" id="entryName" />
+      Amount:
+      <input type="number" id="entryAmount" />
+      <div class="entry-reminder-settings">
+        <div class="entry-reminder-row">
+          <label>
+            <input type="checkbox" id="entry-reminder-enabled" />
+            Notify me at
+          <input type="time" id="entry-reminder-time" value="09:00" />
+          <input type="checkbox" id="entry-reminder-display-amount" />
+            Display Amount
+          </label>
+        </div>
+        <div class="entry-reminder-grid">
+        </div>
+      </div>
+
+      <button onclick="saveEntry('income')">Income</button>
+      <button onclick="saveEntry('bill')">Bill</button>
+
+      <div style="margin-top:10px;">
+        <button onclick="exportData()">Export Data</button>
+      <input type="file" id="importFile" accept="application/json" style="display:none" onchange="importData(event)" />
+      <button onclick="document.getElementById('importFile').click()">Import Data</button>
+      </div>
+    </div>
+
+    <div id="calendarView"></div>
+
+    <script src="../js/reminders.js"></script>
+    <script src="../js/Finances.js"></script>
+  </body>
+</html>

@@ -24,21 +24,32 @@
         'cdn.jsdelivr.net'
     ]
 
+    const APP_ROOT_URL = new URL('./', self.location.href)
     const PERIODIC_SYNC_TAG = 'persona-tools-periodic-sync'
-    const NOTIFICATION_DEFAULT_URL = '/index.html'
+    const toAppPath = (path = '') => new URL(path, APP_ROOT_URL).pathname
+    const buildBodyWithTitle = (titleText, bodyText) => {
+        const safeTitle = String(titleText || '').trim()
+        const safeBody = String(bodyText || '').trim()
+
+        if (!safeTitle) return safeBody || 'You have a new update.'
+        if (!safeBody) return safeTitle
+
+        return `${safeTitle}: ${safeBody}`
+    }
+    const NOTIFICATION_DEFAULT_URL = toAppPath('index.html')
     const PERIODIC_SYNC_URLS = [
-        '/',
-        '/index.html',
-        '/Finances.html',
-        '/Groceries.html',
-        '/I-Belieeevee-We-Can-Flyyy-Up-In-The-Sky.html',
-        "/You'll-Never-See-It-Comiiingggg.html",
-        '/mementos-requests.html',
-        '/Time-To-Retake-Your-Desires.html',
-        '/settings.html',
-        '/css/main.css',
-        '/js/navbar.js'
-    ]
+        '',
+        'index.html',
+        'pages/Finances.html',
+        'pages/Groceries.html',
+        'pages/I-Belieeevee-We-Can-Flyyy-Up-In-The-Sky.html',
+        "pages/You'll-Never-See-It-Comiiingggg.html",
+        'pages/mementos-requests.html',
+        'pages/Time-To-Retake-Your-Desires.html',
+        'pages/settings.html',
+        'css/main.css',
+        'js/navbar.js'
+    ].map(toAppPath)
 
     const setBadgeIfSupported = async (count) => {
         if ('setAppBadge' in self.registration) {
@@ -115,16 +126,6 @@
         })
 
         self.addEventListener('push', event => {
-            const buildBodyWithTitle = (titleText, bodyText) => {
-                const safeTitle = String(titleText || '').trim()
-                const safeBody = String(bodyText || '').trim()
-
-                if (!safeTitle) return safeBody || 'You have a new update.'
-                if (!safeBody) return safeTitle
-
-                return `${safeTitle}: ${safeBody}`
-            }
-
             const payload = (() => {
                 if (!event.data) {
                     return {}
@@ -191,7 +192,7 @@
                     Promise.all([
                         self.registration.showNotification('', {
                             body: 'Persona Tools Test: Notifications are enabled and ready.',
-                            data: { url: '/settings.html' },
+                            data: { url: data.url || toAppPath('pages/settings.html') },
                         }),
                         setBadgeIfSupported(1),
                     ])
@@ -202,7 +203,7 @@
                 const title = data.title || 'Persona Tools Reminder'
                 const body = data.body || 'You have an upcoming due date.'
                 const bodyWithTitle = buildBodyWithTitle(title, body)
-                const url = data.url || '/index.html'
+                const url = data.url || NOTIFICATION_DEFAULT_URL
                 const badgeCount = Number.isFinite(data.badgeCount) ? Math.max(0, data.badgeCount) : 1
 
                 event.waitUntil(

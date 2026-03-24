@@ -7,6 +7,8 @@ const skills = {
   chores: { xp: 0, rank: 0 },
 };
 
+const assetBasePath = "../assets";
+
 const rankThresholds = {
   physics: [0, 20, 50, 90, 130, 200],
   "self-care": [0, 50, 125, 225, 325, 450],
@@ -184,7 +186,7 @@ function showNotes(skill, xp) {
   const count = xp >= 6 ? 3 : xp >= 3 ? 2 : 1;
   for (let i = 0; i < count; i++) {
     const note = document.createElement("img");
-    note.src = "assets/Pictures/music-note.png";
+    note.src = `${assetBasePath}/Pictures/music-note.png`;
     note.className = "note";
     note.style.height = `${skillCard.offsetHeight * 0.9}px`;
     note.style.cursor = "pointer";
@@ -200,10 +202,10 @@ function showNotes(skill, xp) {
 
   const soundSrc =
     xp >= 6
-      ? "assets/Audio/Three-Music-Notes.wav"
+      ? `${assetBasePath}/Audio/Three-Music-Notes.wav`
       : xp >= 3
-      ? "assets/Audio/Two-Music-Notes.wav"
-      : "assets/Audio/One-Music-Note.wav";
+      ? `${assetBasePath}/Audio/Two-Music-Notes.wav`
+      : `${assetBasePath}/Audio/One-Music-Note.wav`;
 
   new Audio(soundSrc).play();
 }
@@ -243,9 +245,9 @@ function showRankUp(skill) {
 
   popup.dataset.skill = skill;
   popup.innerHTML =
-    '<img src="assets/Pictures/Rank-Up.png" alt="Rank Up" style="width:90%; transform:rotate(-10deg); margin:auto; display:block;">';
+    `<img src="${assetBasePath}/Pictures/Rank-Up.png" alt="Rank Up" style="width:90%; transform:rotate(-10deg); margin:auto; display:block;">`;
 
-  new Audio("assets/Audio/Rank-Up.wav").play();
+  new Audio(`${assetBasePath}/Audio/Rank-Up.wav`).play();
 }
 
 // Close rank up popup and update UI accordingly
@@ -286,7 +288,7 @@ function resetSkill(skill) {
 
 // Play XP collection sound effect
 function playXPCollectSound() {
-  new Audio("assets/Audio/Point-Up.wav").play();
+  new Audio(`${assetBasePath}/Audio/Point-Up.wav`).play();
 }
 
 // Open global settings panel for XP thresholds
