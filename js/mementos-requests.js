@@ -512,8 +512,23 @@ function findSubtaskById(subtasks, subtaskId) {
   return null;
 }
 
+function sortSubtasksForDisplay(subtasks) {
+  return normalizeSubtasks(subtasks)
+    .map((subtask, index) => ({ subtask, index }))
+    .sort((a, b) => {
+      if (a.subtask.completed === b.subtask.completed) {
+        return a.index - b.index;
+      }
+      return a.subtask.completed ? 1 : -1;
+    })
+    .map(({ subtask }) => ({
+      ...subtask,
+      children: sortSubtasksForDisplay(subtask.children),
+    }));
+}
+
 function appendSubtaskItems(task, subtasks, subtaskList, level = 0) {
-  normalizeSubtasks(subtasks).forEach((subtask) => {
+  sortSubtasksForDisplay(subtasks).forEach((subtask) => {
     const subtaskRow = document.createElement("div");
     subtaskRow.className = "task subtask-item";
     subtaskRow.style.setProperty("--subtask-level", String(level));
