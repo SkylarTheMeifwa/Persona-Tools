@@ -1049,13 +1049,14 @@ async function saveTasksToDropbox() {
   if (!userToken) return;
 
   try {
-    await fetch("/api/save-mementos-to-dropbox", {
+    await fetch("/api/save-to-dropbox", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
         userToken,
+        dataType: "mementos",
         tasks,
       }),
     });
@@ -1069,13 +1070,14 @@ async function loadTasksFromDropbox() {
   if (!userToken) return;
 
   try {
-    const response = await fetch("/api/load-mementos-from-dropbox", {
+    const response = await fetch("/api/load-from-dropbox", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
         userToken,
+        dataType: "mementos",
       }),
     });
 

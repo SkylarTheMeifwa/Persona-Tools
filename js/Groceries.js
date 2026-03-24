@@ -161,11 +161,12 @@ async function saveToDropbox() {
   }
 
   try {
-    await fetch("/api/save-groceries-to-dropbox", {
+    await fetch("/api/save-to-dropbox", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         userToken,
+        dataType: "groceries",
         groceries: state,
       }),
     });
@@ -200,10 +201,10 @@ async function loadFromDropbox() {
   }
 
   try {
-    const response = await fetch("/api/load-groceries-from-dropbox", {
+    const response = await fetch("/api/load-from-dropbox", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userToken }),
+      body: JSON.stringify({ userToken, dataType: "groceries" }),
     });
 
     if (!response.ok) {

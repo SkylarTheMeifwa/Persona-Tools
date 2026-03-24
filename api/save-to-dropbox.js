@@ -1,6 +1,8 @@
 import { Dropbox } from "dropbox";
 import fetch from "node-fetch";
 
+const DEFAULT_GROCERIES = { taxRates: { food: 3, other: 10.5 }, stores: [] };
+
 function parseCookies(cookieHeader) {
   const list = {};
   if (!cookieHeader) return list;
@@ -35,7 +37,7 @@ export default async function handler(req, res) {
   }
   console.log("Dropbox token received:", userToken);
 
-  const { entries, goals, deletedGoals } = req.body;
+  const dataType = req.body?.dataType || "finances";
 
   const dbx = new Dropbox({
     accessToken: userToken,
@@ -43,43 +45,73 @@ export default async function handler(req, res) {
   });
 
   try {
-    // Ensure /Persona-Tools folder exists
+    if (dataType === "groceries") {
+      const groceries = req.body?.groceries && typeof req.body.groceries === "object"
+        ? req.body.groceries
+        : DEFAULT_GROCERIES;
 
-    // Download existing file if it exists
-    let existing = { entries: [], goals: [], deletedGoals: [] };
-    let response = null;
-    try {
-      response = await dbx.filesDownload({
-        path: "/cashflow-data.json"
+      await dbx.filesUpload({
+        path: "/groceries-data.json",
+        contents: JSON.stringify(
+          {
+            savedAt: new Date().toISOString(),
+            groceries,
+          },
+          null,
+          2
+        ),
+        mode: "overwrite",
       });
-      const fileData = response.result.fileBinary;
-      existing = JSON.parse(fileData.toString());
-    } catch (err) {
-      // If file doesn't exist, continue with empty
-      if (!err?.error?.error_summary?.includes("path/not_found")) {
-        throw err;
+    } else if (dataType === "mementos") {
+      const tasks = Array.isArray(req.body?.tasks) ? req.body.tasks : [];
+
+      await dbx.filesUpload({
+        path: "/mementos-requests-data.json",
+        contents: JSON.stringify(
+          {
+            savedAt: new Date().toISOString(),
+            tasks,
+          },
+          null,
+          2
+        ),
+        mode: "overwrite",
+      });
+    } else {
+      const { entries, goals, deletedGoals } = req.body;
+
+      // Preserve unknown fields if they already exist in the finances file.
+      let existing = { entries: [], goals: [], deletedGoals: [] };
+      try {
+        const response = await dbx.filesDownload({
+          path: "/cashflow-data.json"
+        });
+        const fileData = response.result.fileBinary;
+        existing = JSON.parse(fileData.toString());
+      } catch (err) {
+        if (!err?.error?.error_summary?.includes("path/not_found")) {
+          throw err;
+        }
       }
+
+      const data = {
+        ...existing,
+        savedAt: new Date().toISOString(),
+        entries,
+        goals,
+        deletedGoals,
+      };
+
+      await dbx.filesUpload({
+        path: "/cashflow-data.json",
+        contents: JSON.stringify(data, null, 2),
+        mode: "overwrite"
+      });
     }
-
-    // Merge: replace entries, goals, and deletedGoals with new data
-
-    const data = {
-      ...existing,
-      savedAt: new Date().toISOString(),
-      entries,
-      goals,
-      deletedGoals,
-    };
-
-    await dbx.filesUpload({
-      path: "/cashflow-data.json",
-      contents: JSON.stringify(data, null, 2),
-      mode: "overwrite"
-    });
 
     res.status(200).json({ success: true });
   } catch (err) {
-    console.error("DROPBOX ERROR:", err);
+    console.error("DROPBOX ERROR:", dataType, err);
     if (err && err.stack) console.error(err.stack);
     res.status(500).json({ error: err.message });
   }
