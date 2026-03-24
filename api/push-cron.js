@@ -104,11 +104,20 @@ function createDispatchToken(deliveryId, occurrence) {
     .digest("hex");
 }
 
-async function scheduleDispatchJob({ delayMs, payload, dispatchUrl }) {
-  const qstashToken = String(process.env.QSTASH_TOKEN || "").trim();
-  if (!qstashToken) {
-    throw new Error("Missing QSTASH_TOKEN");
+function getQStashToken() {
+  const rawToken = String(
+    process.env.QSTASH_TOKEN || process.env.UPSTASH_QSTASH_TOKEN || ""
+  ).trim();
+
+  if (!rawToken) {
+    throw new Error("Missing QSTASH_TOKEN or UPSTASH_QSTASH_TOKEN");
   }
+
+  return rawToken.replace(/^Bearer\s+/i, "");
+}
+
+async function scheduleDispatchJob({ delayMs, payload, dispatchUrl }) {
+  const qstashToken = getQStashToken();
 
   const delaySeconds = Math.max(1, Math.ceil(delayMs / 1000));
 
@@ -128,6 +137,12 @@ async function scheduleDispatchJob({ delayMs, payload, dispatchUrl }) {
 
   if (!response.ok) {
     const body = await response.text();
+    if (response.status === 401) {
+      throw new Error(
+        `QStash publish failed (401): invalid token. Check QSTASH_TOKEN or UPSTASH_QSTASH_TOKEN and make sure it does not include a Bearer prefix. Response: ${body}`
+      );
+    }
+
     throw new Error(`QStash publish failed (${response.status}): ${body}`);
   }
 }
@@ -166,10 +181,11 @@ async function dispatchImmediately({ deviceId, subscription, reminder, index }) 
 
 function canScheduleWithQStash() {
   const baseUrl = getBaseUrl();
-  const hasAllVars =
-    baseUrl &&
-    String(process.env.QSTASH_TOKEN || "").trim() &&
-    String(process.env.PUSH_SCHEDULER_SECRET || "").trim();
+  const hasSchedulerSecret = String(process.env.PUSH_SCHEDULER_SECRET || "").trim();
+  const hasQStashToken = Boolean(
+    String(process.env.QSTASH_TOKEN || process.env.UPSTASH_QSTASH_TOKEN || "").trim()
+  );
+  const hasAllVars = baseUrl && hasQStashToken && hasSchedulerSecret;
 
   return Boolean(hasAllVars);
 }

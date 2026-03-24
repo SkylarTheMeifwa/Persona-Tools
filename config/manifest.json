@@ -4,14 +4,60 @@
     "start_url": "../index.html",
     "scope": "../",
     "display": "standalone",
+    "display_override": ["window-controls-overlay", "standalone"],
     "description": "A fan-made collection of interactive tools inspired by the Persona series, designed to enhance gameplay and help in real life.",
+    "theme_color": "#E60012",
+    "background_color": "#E60012",
     "orientation": "portrait-primary",
     "icons": [
         {
-            "src": "../assets/Pictures/ren-shiny.png",
+            "src": "../assets/Pictures/ren-shiny-192.png",
             "sizes": "192x192",
             "type": "image/png",
-            "purpose": "any"
+            "purpose": "any maskable"
+        },
+        {
+            "src": "../assets/Pictures/ren-shiny-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "Daily Cash Flow",
+            "url": "../pages/Finances.html",
+            "description": "Day-by-Day Cash Flow Tracker"
+        },
+        {
+            "name": "Groceries",
+            "url": "../pages/Groceries.html",
+            "description": "Plan groceries across stores"
+        },
+        {
+            "name": "Social Stats (with Knowledge)",
+            "url": "../pages/I-Belieeevee-We-Can-Flyyy-Up-In-The-Sky.html",
+            "description": "Persona 5 social stat tracker with Knowledge"
+        },
+        {
+            "name": "Social Stats (no Knowledge)",
+            "url": "../pages/You'll-Never-See-It-Comiiingggg.html",
+            "description": "Persona 5 social stat tracker without Knowledge"
+        },
+        {
+            "name": "To-Do List",
+            "url": "../pages/mementos-requests.html",
+            "description": "Persona 5 inspired to-do list"
+        },
+        {
+            "name": "Phantom X Tracker",
+            "url": "../pages/Time-To-Retake-Your-Desires.html",
+            "description": "Persona 5: The Phantom X daily tracker"
+        },
+        {
+            "name": "Settings",
+            "url": "../pages/settings.html",
+            "description": "Open app settings"
         }
     ]
 }

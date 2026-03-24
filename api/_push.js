@@ -4,6 +4,20 @@ const DEFAULT_LATE_WINDOW_MS = 2 * 60 * 1000;
 
 let configured = false;
 
+function getPushEnv() {
+  const subject = String(
+    process.env.WEB_PUSH_SUBJECT || process.env.VAPID_SUBJECT || ""
+  ).trim();
+  const publicKey = String(
+    process.env.WEB_PUSH_PUBLIC_KEY || process.env.VAPID_PUBLIC_KEY || ""
+  ).trim();
+  const privateKey = String(
+    process.env.WEB_PUSH_PRIVATE_KEY || process.env.VAPID_PRIVATE_KEY || ""
+  ).trim();
+
+  return { subject, publicKey, privateKey };
+}
+
 function toNonNegativeInt(value, fallback = 0) {
   const parsed = Number(value);
   if (!Number.isFinite(parsed) || parsed < 0) return fallback;
@@ -11,12 +25,12 @@ function toNonNegativeInt(value, fallback = 0) {
 }
 
 export function ensurePushConfig() {
-  const subject = process.env.WEB_PUSH_SUBJECT;
-  const publicKey = process.env.WEB_PUSH_PUBLIC_KEY;
-  const privateKey = process.env.WEB_PUSH_PRIVATE_KEY;
+  const { subject, publicKey, privateKey } = getPushEnv();
 
   if (!subject || !publicKey || !privateKey) {
-    throw new Error("Missing WEB_PUSH_SUBJECT / WEB_PUSH_PUBLIC_KEY / WEB_PUSH_PRIVATE_KEY");
+    throw new Error(
+      "Missing push config. Set WEB_PUSH_SUBJECT, WEB_PUSH_PUBLIC_KEY, WEB_PUSH_PRIVATE_KEY or VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY"
+    );
   }
 
   if (!configured) {
@@ -59,7 +73,12 @@ export async function sendPush(subscription, payload) {
 }
 
 export function getPublicVapidKey() {
-  const { publicKey } = ensurePushConfig();
+  const { publicKey } = getPushEnv();
+  if (!publicKey) {
+    throw new Error(
+      "Missing push public key. Set WEB_PUSH_PUBLIC_KEY or VAPID_PUBLIC_KEY"
+    );
+  }
   return publicKey;
 }
 
