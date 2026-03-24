@@ -116,13 +116,26 @@ function getQStashToken() {
   return rawToken.replace(/^Bearer\s+/i, "");
 }
 
+function getQStashBaseUrl() {
+  const configuredBaseUrl = String(
+    process.env.QSTASH_URL || process.env.UPSTASH_QSTASH_URL || ""
+  ).trim();
+
+  if (!configuredBaseUrl) {
+    return "https://qstash.upstash.io";
+  }
+
+  return configuredBaseUrl.replace(/\/$/, "");
+}
+
 async function scheduleDispatchJob({ delayMs, payload, dispatchUrl }) {
   const qstashToken = getQStashToken();
+  const qstashBaseUrl = getQStashBaseUrl();
 
   const delaySeconds = Math.max(1, Math.ceil(delayMs / 1000));
 
   const response = await fetch(
-    `https://qstash.upstash.io/v2/publish/${encodeURIComponent(dispatchUrl)}`,
+    `${qstashBaseUrl}/v2/publish/${encodeURIComponent(dispatchUrl)}`,
     {
       method: "POST",
       headers: {
@@ -140,6 +153,12 @@ async function scheduleDispatchJob({ delayMs, payload, dispatchUrl }) {
     if (response.status === 401) {
       throw new Error(
         `QStash publish failed (401): invalid token. Check QSTASH_TOKEN or UPSTASH_QSTASH_TOKEN and make sure it does not include a Bearer prefix. Response: ${body}`
+      );
+    }
+
+    if (response.status === 404 && body.includes("not found in this region")) {
+      throw new Error(
+        `QStash publish failed (404): wrong QStash region endpoint. Set QSTASH_URL or UPSTASH_QSTASH_URL to your regional QStash base URL from Upstash. Response: ${body}`
       );
     }
 
