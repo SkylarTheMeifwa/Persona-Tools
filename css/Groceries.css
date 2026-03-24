@@ -202,6 +202,7 @@ select:focus-visible {
 .store-card {
   padding: 0.9rem;
   min-width: 0;
+  container-type: inline-size;
 }
 
 .store-card-header {
@@ -222,9 +223,53 @@ select:focus-visible {
 
 .add-item-row {
   display: grid;
-  grid-template-columns: minmax(0, 1.9fr) minmax(140px, 0.95fr) minmax(130px, 1fr) auto;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  grid-template-areas:
+    "item item item item item item price price"
+    "food food food sales sales sales add add";
   gap: 0.6rem;
   align-items: end;
+}
+
+.add-item-row > * {
+  min-width: 0;
+}
+
+.add-item-item-label {
+  grid-area: item;
+}
+
+.add-item-price-label {
+  grid-area: price;
+  width: 100%;
+}
+
+.add-item-price-input {
+  width: 100%;
+  min-width: 0;
+}
+
+.add-item-food-btn {
+  grid-area: food;
+}
+
+.add-item-sales-btn {
+  grid-area: sales;
+}
+
+.add-item-btn {
+  grid-area: add;
+  min-height: 40px;
+}
+
+.tax-type-btn {
+  min-height: 40px;
+  white-space: nowrap;
+}
+
+.tax-type-btn.is-active {
+  border-color: var(--groceries-accent);
+  background: rgba(255, 42, 0, 0.2);
 }
 
 .item-list {
@@ -322,10 +367,6 @@ select:focus-visible {
 }
 
 @media (max-width: 960px) {
-  .add-item-row {
-    grid-template-columns: minmax(0, 1.5fr) minmax(100px, 0.8fr) minmax(100px, 0.8fr) auto;
-  }
-
   .item-row {
     grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr) auto;
   }
@@ -344,14 +385,6 @@ select:focus-visible {
   .groceries-header-actions,
   .section-heading {
     width: 100%;
-  }
-
-  .add-item-row {
-    grid-template-columns: 1fr;
-  }
-
-  .add-item-row button {
-    grid-column: auto;
   }
 
   .item-row {

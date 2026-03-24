@@ -314,37 +314,61 @@ function renderStoreCard(store) {
   addRow.className = "add-item-row";
 
   const itemNameLabel = document.createElement("label");
+  itemNameLabel.classList.add("add-item-item-label");
   itemNameLabel.textContent = "Item";
   const itemNameInput = document.createElement("input");
   itemNameInput.type = "text";
   itemNameInput.placeholder = "Milk, rice, soap...";
   itemNameLabel.appendChild(itemNameInput);
 
+  let selectedCategory = "food";
+  const foodButton = document.createElement("button");
+  foodButton.type = "button";
+  foodButton.className = "tax-type-btn is-active";
+  foodButton.classList.add("add-item-food-btn");
+  foodButton.dataset.category = "food";
+  foodButton.textContent = "Food Tax";
+  foodButton.setAttribute("aria-pressed", "true");
+
+  const otherButton = document.createElement("button");
+  otherButton.type = "button";
+  otherButton.className = "tax-type-btn";
+  otherButton.classList.add("add-item-sales-btn");
+  otherButton.dataset.category = "other";
+  otherButton.textContent = "Sales Tax";
+  otherButton.setAttribute("aria-pressed", "false");
+
+  const setCategory = (category) => {
+    selectedCategory = category === "other" ? "other" : "food";
+
+    [foodButton, otherButton].forEach((button) => {
+      const isActive = button.dataset.category === selectedCategory;
+      button.classList.toggle("is-active", isActive);
+      button.setAttribute("aria-pressed", String(isActive));
+    });
+  };
+
+  [foodButton, otherButton].forEach((button) => {
+    button.addEventListener("click", () => {
+      setCategory(button.dataset.category);
+    });
+  });
+
   const itemPriceLabel = document.createElement("label");
   itemPriceLabel.textContent = "Price";
+  itemPriceLabel.classList.add("add-item-price-label");
   const itemPriceInput = document.createElement("input");
   itemPriceInput.type = "number";
   itemPriceInput.step = "0.01";
   itemPriceInput.min = "0";
   itemPriceInput.placeholder = "0.00";
+  itemPriceInput.classList.add("add-item-price-input");
   itemPriceLabel.appendChild(itemPriceInput);
-
-  const categoryLabel = document.createElement("label");
-  categoryLabel.textContent = "Tax Type";
-  const categorySelect = document.createElement("select");
-  const foodOption = document.createElement("option");
-  foodOption.value = "food";
-  foodOption.textContent = "Food Tax";
-  const otherOption = document.createElement("option");
-  otherOption.value = "other";
-  otherOption.textContent = "Sales Tax";
-  categorySelect.appendChild(foodOption);
-  categorySelect.appendChild(otherOption);
-  categoryLabel.appendChild(categorySelect);
 
   const addButton = document.createElement("button");
   addButton.type = "button";
   addButton.textContent = "Add Item";
+  addButton.classList.add("add-item-btn");
   const submitItem = () => {
     const name = itemNameInput.value.trim();
     const price = Number(itemPriceInput.value);
@@ -359,10 +383,10 @@ function renderStoreCard(store) {
       return;
     }
 
-    addItem(store.id, name, price, categorySelect.value);
+    addItem(store.id, name, price, selectedCategory);
     itemNameInput.value = "";
     itemPriceInput.value = "";
-    categorySelect.value = "food";
+    setCategory("food");
     itemNameInput.focus();
   };
   addButton.addEventListener("click", submitItem);
@@ -378,7 +402,8 @@ function renderStoreCard(store) {
 
   addRow.appendChild(itemNameLabel);
   addRow.appendChild(itemPriceLabel);
-  addRow.appendChild(categoryLabel);
+  addRow.appendChild(foodButton);
+  addRow.appendChild(otherButton);
   addRow.appendChild(addButton);
   card.appendChild(addRow);
 

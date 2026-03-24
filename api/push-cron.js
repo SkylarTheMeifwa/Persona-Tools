@@ -251,6 +251,7 @@ export default async function handler(_req, res) {
     let processedDevices = 0;
     let sentCount = 0;
     let scheduledCount = 0;
+    let queuedCount = 0;
 
     for (const deviceId of ids) {
       const rawDevice = await redisCommand(["HGETALL", deviceHashKey(deviceId)]);
@@ -279,7 +280,10 @@ export default async function handler(_req, res) {
             if (occurrence > scheduleCutoff) continue;
 
             const shouldSchedule = await markScheduledOnce(deliveryId);
-            if (!shouldSchedule) continue;
+            if (!shouldSchedule) {
+              queuedCount += 1;
+              continue;
+            }
 
             const dispatchToken = createDispatchToken(deliveryId, occurrence);
 
@@ -296,6 +300,7 @@ export default async function handler(_req, res) {
             });
 
             scheduledCount += 1;
+            queuedCount += 1;
             continue;
           }
 
@@ -314,6 +319,7 @@ export default async function handler(_req, res) {
       processedDevices,
       sentCount,
       scheduledCount,
+      queuedCount,
     });
   } catch (error) {
     res.status(500).json({ error: error.message });

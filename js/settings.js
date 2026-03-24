@@ -298,11 +298,20 @@ window.addEventListener("DOMContentLoaded", () => {
         const scheduledCount = Number.isFinite(payload.scheduledCount)
           ? payload.scheduledCount
           : 0;
+        const queuedCount = Number.isFinite(payload.queuedCount)
+          ? payload.queuedCount
+          : 0;
         const sentCount = Number.isFinite(payload.sentCount) ? payload.sentCount : 0;
 
-        setNotificationStatus(
-          `Sync complete (${mode}). Scheduled ${scheduledCount}, sent ${sentCount}.`
-        );
+        if (mode === "scheduled") {
+          setNotificationStatus(
+            `Sync complete (${mode}). ${queuedCount} upcoming notification${queuedCount === 1 ? "" : "s"} queued, ${scheduledCount} newly scheduled, ${sentCount} sent.`
+          );
+        } else {
+          setNotificationStatus(
+            `Sync complete (${mode}). Scheduled ${scheduledCount}, sent ${sentCount}.`
+          );
+        }
       } catch (error) {
         setNotificationStatus(`Unable to sync notifications: ${error.message}`);
       } finally {
