@@ -75,14 +75,32 @@ async function removeDevice(deviceId) {
 }
 
 function getBaseUrl() {
-  const publicBaseUrl = String(process.env.PUBLIC_BASE_URL || "").trim();
+  const normalizeBaseUrl = (value) => {
+    const rawValue = String(value || "").trim();
+    if (!rawValue) return "";
+
+    const hasScheme = /^https?:\/\//i.test(rawValue);
+    const withScheme = hasScheme
+      ? rawValue
+      : /^(localhost|127\.0\.0\.1|0\.0\.0\.0)(:\d+)?(\/|$)/i.test(rawValue)
+      ? `http://${rawValue}`
+      : `https://${rawValue}`;
+
+    try {
+      return new URL(withScheme).toString().replace(/\/$/, "");
+    } catch (_) {
+      return "";
+    }
+  };
+
+  const publicBaseUrl = normalizeBaseUrl(process.env.PUBLIC_BASE_URL);
   if (publicBaseUrl) {
-    return publicBaseUrl.replace(/\/$/, "");
+    return publicBaseUrl;
   }
 
   const vercelUrl = String(process.env.VERCEL_URL || "").trim();
   if (vercelUrl) {
-    return `https://${vercelUrl}`;
+    return normalizeBaseUrl(vercelUrl);
   }
 
   return "";
@@ -159,6 +177,12 @@ async function scheduleDispatchJob({ delayMs, payload, dispatchUrl }) {
     if (response.status === 404 && body.includes("not found in this region")) {
       throw new Error(
         `QStash publish failed (404): wrong QStash region endpoint. Set QSTASH_URL or UPSTASH_QSTASH_URL to your regional QStash base URL from Upstash. Response: ${body}`
+      );
+    }
+
+    if (response.status === 400 && body.includes("invalid destination url")) {
+      throw new Error(
+        `QStash publish failed (400): invalid destination URL. Set PUBLIC_BASE_URL to a full site URL like https://your-site.vercel.app, or leave it unset and let VERCEL_URL be used automatically. Response: ${body}`
       );
     }
 
