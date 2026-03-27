@@ -4,7 +4,7 @@
     "start_url": "../index.html",
     "scope": "../",
     "display": "standalone",
-    "display_override": ["window-controls-overlay", "standalone"],
+        "display_override": ["window-controls-overlay", "standalone"],
     "description": "A fan-made collection of interactive tools inspired by the Persona series, designed to enhance gameplay and help in real life.",
     "theme_color": "#E60012",
     "background_color": "#E60012",

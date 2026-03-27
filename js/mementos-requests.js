@@ -1140,7 +1140,7 @@ async function saveTasksToDropbox() {
   if (!userToken) return;
 
   try {
-    await fetch("/api/save-to-dropbox", {
+    const res = await fetch("/api/save-to-dropbox", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -1151,7 +1151,19 @@ async function saveTasksToDropbox() {
         tasks,
       }),
     });
+    if (res.status === 401) {
+      if (typeof setDropboxSessionExpired === "function") setDropboxSessionExpired();
+      else window.localStorage.setItem("dropboxSessionExpired", "1");
+      window.location.reload();
+      return;
+    }
   } catch (error) {
+    if (error && error.status === 401) {
+      if (typeof setDropboxSessionExpired === "function") setDropboxSessionExpired();
+      else window.localStorage.setItem("dropboxSessionExpired", "1");
+      window.location.reload();
+      return;
+    }
     console.error("Dropbox save failed:", error);
   }
 }
@@ -1171,17 +1183,26 @@ async function loadTasksFromDropbox() {
         dataType: "mementos",
       }),
     });
-
+    if (response.status === 401) {
+      if (typeof setDropboxSessionExpired === "function") setDropboxSessionExpired();
+      else window.localStorage.setItem("dropboxSessionExpired", "1");
+      window.location.reload();
+      return;
+    }
     if (!response.ok) return;
-
     const payload = await response.json();
     const cloudTasks = normalizeTasks(payload.tasks);
     if (!cloudTasks.length) return;
-
     tasks = cloudTasks;
     localStorage.setItem(TASKS_STORAGE_KEY, JSON.stringify(tasks));
     renderTasks();
   } catch (error) {
+    if (error && error.status === 401) {
+      if (typeof setDropboxSessionExpired === "function") setDropboxSessionExpired();
+      else window.localStorage.setItem("dropboxSessionExpired", "1");
+      window.location.reload();
+      return;
+    }
     console.error("Dropbox load failed:", error);
   }
 }
