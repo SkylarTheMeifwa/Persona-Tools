@@ -413,7 +413,7 @@ async function saveToDropbox(cleanGoals) {
   if (!userToken) return;
 
   try {
-    const res = await fetch("/api/save-to-dropbox", {
+    await fetch("/api/save-to-dropbox", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -425,19 +425,7 @@ async function saveToDropbox(cleanGoals) {
         deletedGoals
       })
     });
-    if (res.status === 401) {
-      if (typeof setDropboxSessionExpired === "function") setDropboxSessionExpired();
-      else window.localStorage.setItem("dropboxSessionExpired", "1");
-      window.location.reload();
-      return;
-    }
   } catch (err) {
-    if (err && err.status === 401) {
-      if (typeof setDropboxSessionExpired === "function") setDropboxSessionExpired();
-      else window.localStorage.setItem("dropboxSessionExpired", "1");
-      window.location.reload();
-      return;
-    }
     console.error("Dropbox save failed:", err);
   }
 }
@@ -561,6 +549,7 @@ async function loadFromDropbox() {
   if (!userToken) return;
 
   try {
+
     const res = await fetch("/api/load-from-dropbox", {
       method: "POST",
       headers: {
@@ -570,36 +559,32 @@ async function loadFromDropbox() {
         userToken
       })
     });
-    if (res.status === 401) {
-      if (typeof setDropboxSessionExpired === "function") setDropboxSessionExpired();
-      else window.localStorage.setItem("dropboxSessionExpired", "1");
-      window.location.reload();
-      return;
-    }
+
     if (!res.ok) return;
+
     const data = await res.json();
+
     if (data.entries) {
       entries = data.entries;
     }
+
     if (data.goals) {
       goals.length = 0;
       data.goals.forEach(g => goals.push(g));
     }
+
     if (data.deletedGoals) {
       deletedGoals.length = 0;
       data.deletedGoals.forEach(g => deletedGoals.push(g));
     }
+
     normalizeGoals();
     normalizeEntries();
     renderDay();
+
     console.log("Loaded data from Dropbox");
+
   } catch (err) {
-    if (err && err.status === 401) {
-      if (typeof setDropboxSessionExpired === "function") setDropboxSessionExpired();
-      else window.localStorage.setItem("dropboxSessionExpired", "1");
-      window.location.reload();
-      return;
-    }
     console.error("Failed to load from Dropbox:", err);
   }
 }

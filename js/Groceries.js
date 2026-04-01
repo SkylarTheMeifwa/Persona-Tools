@@ -161,7 +161,7 @@ async function saveToDropbox() {
   }
 
   try {
-    const res = await fetch("/api/save-to-dropbox", {
+    await fetch("/api/save-to-dropbox", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -170,19 +170,7 @@ async function saveToDropbox() {
         groceries: state,
       }),
     });
-    if (res.status === 401) {
-      if (typeof setDropboxSessionExpired === "function") setDropboxSessionExpired();
-      else window.localStorage.setItem("dropboxSessionExpired", "1");
-      window.location.reload();
-      return;
-    }
   } catch (error) {
-    if (error && error.status === 401) {
-      if (typeof setDropboxSessionExpired === "function") setDropboxSessionExpired();
-      else window.localStorage.setItem("dropboxSessionExpired", "1");
-      window.location.reload();
-      return;
-    }
     console.error("Groceries Dropbox save failed:", error);
   }
 }
@@ -218,29 +206,20 @@ async function loadFromDropbox() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userToken, dataType: "groceries" }),
     });
-    if (response.status === 401) {
-      if (typeof setDropboxSessionExpired === "function") setDropboxSessionExpired();
-      else window.localStorage.setItem("dropboxSessionExpired", "1");
-      window.location.reload();
-      return;
-    }
+
     if (!response.ok) {
       return;
     }
+
     const payload = await response.json();
     if (!payload || !payload.groceries) {
       return;
     }
+
     state = normalizeState(payload.groceries);
     saveLocalOnly();
     render();
   } catch (error) {
-    if (error && error.status === 401) {
-      if (typeof setDropboxSessionExpired === "function") setDropboxSessionExpired();
-      else window.localStorage.setItem("dropboxSessionExpired", "1");
-      window.location.reload();
-      return;
-    }
     console.error("Failed to load groceries from Dropbox:", error);
   }
 }
