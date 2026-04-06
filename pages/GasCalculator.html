@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Gas Spending Calculator</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="../css/GasCalculator.css" />
+        <link rel="manifest" href="../config/manifest.json" />
+        <link rel="icon" type="image/png" href="../assets/Pictures/black-p5-star.png" />
+        <link rel="apple-touch-icon" href="../assets/Pictures/ren-shiny-192.png" />
+    </head>
+    <body>
+        <iframe
+            src="../assets/p5-background.html"
+            style="
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                border: none;
+                z-index: -1;
+                pointer-events: none;
+            "
+            aria-hidden="true"
+        ></iframe>
+        <script src="../js/navbar.js"></script>
+        <main class="gas-page">
+            <header class="gas-header">
+                <div class="gas-header-copy">
+                    <h1>Gas Spending Calculator</h1>
+                    <p>Estimate how many gallons you can get for your target spend, and see a breakdown of rewards and cashback.</p>
+                </div>
+                <div class="gas-header-actions">
+                    <button id="reset-gas" type="reset" class="secondary-action" form="gas-form">Reset Calculator</button>
+                </div>
+            </header>
+            <section class="gas-calc-section">
+                <div class="gas-card">
+                    <form id="gas-form" class="gas-form">
+                        <div class="summary-grid gas-input-grid">
+                            <label>
+                                Price at Pump (per gallon):
+                                <input type="number" step="0.001" min="0" id="pricePump" required />
+                            </label>
+                            <label>
+                                Station Rewards (per gallon):
+                                <input type="number" step="0.01" min="0" id="stationRewards" required />
+                            </label>
+                            <label>
+                                Uber Cashback (% per gallon):
+                                <input type="number" step="0.01" min="0" max="100" id="uberCashback" required />
+                            </label>
+                            <label>
+                                Upside Cashback (per gallon):
+                                <input type="number" step="0.01" min="0" id="upsideCashback" required />
+                            </label>
+                            <label>
+                                Target Total Paying (after all rewards/cashback):
+                                <input type="number" step="0.01" min="0" id="targetTotal" required />
+                            </label>
+                        </div>
+                        <div class="gas-form-actions">
+                            <button type="submit">Calculate</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="gas-card" id="gas-summary-card" style="display:none;">
+                    <section class="gas-summary" id="gas-summary" aria-live="polite">
+                        <div class="section-heading">
+                            <div>
+                                <h2>Total Spending</h2>
+                                <p>Your total out-of-pocket cost at the pump.</p>
+                            </div>
+                        </div>
+                        <div class="summary-grid" id="gas-summary-grid"></div>
+                    </section>
+                </div>
+                <div class="gas-card" id="results-card" style="display:none;">
+                    <section id="results">
+                        <h3>Results</h3>
+                        <div id="results-content"></div>
+                    </section>
+                </div>
+                <div class="gas-card" id="actuals-card" style="display:none;">
+                    <section class="gas-actual-section" id="gas-actual-section">
+                        <h3>After Getting Gas</h3>
+                        <form id="gas-actual-form" class="gas-form">
+                            <div class="summary-grid gas-input-grid">
+                                <label>
+                                    Amount Paid at Pump:
+                                    <input type="number" step="0.01" min="0" id="actualPaid" required />
+                                </label>
+                                <label>
+                                    Gallons Put in Car:
+                                    <input type="number" step="0.001" min="0" id="actualGallons" required />
+                                </label>
+                            </div>
+                            <div class="gas-form-actions">
+                                <button type="submit">Calculate Final Price</button>
+                            </div>
+                        </form>
+                    </section>
+                </div>
+                <div class="gas-card" id="actuals-results-card" style="display:none;">
+                    <section>
+                        <div id="actual-results-content"></div>
+                    </section>
+                </div>
+            </section>
+        </main>
+        <script src="../js/GasCalculator.js"></script>
+    </body>
+</html>

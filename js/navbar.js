@@ -130,7 +130,7 @@
         toggle: nav.querySelector(".p5-finance-dropdown-toggle"),
         storageKey: financeSubnavStorageKey,
         bodyClass: "has-finance-subnav",
-        pageFiles: ["Finances.html", "Groceries.html"],
+        pageFiles: ["Finances.html", "Groceries.html", "GasCalculator.html"],
         links: nav.querySelectorAll(
           '.p5-dropdown-menu a[href="Finances.html"], .p5-dropdown-menu a[href="Groceries.html"], .p5-finance-subnav a'
         ),
