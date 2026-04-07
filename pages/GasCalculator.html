@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Gas Spending Calculator</title>
+        <title>Gas Price Calculator</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="stylesheet" href="../css/GasCalculator.css" />
         <link rel="manifest" href="../config/manifest.json" />
@@ -25,78 +25,76 @@
         ></iframe>
         <script src="../js/navbar.js"></script>
         <main class="gas-page">
-            <header class="gas-header">
-                <div class="gas-header-copy">
-                    <h1>Gas Spending Calculator</h1>
-                    <p>Estimate how many gallons you can get for your target spend, and see a breakdown of rewards and cashback.</p>
+            <div class="gas-card" style="margin-bottom: 1.5em;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+                    <div style="flex: 1 1 420px;">
+                        <h1 style="margin: 0; font-family: 'Barlow Condensed', sans-serif; font-size: clamp(2rem, 4vw, 3rem); letter-spacing: 1px; text-transform: uppercase;">Gas Price Calculator</h1>
+                        <p>Estimate how many gallons you can get for a specific amount with cashback.</p>
+                    </div>
+                    <div style="display: flex; align-items: flex-start; justify-content: flex-end; flex: 0 1 auto;">
+                        <button id="reset-gas" type="reset" class="secondary-action" form="gas-form">Reset</button>
+                    </div>
                 </div>
-                <div class="gas-header-actions">
-                    <button id="reset-gas" type="reset" class="secondary-action" form="gas-form">Reset Calculator</button>
-                </div>
-            </header>
+            </div>
             <section class="gas-calc-section">
                 <div class="gas-card">
                     <form id="gas-form" class="gas-form">
                         <div class="summary-grid gas-input-grid">
-                            <label>
-                                Price at Pump (per gallon):
-                                <input type="number" step="0.001" min="0" id="pricePump" required />
-                            </label>
-                            <label>
-                                Station Rewards (per gallon):
-                                <input type="number" step="0.01" min="0" id="stationRewards" required />
-                            </label>
-                            <label>
-                                Uber Cashback (% per gallon):
-                                <input type="number" step="0.01" min="0" max="100" id="uberCashback" required />
-                            </label>
-                            <label>
-                                Upside Cashback (per gallon):
-                                <input type="number" step="0.01" min="0" id="upsideCashback" required />
-                            </label>
-                            <label>
-                                Target Total Paying (after all rewards/cashback):
-                                <input type="number" step="0.01" min="0" id="targetTotal" required />
-                            </label>
-                        </div>
-                        <div class="gas-form-actions">
-                            <button type="submit">Calculate</button>
+                            <div class="summary-stat">
+                                <label class="summary-label">Price at Pump:
+                                    <input type="number" step="0.001" min="0" id="pricePump" required class="summary-value" />
+                                </label>
+                            </div>
+                            <div class="summary-stat">
+                                <label class="summary-label">Station Rewards:
+                                    <input type="number" step="0.01" min="0" id="stationRewards" class="summary-value" />
+                                </label>
+                            </div>
+                            <div class="summary-stat">
+                                <label class="summary-label">Uber Cashback:
+                                    <input type="number" step="0.01" min="0" max="100" id="uberCashback" required class="summary-value" />
+                                </label>
+                            </div>
+                            <div class="summary-stat">
+                                <label class="summary-label">Upside Cashback:
+                                    <input type="number" step="0.01" min="0" id="upsideCashback" class="summary-value" />
+                                </label>
+                            </div>
+                            <div class="summary-stat">
+                                <label class="summary-label">Desired Total:
+                                    <input type="number" step="0.01" min="0" id="targetTotal" required class="summary-value" />
+                                </label>
+                            </div>
+                            <div style="display:flex;align-items:end;justify-content:end;">
+                                <button type="submit" class="summary-value" style="width:100%;">Calculate</button>
+                            </div>
                         </div>
                     </form>
                 </div>
                 <div class="gas-card" id="gas-summary-card" style="display:none;">
                     <section class="gas-summary" id="gas-summary" aria-live="polite">
                         <div class="section-heading">
-                            <div>
-                                <h2>Total Spending</h2>
-                                <p>Your total out-of-pocket cost at the pump.</p>
-                            </div>
                         </div>
                         <div class="summary-grid" id="gas-summary-grid"></div>
                     </section>
                 </div>
-                <div class="gas-card" id="results-card" style="display:none;">
-                    <section id="results">
-                        <h3>Results</h3>
-                        <div id="results-content"></div>
-                    </section>
-                </div>
                 <div class="gas-card" id="actuals-card" style="display:none;">
                     <section class="gas-actual-section" id="gas-actual-section">
-                        <h3>After Getting Gas</h3>
                         <form id="gas-actual-form" class="gas-form">
                             <div class="summary-grid gas-input-grid">
-                                <label>
-                                    Amount Paid at Pump:
-                                    <input type="number" step="0.01" min="0" id="actualPaid" required />
-                                </label>
-                                <label>
-                                    Gallons Put in Car:
-                                    <input type="number" step="0.001" min="0" id="actualGallons" required />
-                                </label>
-                            </div>
-                            <div class="gas-form-actions">
-                                <button type="submit">Calculate Final Price</button>
+                                <div class="summary-stat">
+                                    <label class="summary-label">Amount Paid:
+                                        <input type="number" step="0.01" min="0" id="actualPaid" required class="summary-value" />
+                                    </label>
+                                </div>
+                                <div class="summary-stat">
+                                    <label class="summary-label">Gallons Bought:
+                                        <input type="number" step="0.001" min="0" id="actualGallons" required class="summary-value" />
+                                    </label>
+                                </div>
+                                <div style="display:flex;align-items:end;justify-content:end;">
+                                    <button type="submit" class="summary-value" style="width:100%;">Calculate Final Price</button>
+                                </div>
                             </div>
                         </form>
                     </section>
