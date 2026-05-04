@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Persona - Persona Come To Me</title>
-    <link rel="stylesheet" href="/css/main.css">
+    <title>Revelations: Persona (PSP Edition) Demon Contact Guide</title>
     <style>
         .character-filter {
             margin-bottom: 1em;
@@ -26,11 +25,12 @@
     </style>
 </head>
 <body>
-    <h1>Persona: Come To Me</h1>
+    <h1>Persona, Persona, Come to me!</h1>
     <div>
         <input type="text" id="searchbar" placeholder="Search demon..." />
     </div>
     <div class="character-filter">
+        <label><input type="checkbox" class="char-checkbox" value="MC">MC</label>
         <label><input type="checkbox" class="char-checkbox" value="Maki">Maki</label>
         <label><input type="checkbox" class="char-checkbox" value="Mark">Mark</label>
         <label><input type="checkbox" class="char-checkbox" value="Nanjo">Nanjo</label>
@@ -43,7 +43,7 @@
     <script src="/js/Persona-1-data.js"></script>
     <script>
         // Character list
-        const CHARACTERS = ["Maki", "Mark", "Nanjo", "Yukino", "Elly", "Reiji", "Ayase"];
+        const CHARACTERS = ["MC", "Maki", "Mark", "Nanjo", "Yukino", "Elly", "Reiji", "Ayase"];
 
         // Load checked characters from localStorage
         function loadCheckedCharacters() {
