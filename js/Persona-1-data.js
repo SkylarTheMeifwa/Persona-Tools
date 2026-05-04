@@ -59,14 +59,14 @@ const demons = [
   { name: "Otohime", eager: ["Taunt (Mark)", "Stare"] },
   { name: "Paimon", eager: ["Taunt (Mark)", "Stare"] },
 
-  { name: "Yato no Kami", eager: ["Persuade (MC)", "Taunt (MC)", "Stare", "Joke", "Cry", "Threaten (Ayase, Reiji)", "Cringe"] },
-  { name: "Haokah", eager: ["Persuade (MC)", "Taunt (MC)", "Stare", "Joke", "Cry", "Threaten (Ayase, Reiji)", "Cringe"] },
-  { name: "Incubus", eager: ["Persuade (MC)", "Taunt (MC)", "Stare", "Joke", "Cry", "Threaten (Ayase, Reiji)", "Cringe"] },
+  { name: "Yato no Kami", eager: ["Persuade (MC)", "Taunt (MC)", "Stare", "Joke", "Cry", "Threaten (Reiji)", "Threaten (Ayase)", "Cringe"] },
+  { name: "Haokah", eager: ["Persuade (MC)", "Taunt (MC)", "Stare", "Joke", "Cry", "Threaten (Reiji)", "Threaten (Ayase)", "Cringe"] },
+  { name: "Incubus", eager: ["Persuade (MC)", "Taunt (MC)", "Stare", "Joke", "Cry", "Threaten (Reiji)", "Threaten (Ayase)", "Cringe"] },
 
-  { name: "Megaera", eager: ["Cringe", "Threaten (Ayase, Reiji)"] },
-  { name: "Tisiphone", eager: ["Cringe", "Threaten (Ayase, Reiji)"] },
-  { name: "Alecto", eager: ["Cringe", "Threaten (Ayase, Reiji)"] },
-  { name: "Tlazolteotl", eager: ["Cringe", "Threaten (Ayase, Reiji)"] },
+  { name: "Megaera", eager: ["Cringe", "Threaten (Ayase)", "Threaten (Reiji)"] },
+  { name: "Tisiphone", eager: ["Cringe", "Threaten (Ayase)", "Threaten (Reiji)"] },
+  { name: "Alecto", eager: ["Cringe", "Threaten (Ayase)", "Threaten (Reiji)"] },
+  { name: "Tlazolteotl", eager: ["Cringe", "Threaten (Ayase)", "Threaten (Reiji)"] },
 
   { name: "Preta", eager: ["Dance", "Sarcasm", "Cry"] },
   { name: "Ihika", eager: ["Dance", "Sarcasm", "Cry"] },

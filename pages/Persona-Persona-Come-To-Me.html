@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Persona - Persona Come To Me</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <style>
+        .character-filter {
+            margin-bottom: 1em;
+        }
+        .demon-list {
+            margin-top: 2em;
+        }
+        .demon-entry {
+            border-bottom: 1px solid #ccc;
+            padding: 0.5em 0;
+        }
+        .eager-values {
+            margin-left: 1em;
+            font-size: 0.95em;
+        }
+        .char-checkbox {
+            margin-right: 0.5em;
+        }
+    </style>
+</head>
+<body>
+    <h1>Persona: Come To Me</h1>
+    <div>
+        <input type="text" id="searchbar" placeholder="Search demon..." />
+    </div>
+    <div class="character-filter">
+        <label><input type="checkbox" class="char-checkbox" value="Maki">Maki</label>
+        <label><input type="checkbox" class="char-checkbox" value="Mark">Mark</label>
+        <label><input type="checkbox" class="char-checkbox" value="Nanjo">Nanjo</label>
+        <label><input type="checkbox" class="char-checkbox" value="Yukino">Yukino</label>
+        <label><input type="checkbox" class="char-checkbox" value="Elly">Elly</label>
+        <label><input type="checkbox" class="char-checkbox" value="Reiji">Reiji</label>
+        <label><input type="checkbox" class="char-checkbox" value="Ayase">Ayase</label>
+    </div>
+    <div class="demon-list" id="demonList"></div>
+    <script src="/js/Persona-1-data.js"></script>
+    <script>
+        // Character list
+        const CHARACTERS = ["Maki", "Mark", "Nanjo", "Yukino", "Elly", "Reiji", "Ayase"];
+
+        // Load checked characters from localStorage
+        function loadCheckedCharacters() {
+            const stored = localStorage.getItem('checkedCharacters');
+            if (!stored) return CHARACTERS;
+            try {
+                const arr = JSON.parse(stored);
+                if (Array.isArray(arr)) return arr;
+            } catch {}
+            return CHARACTERS;
+        }
+
+        // Save checked characters to localStorage
+        function saveCheckedCharacters(chars) {
+            localStorage.setItem('checkedCharacters', JSON.stringify(chars));
+        }
+
+        // Set up character checkboxes
+        function setupCharacterCheckboxes() {
+            const checked = loadCheckedCharacters();
+            document.querySelectorAll('.char-checkbox').forEach(cb => {
+                cb.checked = checked.includes(cb.value);
+                cb.addEventListener('change', () => {
+                    const newChecked = Array.from(document.querySelectorAll('.char-checkbox:checked')).map(cb => cb.value);
+                    saveCheckedCharacters(newChecked);
+                    renderDemons();
+                });
+            });
+        }
+
+        // Get checked characters
+        function getCheckedCharacters() {
+            return Array.from(document.querySelectorAll('.char-checkbox:checked')).map(cb => cb.value);
+        }
+
+        // Render demons based on search and character filter
+        function renderDemons() {
+            const search = document.getElementById('searchbar').value.trim().toLowerCase();
+            const checkedChars = getCheckedCharacters();
+            const demonList = document.getElementById('demonList');
+            demonList.innerHTML = '';
+
+            if (!window.PERSONA1_DEMONS) {
+                demonList.innerHTML = '<em>Loading demon data...</em>';
+                return;
+            }
+
+            // Filter demons by search
+            const demons = window.PERSONA1_DEMONS.filter(demon => {
+                if (search && !demon.name.toLowerCase().includes(search)) return false;
+                // Only show if at least one eager value exists (either unassigned or for a checked character)
+                if (!demon.eager) return false;
+                const hasUnassigned = demon.eager[""] !== undefined;
+                const hasChecked = checkedChars.some(char => demon.eager[char] !== undefined);
+                return hasUnassigned || hasChecked;
+            });
+
+            if (demons.length === 0) {
+                demonList.innerHTML = '<em>No demons found.</em>';
+                return;
+            }
+
+            demons.forEach(demon => {
+                let eagerParts = [];
+                // Always show unassigned eager value if present
+                if (demon.eager && demon.eager[""] !== undefined) {
+                    eagerParts.push(`<strong>Eager</strong>: ${demon.eager[""]}`);
+                }
+                // Show checked character eager values
+                eagerParts = eagerParts.concat(
+                    checkedChars
+                        .filter(char => demon.eager && demon.eager[char] !== undefined)
+                        .map(char => `<strong>${char}</strong>: ${demon.eager[char]}`)
+                );
+                const entry = document.createElement('div');
+                entry.className = 'demon-entry';
+                entry.innerHTML = `<span><strong>${demon.name}</strong></span><span class="eager-values">${eagerParts.join(', ')}</span>`;
+                demonList.appendChild(entry);
+            });
+        }
+
+        // Set up searchbar
+        document.getElementById('searchbar').addEventListener('input', renderDemons);
+
+        // On load
+        window.addEventListener('DOMContentLoaded', () => {
+            setupCharacterCheckboxes();
+            renderDemons();
+        });
+    </script>
+</body>
+</html>
