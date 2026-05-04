@@ -183,3 +183,4 @@ const demons = [
 
   { name: "Kuchisake-onna", eager: ["N/A"] }
 ];
+window.demons = demons;
