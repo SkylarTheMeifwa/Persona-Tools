@@ -79,6 +79,29 @@
             return Array.from(document.querySelectorAll('.char-checkbox:checked')).map(cb => cb.value);
         }
 
+        // Helper to parse eager values into a map: { '': [actions], 'Maki': [actions], ... }
+        function parseEager(eagerArr) {
+            const eagerMap = {};
+            eagerArr.forEach(e => {
+                // Match e.g. "Invite (MC)", "Taunt (MC, Mark)", "Ignore (Reiji)", "Bribe"
+                const match = e.match(/^(.*?)(?: \((.*?)\))?$/);
+                if (!match) return;
+                const action = match[1].trim();
+                if (!match[2]) {
+                    // No character, store under ''
+                    if (!eagerMap['']) eagerMap[''] = [];
+                    eagerMap[''].push(action);
+                } else {
+                    // One or more characters
+                    match[2].split(',').map(s => s.trim()).forEach(char => {
+                        if (!eagerMap[char]) eagerMap[char] = [];
+                        eagerMap[char].push(action);
+                    });
+                }
+            });
+            return eagerMap;
+        }
+
         // Render demons based on search and character filter
         function renderDemons() {
             const search = document.getElementById('searchbar').value.trim().toLowerCase();
@@ -86,41 +109,43 @@
             const demonList = document.getElementById('demonList');
             demonList.innerHTML = '';
 
-            if (!window.PERSONA1_DEMONS) {
+            if (!window.demons) {
                 demonList.innerHTML = '<em>Loading demon data...</em>';
                 return;
             }
 
             // Filter demons by search
-            const demons = window.PERSONA1_DEMONS.filter(demon => {
+            const demonsFiltered = window.demons.filter(demon => {
                 if (search && !demon.name.toLowerCase().includes(search)) return false;
-                // Only show if at least one eager value exists (either unassigned or for a checked character)
                 if (!demon.eager) return false;
-                const hasUnassigned = demon.eager[""] !== undefined;
-                const hasChecked = checkedChars.some(char => demon.eager[char] !== undefined);
+                const eagerMap = parseEager(demon.eager);
+                // Show if there is at least one eager value for checked character or unassigned
+                const hasUnassigned = eagerMap[''] && eagerMap[''].length > 0;
+                const hasChecked = checkedChars.some(char => eagerMap[char] && eagerMap[char].length > 0);
                 return hasUnassigned || hasChecked;
             });
 
-            if (demons.length === 0) {
+            if (demonsFiltered.length === 0) {
                 demonList.innerHTML = '<em>No demons found.</em>';
                 return;
             }
 
-            demons.forEach(demon => {
+            demonsFiltered.forEach(demon => {
+                const eagerMap = parseEager(demon.eager);
                 let eagerParts = [];
-                // Always show unassigned eager value if present
-                if (demon.eager && demon.eager[""] !== undefined) {
-                    eagerParts.push(`<strong>Eager</strong>: ${demon.eager[""]}`);
+                // Always show unassigned eager values if present
+                if (eagerMap[''] && eagerMap[''].length > 0) {
+                    eagerParts.push(`<strong>Eager</strong>: ${eagerMap[''].join(', ')}`);
                 }
                 // Show checked character eager values
-                eagerParts = eagerParts.concat(
-                    checkedChars
-                        .filter(char => demon.eager && demon.eager[char] !== undefined)
-                        .map(char => `<strong>${char}</strong>: ${demon.eager[char]}`)
-                );
+                checkedChars.forEach(char => {
+                    if (eagerMap[char] && eagerMap[char].length > 0) {
+                        eagerParts.push(`<strong>${char}</strong>: ${eagerMap[char].join(', ')}`);
+                    }
+                });
                 const entry = document.createElement('div');
                 entry.className = 'demon-entry';
-                entry.innerHTML = `<span><strong>${demon.name}</strong></span><span class="eager-values">${eagerParts.join(', ')}</span>`;
+                entry.innerHTML = `<span><strong>${demon.name}</strong></span><span class="eager-values">${eagerParts.join(' | ')}</span>`;
                 demonList.appendChild(entry);
             });
         }
