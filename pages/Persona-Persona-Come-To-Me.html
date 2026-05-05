@@ -1,6 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+        <link rel="stylesheet" href="/css/navbar.css">
+        <style>
+            /* Override red in navbar for this page only */
+            .p5-navbar,
+            .p5-navbar a.active,
+            .p5-navbar a:hover,
+            .p5-navbar .p5-dropdown.p5-dropdown-open > .p5-dropdown-toggle {
+                border-color: #b07fff !important;
+                background-color: #b07fff !important;
+            }
+            .p5-navbar {
+                border-bottom: 3px solid #b07fff !important;
+            }
+            .p5-navbar a.active,
+            .p5-navbar a:hover {
+                background-color: #b07fff !important;
+            }
+            .p5-navbar a {
+                border-right: 1px solid rgba(176, 127, 255, 0.2) !important;
+            }
+            .p5-navbar > ul:first-of-type > li:first-child > a {
+                border-left: 1px solid rgba(176, 127, 255, 0.2) !important;
+            }
+            .p5-dropdown-menu {
+                border: 1px solid rgba(176, 127, 255, 0.4) !important;
+            }
+            .p5-dropdown-menu a {
+                border-bottom: 1px solid rgba(176, 127, 255, 0.15) !important;
+            }
+        </style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Revelations: Persona (PSP Edition) Demon Contact Guide</title>
@@ -24,7 +54,9 @@
         }
     </style>
 </head>
-<body>
+<body style="background-color: #b07fff;">
+        <!-- Navbar include -->
+        <div id="navbar-container"></div>
     <h1>Persona, Persona, Come to me!</h1>
     <div>
         <input type="text" id="searchbar" placeholder="Search demon..." />
@@ -42,6 +74,31 @@
     </div>
     <div class="demon-list" id="demonList"></div>
     <script src="/js/Persona-1-data.js"></script>
+        <script>
+            // Load navbar.html into the navbar-container
+            fetch('/assets/navbar.html')
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('navbar-container').innerHTML = html;
+                    // Insert 'P1 Demon Contact Guide' before Settings
+                    const nav = document.querySelector('.p5-navbar ul');
+                    if (nav) {
+                        const items = nav.querySelectorAll('li');
+                        for (let i = 0; i < items.length; i++) {
+                            const a = items[i].querySelector('a');
+                            if (a && a.getAttribute('href') === 'settings.html') {
+                                const guideLi = document.createElement('li');
+                                const guideA = document.createElement('a');
+                                guideA.href = 'Persona-Persona-Come-To-Me.html';
+                                guideA.textContent = 'P1 Demon Contact Guide';
+                                guideLi.appendChild(guideA);
+                                nav.insertBefore(guideLi, items[i]);
+                                break;
+                            }
+                        }
+                    }
+                });
+        </script>
     <script>
         // Character list
         const CHARACTERS = ["MC", "Maki", "Mark", "Nanjo", "Yukino", "Elly", "Reiji", "Ayase"];
