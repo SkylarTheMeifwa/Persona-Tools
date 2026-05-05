@@ -28,6 +28,7 @@
     <h1>Persona, Persona, Come to me!</h1>
     <div>
         <input type="text" id="searchbar" placeholder="Search demon..." />
+        <button id="searchBtn">Search</button>
     </div>
     <div class="character-filter">
         <label><input type="checkbox" class="char-checkbox" value="MC">MC</label>
@@ -150,8 +151,9 @@
             });
         }
 
-        // Set up searchbar
-        document.getElementById('searchbar').addEventListener('input', renderDemons);
+
+        // Set up search button only
+        document.getElementById('searchBtn').addEventListener('click', renderDemons);
 
         // On load
         window.addEventListener('DOMContentLoaded', () => {
