@@ -203,7 +203,7 @@ body.has-finance-subnav.finance-subnav-collapsed .p5-finance-subnav {
   text-transform: none;
   color: #f0f0f0;
   padding: 0.45rem 1.2rem;
-  border-right: 1px solid rgba(255, 255, 255, 0.15);
+  border-right: 1px solid rgba(255, 0, 0, 0.15);
 }
 
 .p5-finance-subnav a {
@@ -213,7 +213,7 @@ body.has-finance-subnav.finance-subnav-collapsed .p5-finance-subnav {
   text-transform: none;
   color: #f0f0f0;
   padding: 0.45rem 1.2rem;
-  border-right: 1px solid rgba(255, 255, 255, 0.15);
+  border-right: 1px solid rgba(255, 0, 0, 0.15);
 }
 
 .p5-navbar.font-readable .p5-stat-subnav a {
@@ -225,20 +225,20 @@ body.has-finance-subnav.finance-subnav-collapsed .p5-finance-subnav {
 }
 
 .p5-stat-subnav li:first-child a {
-  border-left: 1px solid rgba(255, 255, 255, 0.15);
+  border-left: 1px solid rgba(255, 0, 0, 0.15);
 }
 
 .p5-finance-subnav li:first-child a {
-  border-left: 1px solid rgba(255, 255, 255, 0.15);
+  border-left: 1px solid rgba(255, 0, 0, 0.15);
 }
 
 .p5-stat-subnav a:hover {
-  background-color: #333333;
+  background-color: #cc0000;
   color: #ffffff;
 }
 
 .p5-finance-subnav a:hover {
-  background-color: #333333;
+  background-color: #cc0000;
   color: #ffffff;
 }
 

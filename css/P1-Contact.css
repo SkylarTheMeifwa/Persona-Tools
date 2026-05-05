@@ -1,0 +1,46 @@
+/* P1-Contact.css - Persona 1 Demon Contact Guide styles */
+
+body.p1-contact {
+    background-color: #b07fff;
+}
+
+.p5-navbar {
+    background-color: #fff !important;
+    border-bottom: 3px solid #b07fff !important;
+}
+.p5-navbar a,
+.p5-navbar .p5-dropdown-toggle,
+.p5-navbar .fa-solid {
+    color: #111 !important;
+    text-shadow: none !important;
+}
+.p5-navbar a.active,
+.p5-navbar a:hover,
+.p5-navbar .p5-dropdown.p5-dropdown-open > .p5-dropdown-toggle {
+    background-color: #b07fff !important;
+    color: #fff !important;
+}
+.p5-navbar .p5-dropdown-menu,
+.p5-navbar .p5-dropdown-menu li,
+.p5-navbar .p5-dropdown-menu a {
+    background-color: #fff !important;
+    color: #111 !important;
+}
+
+.character-filter {
+    margin-bottom: 1em;
+}
+.demon-list {
+    margin-top: 2em;
+}
+.demon-entry {
+    border-bottom: 1px solid #ccc;
+    padding: 0.5em 0;
+}
+.eager-values {
+    margin-left: 1em;
+    font-size: 0.95em;
+}
+.char-checkbox {
+    margin-right: 0.5em;
+}

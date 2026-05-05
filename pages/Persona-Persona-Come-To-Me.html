@@ -1,168 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-        <script src="../js/navbar.js"></script>
-        <link rel="stylesheet" href="/css/navbar-P1.css">
+    <script src="../js/navbar.js"></script>
+    <link rel="stylesheet" href="/css/navbar-P1.css">
+    <link rel="stylesheet" href="/css/P1-Contact.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Revelations: Persona (PSP Edition) Demon Contact Guide</title>
-    <style>
-        .character-filter {
-            margin-bottom: 1em;
-        }
-        .demon-list {
-            margin-top: 2em;
-        }
-        .demon-entry {
-            border-bottom: 1px solid #ccc;
-            padding: 0.5em 0;
-        }
-        .eager-values {
-            margin-left: 1em;
-            font-size: 0.95em;
-        }
-        .char-checkbox {
-            margin-right: 0.5em;
-        }
-    </style>
 </head>
 <body style="background-color: #b07fff;">
+    <body class="p1-contact">
         <!-- Navbar will be injected by navbar.js -->
-    <h1>Persona, Persona, Come to me!</h1>
-    <div>
-        <input type="text" id="searchbar" placeholder="Search demon..." />
-        <button id="searchBtn">Search</button>
-    </div>
-    <div class="character-filter">
-        <label><input type="checkbox" class="char-checkbox" value="MC">MC</label>
-        <label><input type="checkbox" class="char-checkbox" value="Maki">Maki</label>
-        <label><input type="checkbox" class="char-checkbox" value="Mark">Mark</label>
-        <label><input type="checkbox" class="char-checkbox" value="Nanjo">Nanjo</label>
-        <label><input type="checkbox" class="char-checkbox" value="Yukino">Yukino</label>
-        <label><input type="checkbox" class="char-checkbox" value="Elly">Elly</label>
-        <label><input type="checkbox" class="char-checkbox" value="Reiji">Reiji</label>
-        <label><input type="checkbox" class="char-checkbox" value="Ayase">Ayase</label>
-    </div>
-    <div class="demon-list" id="demonList"></div>
-    <script src="/js/Persona-1-data.js"></script>
-    <script>
-        // Character list
-        const CHARACTERS = ["MC", "Maki", "Mark", "Nanjo", "Yukino", "Elly", "Reiji", "Ayase"];
-
-        // Load checked characters from localStorage
-        function loadCheckedCharacters() {
-            const stored = localStorage.getItem('checkedCharacters');
-            if (!stored) return CHARACTERS;
-            try {
-                const arr = JSON.parse(stored);
-                if (Array.isArray(arr)) return arr;
-            } catch {}
-            return CHARACTERS;
-        }
-
-        // Save checked characters to localStorage
-        function saveCheckedCharacters(chars) {
-            localStorage.setItem('checkedCharacters', JSON.stringify(chars));
-        }
-
-        // Set up character checkboxes
-        function setupCharacterCheckboxes() {
-            const checked = loadCheckedCharacters();
-            document.querySelectorAll('.char-checkbox').forEach(cb => {
-                cb.checked = checked.includes(cb.value);
-                cb.addEventListener('change', () => {
-                    const newChecked = Array.from(document.querySelectorAll('.char-checkbox:checked')).map(cb => cb.value);
-                    saveCheckedCharacters(newChecked);
-                    renderDemons();
-                });
-            });
-        }
-
-        // Get checked characters
-        function getCheckedCharacters() {
-            return Array.from(document.querySelectorAll('.char-checkbox:checked')).map(cb => cb.value);
-        }
-
-        // Helper to parse eager values into a map: { '': [actions], 'Maki': [actions], ... }
-        function parseEager(eagerArr) {
-            const eagerMap = {};
-            eagerArr.forEach(e => {
-                // Match e.g. "Invite (MC)", "Taunt (MC, Mark)", "Ignore (Reiji)", "Bribe"
-                const match = e.match(/^(.*?)(?: \((.*?)\))?$/);
-                if (!match) return;
-                const action = match[1].trim();
-                if (!match[2]) {
-                    // No character, store under ''
-                    if (!eagerMap['']) eagerMap[''] = [];
-                    eagerMap[''].push(action);
-                } else {
-                    // One or more characters
-                    match[2].split(',').map(s => s.trim()).forEach(char => {
-                        if (!eagerMap[char]) eagerMap[char] = [];
-                        eagerMap[char].push(action);
-                    });
-                }
-            });
-            return eagerMap;
-        }
-
-        // Render demons based on search and character filter
-        function renderDemons() {
-            const search = document.getElementById('searchbar').value.trim().toLowerCase();
-            const checkedChars = getCheckedCharacters();
-            const demonList = document.getElementById('demonList');
-            demonList.innerHTML = '';
-
-            if (!window.demons) {
-                demonList.innerHTML = '<em>Loading demon data...</em>';
-                return;
-            }
-
-            // Filter demons by search
-            const demonsFiltered = window.demons.filter(demon => {
-                if (search && !demon.name.toLowerCase().includes(search)) return false;
-                if (!demon.eager) return false;
-                const eagerMap = parseEager(demon.eager);
-                // Show if there is at least one eager value for checked character or unassigned
-                const hasUnassigned = eagerMap[''] && eagerMap[''].length > 0;
-                const hasChecked = checkedChars.some(char => eagerMap[char] && eagerMap[char].length > 0);
-                return hasUnassigned || hasChecked;
-            });
-
-            if (demonsFiltered.length === 0) {
-                demonList.innerHTML = '<em>No demons found.</em>';
-                return;
-            }
-
-            demonsFiltered.forEach(demon => {
-                const eagerMap = parseEager(demon.eager);
-                let eagerParts = [];
-                // Always show unassigned eager values if present
-                if (eagerMap[''] && eagerMap[''].length > 0) {
-                    eagerParts.push(`<strong>Eager</strong>: ${eagerMap[''].join(', ')}`);
-                }
-                // Show checked character eager values
-                checkedChars.forEach(char => {
-                    if (eagerMap[char] && eagerMap[char].length > 0) {
-                        eagerParts.push(`<strong>${char}</strong>: ${eagerMap[char].join(', ')}`);
-                    }
-                });
-                const entry = document.createElement('div');
-                entry.className = 'demon-entry';
-                entry.innerHTML = `<span><strong>${demon.name}</strong></span><span class="eager-values">${eagerParts.join(' | ')}</span>`;
-                demonList.appendChild(entry);
-            });
-        }
-
-
-        // Set up search button only
-        document.getElementById('searchBtn').addEventListener('click', renderDemons);
-
-        // On load
-        window.addEventListener('DOMContentLoaded', () => {
-            setupCharacterCheckboxes();
-            renderDemons();
-        });
-    </script>
+        <h1>Persona, Persona, Come to me!</h1>
+        <div>
+            <input type="text" id="searchbar" placeholder="Search demon..." />
+            <button id="searchBtn">Search</button>
+        </div>
+        <div class="character-filter">
+            <label><input type="checkbox" class="char-checkbox" value="MC">MC</label>
+            <label><input type="checkbox" class="char-checkbox" value="Maki">Maki</label>
+            <label><input type="checkbox" class="char-checkbox" value="Mark">Mark</label>
+            <label><input type="checkbox" class="char-checkbox" value="Nanjo">Nanjo</label>
+            <label><input type="checkbox" class="char-checkbox" value="Yukino">Yukino</label>
+            <label><input type="checkbox" class="char-checkbox" value="Elly">Elly</label>
+            <label><input type="checkbox" class="char-checkbox" value="Reiji">Reiji</label>
+            <label><input type="checkbox" class="char-checkbox" value="Ayase">Ayase</label>
+        </div>
+        <div class="demon-list" id="demonList"></div>
+        <script src="/js/Persona-1-data.js"></script>
+        <script src="/js/P1-Contact.js"></script>
 </body>
 </html>

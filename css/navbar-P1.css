@@ -1,3 +1,10 @@
+/* Make house and arrow icons black for P1 navbar */
+.p5-navbar .fa-house,
+.p5-navbar .fa-angle-down,
+.p5-navbar .fa-angle-up {
+  color: #111 !important;
+}
+
 /* Push page content below the fixed navbar */
 body {
   padding-top: 52px;
@@ -203,12 +210,12 @@ body.has-finance-subnav.finance-subnav-collapsed .p5-finance-subnav {
 }
 
 .p5-stat-subnav a:hover {
-  background-color: #c5c5c5;
+  background-color: #a80fff;
   color: #000000;
 }
 
 .p5-finance-subnav a:hover {
-  background-color: #c5c5c5;
+  background-color: #a80fff;
   color: #000000;
 }
 
