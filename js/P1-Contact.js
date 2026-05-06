@@ -1,20 +1,61 @@
+// Skill to character mapping (English only, no Japanese)
+const SKILL_TO_CHAR = {
+    'Persuade': ['MC', 'Yukino'],
+    'Taunt': ['MC', 'Mark'],
+    'Invite': ['MC', 'Elly'],
+    'Sing': ['MC', 'Elly'],
+    'Plead': ['Maki'],
+    'Flatter': ['Maki'],
+    'Lie': ['Maki'],
+    'Cringe': ['Maki'],
+    'Bribe': ['Nanjo'],
+    'Pontificate': ['Nanjo'],
+    'Condescend': ['Nanjo'],
+    'Sarcasm': ['Nanjo'],
+    'Dance': ['Mark'],
+    'Stare': ['Mark'],
+    'Brag': ['Mark'],
+    'Pick up': ['Brown'],
+    'Joke': ['Brown'],
+    'Chat': ['Brown'],
+    'Startle': ['Brown'],
+    'Horrify': ['Elly'],
+    'Soothe': ['Elly'],
+    'Abuse': ['Ayase'],
+    'Seduce': ['Ayase'],
+    'Cry': ['Ayase'],
+    'Threaten': ['Ayase', 'Reiji'],
+    'Bully': ['Yukino'],
+    'Scold': ['Yukino'],
+    'Ignore': ['Yukino', 'Reiji'],
+    'Prestidigitate': ['Reiji'],
+    'Scream': ['Reiji']
+};
 // P1-Contact.js
 // Handles Persona 1 Demon Contact Guide logic
 
-const CHARACTERS = ["MC", "Maki", "Mark", "Nanjo", "Yukino", "Elly", "Reiji", "Ayase"];
+const CHARACTERS = ["Maki", "Mark", "Nanjo", "Yukino", "Elly", "Reiji", "Ayase"];
+
 
 function loadCheckedCharacters() {
     const stored = localStorage.getItem('checkedCharacters');
-    if (!stored) return CHARACTERS;
-    try {
-        const arr = JSON.parse(stored);
-        if (Array.isArray(arr)) return arr;
-    } catch {}
-    return CHARACTERS;
+    let arr = CHARACTERS;
+    if (stored) {
+        try {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed)) arr = parsed;
+        } catch {}
+    }
+    // Always include MC
+    if (!arr.includes("MC")) arr = ["MC", ...arr];
+    return arr;
 }
 
+
 function saveCheckedCharacters(chars) {
-    localStorage.setItem('checkedCharacters', JSON.stringify(chars));
+    // Always save without MC, since MC is always included
+    const filtered = chars.filter(c => c !== "MC");
+    localStorage.setItem('checkedCharacters', JSON.stringify(filtered));
 }
 
 function setupCharacterCheckboxes() {
@@ -29,8 +70,12 @@ function setupCharacterCheckboxes() {
     });
 }
 
+
 function getCheckedCharacters() {
-    return Array.from(document.querySelectorAll('.char-checkbox:checked')).map(cb => cb.value);
+    // Always include MC
+    const checked = Array.from(document.querySelectorAll('.char-checkbox:checked')).map(cb => cb.value);
+    if (!checked.includes("MC")) checked.unshift("MC");
+    return checked;
 }
 
 function parseEager(eagerArr) {
@@ -79,18 +124,48 @@ function renderDemons() {
 
     demonsFiltered.forEach(demon => {
         const eagerMap = parseEager(demon.eager);
-        let eagerParts = [];
-        if (eagerMap[''] && eagerMap[''].length > 0) {
-            eagerParts.push(`<strong>Eager</strong>: ${eagerMap[''].join(', ')}`);
-        }
+        let eagerSkills = [];
+        // Collect skills with explicit character assignment
         checkedChars.forEach(char => {
             if (eagerMap[char] && eagerMap[char].length > 0) {
-                eagerParts.push(`<strong>${char}</strong>: ${eagerMap[char].join(', ')}`);
+                eagerMap[char].forEach(skill => {
+                    eagerSkills.push({ skill, chars: [char] });
+                });
             }
+        });
+        // Collect unassigned skills and map to checked characters
+        if (eagerMap[''] && eagerMap[''].length > 0) {
+            eagerMap[''].forEach(skill => {
+                // Find which checked characters can use this skill
+                const chars = (SKILL_TO_CHAR[skill] || []).filter(c => checkedChars.includes(c));
+                if (chars.length > 0) {
+                    eagerSkills.push({ skill, chars });
+                }
+            });
+        }
+        // Remove duplicates (skill+chars)
+        const seen = new Set();
+        eagerSkills = eagerSkills.filter(({ skill, chars }) => {
+            const key = skill + '|' + chars.sort().join(',');
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+        });
+        // Format output as a bulleted list, demon name left, list centered
+        const eagerDisplay = eagerSkills.map(({ skill, chars }) => {
+            if (chars.length === 0) return `<li>${skill}</li>`;
+            return `<li>${skill} (${chars.join(', ')})</li>`;
         });
         const entry = document.createElement('div');
         entry.className = 'demon-entry';
-        entry.innerHTML = `<span><strong>${demon.name}</strong></span><span class="eager-values">${eagerParts.join(' | ')}</span>`;
+        entry.innerHTML = `
+            <div style="text-align:left;"><strong>${demon.name}</strong>:</div>
+            <div style="display:flex; justify-content:center;">
+                <ul style="margin-left:1.5em; margin-top:0.2em; text-align:center;">
+                    ${eagerDisplay.join('')}
+                </ul>
+            </div>
+        `;
         demonList.appendChild(entry);
     });
 }
