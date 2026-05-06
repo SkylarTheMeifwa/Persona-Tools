@@ -42,6 +42,5 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    text-align: left;
     padding: 0.5em 0;
 }
