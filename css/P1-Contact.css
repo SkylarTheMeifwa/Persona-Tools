@@ -7,7 +7,7 @@ h1 {
     text-align: center;
 }
 
-body.p1-contact {
+body {
     background-color: #b07fff;
     font-family: 'Open Sans', sans-serif;        
     text-align: center;
@@ -25,8 +25,6 @@ body.p1-contact {
 .demon-entry {
     border-bottom: 1px solid #ccc;
     padding: 0.5em 0;
-    display: flex;
-    align-items: center;
 }
 
 .eager-values {
@@ -37,4 +35,10 @@ body.p1-contact {
 .char-checkbox {
     margin-right: 0.5em;
 }
-                                                                    
+
+.entry {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5em 0;
+}
