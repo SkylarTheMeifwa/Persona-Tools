@@ -25,11 +25,13 @@ body {
 .demon-entry {
     border-bottom: 1px solid #ccc;
     padding: 0.5em 0;
+    text-align: left;
 }
 
 .eager-values {
     margin-left: 1em;
     font-size: 0.95em;
+    text-align: left;
 }
 
 .char-checkbox {
@@ -40,5 +42,6 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    text-align: left;
     padding: 0.5em 0;
 }
