@@ -8,15 +8,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Revelations: Persona (PSP Edition) Demon Contact Guide</title>
 </head>
-<body style="background-color: #b07fff;">
     <body class="p1-contact">
         <!-- Navbar will be injected by navbar.js -->
-        <h1>Persona, Persona, Come to me!</h1>
-        <div>
-            <input type="text" id="searchbar" placeholder="Search demon..." />
-            <button id="searchBtn">Search</button>
-        </div>
+      <h1>Persona, Persona</br>Come to me!</h1>
         <div class="character-filter">
+          <section>Select your current party members:</section>
             <label><input type="checkbox" class="char-checkbox" value="MC">MC</label>
             <label><input type="checkbox" class="char-checkbox" value="Maki">Maki</label>
             <label><input type="checkbox" class="char-checkbox" value="Mark">Mark</label>
@@ -25,6 +21,11 @@
             <label><input type="checkbox" class="char-checkbox" value="Elly">Elly</label>
             <label><input type="checkbox" class="char-checkbox" value="Reiji">Reiji</label>
             <label><input type="checkbox" class="char-checkbox" value="Ayase">Ayase</label>
+        </div>
+  <div>
+    <section>Now enter a demon name to see the suggested skills to get an item from the demon.</section>
+            <input type="text" id="searchbar" placeholder="Search demon..." />
+            <button id="searchBtn">Search</button>
         </div>
         <div class="demon-list" id="demonList"></div>
         <script src="/js/Persona-1-data.js"></script>

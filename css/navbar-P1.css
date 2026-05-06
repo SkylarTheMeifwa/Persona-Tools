@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap");
+
 /* Make house and arrow icons black for P1 navbar */
 .p5-navbar .fa-house,
 .p5-navbar .fa-angle-down,
@@ -56,7 +58,7 @@ body.has-finance-subnav.finance-subnav-collapsed {
   padding: 0.65rem 1.1rem;
   color: #000000;
   text-decoration: none;
-  font-family: sans-serif;
+  font-family: "ZCOOL Kuaile", cursive;
   font-size: 0.85rem;
   letter-spacing: 1.5px;
   text-transform: uppercase;
