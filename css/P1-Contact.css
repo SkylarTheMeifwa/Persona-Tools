@@ -11,6 +11,7 @@ body.p1-contact {
     background-color: #b07fff;
     font-family: 'Open Sans', sans-serif;        
     text-align: center;
+    padding: 2em;
 }
 
 .character-filter {
@@ -24,6 +25,8 @@ body.p1-contact {
 .demon-entry {
     border-bottom: 1px solid #ccc;
     padding: 0.5em 0;
+    display: flex;
+    align-items: center;
 }
 
 .eager-values {

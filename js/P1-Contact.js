@@ -151,21 +151,14 @@ function renderDemons() {
             seen.add(key);
             return true;
         });
-        // Format output as a bulleted list, demon name left, list centered
+        // Format output as a bulleted list
         const eagerDisplay = eagerSkills.map(({ skill, chars }) => {
             if (chars.length === 0) return `<li>${skill}</li>`;
             return `<li>${skill} (${chars.join(', ')})</li>`;
         });
         const entry = document.createElement('div');
         entry.className = 'demon-entry';
-        entry.innerHTML = `
-            <div style="text-align:left;"><strong>${demon.name}</strong>:</div>
-            <div style="display:flex; justify-content:center;">
-                <ul style="margin-left:1.5em; margin-top:0.2em; text-align:center;">
-                    ${eagerDisplay.join('')}
-                </ul>
-            </div>
-        `;
+        entry.innerHTML = `<div><strong>${demon.name}</strong>:</div>\n<ul style="margin-left:1.5em; margin-top:0.2em;">${eagerDisplay.join('')}</ul>`;
         demonList.appendChild(entry);
     });
 }
