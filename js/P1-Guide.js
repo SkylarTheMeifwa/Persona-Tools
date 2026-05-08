@@ -15,9 +15,7 @@ async function loadGuide() {
     throw new Error("Failed to load guide from Dropbox.");
   }
 
-  const data = await response.json();
-
-  return data.text || "";
+  return await response.json();
 }
 
 let pages = [];
@@ -33,119 +31,6 @@ const prevBtn = document.getElementById("prevBtn");
 const nextBtn = document.getElementById("nextBtn");
 const bookmarkBtn = document.getElementById("bookmarkBtn");
 const goBookmarkBtn = document.getElementById("goBookmarkBtn");
-
-function escapeHtml(text) {
-  return text
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-
-function formatContent(text) {
-  let safeText = escapeHtml(text);
-
-  const lines = safeText.split(String.fromCharCode(10));
-  const output = [];
-  let paragraph = [];
-  let listItems = [];
-
-  function flushParagraph() {
-    if (paragraph.length > 0) {
-      output.push(`<p>${paragraph.join(" ")}</p>`);
-      paragraph = [];
-    }
-  }
-
-  function flushList() {
-    if (listItems.length > 0) {
-      output.push(`<ul>${listItems.map(item => `<li>${item}</li>`).join("")}</ul>`);
-      listItems = [];
-    }
-  }
-
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i].trim();
-
-    if (!line) {
-      flushParagraph();
-      flushList();
-      continue;
-    }
-
-    if (line.startsWith("Enemies:") || line.startsWith("Creatures:")) {
-      flushParagraph();
-      flushList();
-
-      const colonIndex = line.indexOf(":");
-      const label = line.slice(0, colonIndex);
-      const content = line.slice(colonIndex + 1).trim();
-
-      output.push(`<div class="enemy-box"><strong>${label}:</strong> ${content}</div>`);
-      continue;
-    }
-
-    if (line.startsWith("- ")) {
-      flushParagraph();
-      listItems.push(line.slice(2));
-      continue;
-    }
-
-    if (line.includes("Boss Fight") || line === "Boss") {
-      flushParagraph();
-      flushList();
-
-      const bossName = lines[i + 1] ? lines[i + 1].trim() : "";
-      output.push(`<div class="boss-box"><h2>Boss Fight</h2><h3>${bossName}</h3></div>`);
-
-      if (bossName) i++;
-      continue;
-    }
-
-    paragraph.push(line);
-  }
-
-  flushParagraph();
-  flushList();
-
-  return output.join(String.fromCharCode(10));
-}
-
-function parseSections(rawText) {
-  const lines = rawText.split(String.fromCharCode(10));
-  const sections = [];
-  let currentSection = null;
-
-  for (const rawLine of lines) {
-    const line = rawLine.trim();
-    const headingMatch = line.match(/^([0-9]+[.][0-9]+)[ ]*-[ ]*(.+)$/);
-
-    if (headingMatch) {
-      if (currentSection) {
-        currentSection.content = formatContent(currentSection.rawContent.join(String.fromCharCode(10)).trim());
-        delete currentSection.rawContent;
-        sections.push(currentSection);
-      }
-
-      currentSection = {
-        id: headingMatch[1],
-        title: headingMatch[2].trim(),
-        rawContent: []
-      };
-    } else if (currentSection) {
-      currentSection.rawContent.push(rawLine);
-    }
-  }
-
-  if (currentSection) {
-    currentSection.content = formatContent(currentSection.rawContent.join(String.fromCharCode(10)).trim());
-    delete currentSection.rawContent;
-    sections.push(currentSection);
-  }
-
-  return sections;
-}
 
 function buildSidebar() {
   tocListEl.innerHTML = "";
@@ -186,8 +71,12 @@ function updateProgressBars() {
 }
 
 function updateChapterProgress(chapterPrefix, barId, percentId) {
-  const chapterPages = pages.filter(page => page.id.startsWith(chapterPrefix));
-  const currentChapterIndex = chapterPages.findIndex(page => page.id === pages[currentPage].id);
+  const chapterPages = pages.filter(page => String(page.id).startsWith(chapterPrefix));
+  const currentPageData = pages[currentPage];
+
+  if (!currentPageData) return;
+
+  const currentChapterIndex = chapterPages.findIndex(page => page.id === currentPageData.id);
 
   let progress = 0;
 
@@ -209,8 +98,8 @@ function renderPage() {
   bookPageEl.classList.add(flipClass);
 
   setTimeout(() => {
-    titleEl.innerHTML = `${page.id} - ${page.title}`;
-    contentEl.innerHTML = page.content;
+    titleEl.textContent = `${page.id} - ${page.title}`;
+    contentEl.innerHTML = page.content || "";
     indicatorEl.textContent = `${currentPage + 1} / ${pages.length}`;
 
     localStorage.setItem("currentPage", currentPage);
@@ -246,6 +135,8 @@ prevBtn.onclick = goToPreviousPage;
 nextBtn.onclick = goToNextPage;
 
 bookmarkBtn.onclick = () => {
+  if (!pages[currentPage]) return;
+
   localStorage.setItem("bookmarkPage", currentPage);
   alert(`Bookmark saved: ${pages[currentPage].id} - ${pages[currentPage].title}`);
 };
@@ -288,12 +179,12 @@ function handleSwipe() {
 
 async function initializeBook() {
   try {
-    const rawGuide = await loadGuide();
-    pages = parseSections(rawGuide);
+    const guideData = await loadGuide();
+    pages = Array.isArray(guideData.pages) ? guideData.pages : [];
 
     if (!pages.length) {
       titleEl.textContent = "No pages found";
-      contentEl.textContent = "Check that your guide uses section headings like 4.01 - A Visit Gone Awry.";
+      contentEl.textContent = "Check that P1Guide.json has a pages array.";
       return;
     }
 

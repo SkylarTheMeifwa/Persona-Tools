@@ -29,9 +29,9 @@ const DATASETS = {
     onNotFound: () => ({ tasks: [] }),
   },
   p1guide: {
-  path: "/P1Guide.txt",
-  onSuccess: (text) => text,
-  onNotFound: () => "",
+  path: "/P1Guide.json",
+  onSuccess: (json) => json,
+    onNotFound: () => ({ pages: [] }),
   },
 };
 
