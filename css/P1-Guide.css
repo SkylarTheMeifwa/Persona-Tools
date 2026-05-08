@@ -1,0 +1,250 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #b07fff;
+  color: #f5f5f5;
+  font-family: 'Open Sans', sans-serif;
+}
+
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 280px;
+  background: #ffffff;
+  color: #2d004d;
+  overflow-y: auto;
+  padding: 20px;
+  border-right: 2px solid #a80fff;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+#pageTitle,
+.sidebar h2,
+.boss-box h2,
+.boss-box h3 {
+  font-family: 'ZCOOL KuaiLe', cursive;
+}
+
+.sidebar h2 {
+  margin-top: 0;
+  font-size: 1.2rem;
+  color: #2d004d;
+  border-bottom: 1px solid #b07fff;
+  padding-bottom: 10px;
+}
+
+.sidebar-item {
+  padding: 12px;
+  cursor: pointer;
+  margin-bottom: 10px;
+  background: #ffffff;
+  color: #2d004d;
+  border: 2px solid #b07fff;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+.sidebar-item:hover {
+  background: #2d004d;
+  color: #ffffff;
+  border-color: #2d004d;
+}
+
+.sidebar-item.active {
+  background: #b07fff;
+  color: #ffffff;
+  border-color: #a80fff;
+}
+
+.main-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.progress-wrapper {
+  padding: 20px 40px 0;
+}
+
+.progress-section {
+  margin-bottom: 20px;
+}
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 18px;
+  background: #ffffff;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #a80fff, #b07fff);
+  transition: width 0.4s ease;
+}
+
+.book-container {
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+  perspective: 1200px;
+}
+
+.book-page {
+  width: 900px;
+  min-height: 90vh;
+  background: #efe4c8;
+  color: #111;
+  padding: 50px;
+  border-radius: 10px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+  transition: transform 0.5s ease, opacity 0.5s ease;
+  transform-origin: left center;
+}
+
+.book-page.flipping-next {
+  transform: rotateY(-12deg);
+  opacity: 0.4;
+}
+
+.book-page.flipping-prev {
+  transform: rotateY(12deg);
+  opacity: 0.4;
+}
+
+#pageTitle {
+  font-size: 2rem;
+  margin-bottom: 30px;
+  border-bottom: 2px solid #222;
+  padding-bottom: 10px;
+}
+
+#pageContent {
+  line-height: 1.8;
+  font-size: 1.05rem;
+  font-family: 'Open Sans', sans-serif;
+}
+
+#pageContent p {
+  margin-bottom: 1.2em;
+}
+
+.enemy-box,
+.boss-box,
+.treasure-box,
+.note-box {
+  background: rgba(0, 0, 0, 0.08);
+  border-left: 5px solid #222;
+  padding: 15px;
+  margin: 20px 0;
+}
+
+.boss-box {
+  border-left-color: darkred;
+}
+
+.enemy-box {
+  border-left-color: #333;
+}
+
+ul {
+  padding-left: 25px;
+}
+
+.controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  padding: 0 20px 40px;
+  flex-wrap: wrap;
+}
+
+button {
+  padding: 12px 24px;
+  border: none;
+  background: #a80fff;
+  color: white;
+  cursor: pointer;
+  font-size: 1rem;
+  border-radius: 6px;
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 600;
+}
+
+button:hover {
+  background: #9200dd;
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.error-message {
+  text-align: center;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #2d004d;
+  padding: 80px 20px;
+  font-family: 'open sans', sans-serif;
+}
+
+#pageIndicator {
+  min-width: 80px;
+  text-align: center;
+}
+
+@media (max-width: 850px) {
+  .layout {
+    display: block;
+  }
+
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+    border-right: none;
+    border-bottom: 2px solid #a80fff;
+    max-height: 240px;
+  }
+
+  .progress-wrapper {
+    padding: 20px;
+  }
+
+  .book-container {
+    padding: 20px;
+  }
+
+  .book-page {
+    width: 100%;
+    min-height: 75vh;
+    padding: 28px;
+  }
+
+  #pageTitle {
+    font-size: 1.5rem;
+  }
+
+  #pageContent {
+    font-size: 1rem;
+  }
+}
