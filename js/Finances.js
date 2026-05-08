@@ -1358,7 +1358,16 @@ function renderCalendar() {
 
   const minMonth = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
   const maxMonth = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
-  const currentMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+  // Try to load last open month from localStorage
+  let lastMonthStr = localStorage.getItem("finances_lastMonth");
+  let initialMonth = null;
+  if (lastMonthStr) {
+    const parsed = parseMonthValue(lastMonthStr);
+    if (parsed && parsed >= minMonth && parsed <= maxMonth) {
+      initialMonth = parsed;
+    }
+  }
+  const currentMonth = initialMonth || new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
 
   const controls = document.createElement("div");
   controls.className = "calendar-controls";
@@ -1386,6 +1395,9 @@ function renderCalendar() {
   monthSelect.onchange = () => {
     const selectedMonth = parseMonthValue(monthSelect.value);
     if (!selectedMonth) return;
+
+    // Save selected month to localStorage
+    localStorage.setItem("finances_lastMonth", formatMonthValue(selectedMonth));
 
     const maxDayInMonth = new Date(
       selectedMonth.getFullYear(),

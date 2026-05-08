@@ -249,5 +249,13 @@
       });
 
       document.body.insertAdjacentElement("afterbegin", nav);
+          // Ensure body padding is set after navbar injection
+          // Default padding for main navbar
+          document.body.style.paddingTop = "52px";
+
+          // If stat or finance subnav is visible, increase padding
+          if (document.body.classList.contains("has-stat-subnav") || document.body.classList.contains("has-finance-subnav")) {
+            document.body.style.paddingTop = "98px";
+          }
     });
 })();
