@@ -1,12 +1,18 @@
 const GUIDE_DATA_TYPE = "p1guide";
 
 async function loadGuide() {
+  const userToken = localStorage.getItem("dropbox_token");
+  if (!userToken) {
+    throw new Error("Dropbox not connected.");
+  }
+
   const response = await fetch("/api/load-from-dropbox", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
+      userToken,
       dataType: GUIDE_DATA_TYPE
     })
   });
