@@ -1,4 +1,24 @@
-const GUIDE_PATH = "/P1Guide.txt";
+const GUIDE_DATA_TYPE = "p1guide";
+
+async function loadGuide() {
+  const response = await fetch("/api/load-from-dropbox", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      dataType: GUIDE_DATA_TYPE
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to load guide from Dropbox.");
+  }
+
+  const data = await response.json();
+
+  return data.text || "";
+}
 
 let pages = [];
 let currentPage = Number(localStorage.getItem("currentPage")) || 0;
@@ -268,7 +288,7 @@ function handleSwipe() {
 
 async function initializeBook() {
   try {
-    const rawGuide = await loadGuide(GUIDE_PATH);
+    const rawGuide = await loadGuide();
     pages = parseSections(rawGuide);
 
     if (!pages.length) {

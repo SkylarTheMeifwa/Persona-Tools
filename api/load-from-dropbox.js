@@ -28,6 +28,11 @@ const DATASETS = {
     }),
     onNotFound: () => ({ tasks: [] }),
   },
+  p1guide: {
+  path: "/P1Guide.txt",
+  onSuccess: (text) => text,
+  onNotFound: () => "",
+  },
 };
 
 function parseCookies(cookieHeader) {
@@ -89,25 +94,4 @@ export default async function handler(req, res) {
       error: err.message
     });
   }
-}
-
-async function loadGuide(path) {
-  const response = await fetch(
-    "https://content.dropboxapi.com/2/files/download",
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${DROPBOX_ACCESS_TOKEN}`,
-        "Dropbox-API-Arg": JSON.stringify({
-          path
-        })
-      }
-    }
-  );
-
-  if (!response.ok) {
-    throw new Error("Failed to load guide from Dropbox.");
-  }
-
-  return await response.text();
 }
