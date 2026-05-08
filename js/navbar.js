@@ -54,6 +54,11 @@
         }
       };
 
+      const updateBodyPadding = () => {
+        if (!nav) return;
+        document.body.style.paddingTop = `${nav.offsetHeight}px`;
+      };
+
       // Factory function to create a subnav toggle manager
       const createSubnavManager = (config) => {
         const {
@@ -93,6 +98,7 @@
             window.localStorage.setItem(storageKey, "false");
             setToggleIcon(false);
           }
+          updateBodyPadding();
         };
 
         return { toggle, setVisible, setToggleIcon, toggleIcon, pageFiles, links, nonLinks, collapsedClass, bodyClass };
@@ -120,7 +126,7 @@
           '.p5-dropdown-menu a[href="I-Belieeevee-We-Can-Flyyy-Up-In-The-Sky.html"], .p5-dropdown-menu a[href="You%27ll-Never-See-It-Comiiingggg.html"], .p5-stat-subnav a'
         ),
         nonLinks: nav.querySelectorAll(
-          'a[href="../index.html"], a[href="Finances.html"], a[href="Groceries.html"], a[href="settings.html"], a[href="mementos-requests.html"], a[href="Time-To-Retake-Your-Desires.html"]'
+          'a[href="../index.html"], a[href="Finances.html"], a[href="Groceries.html"], a[href="settings.html"], a[href="mementos-requests.html"], a[href="Time-To-Retake-Your-Desires.html"], a[href="Persona-Persona-Come-To-Me.html"], a[href="Persona-Cmere.html"]'
         ),
         collapsedClass: "stat-subnav-collapsed",
       });
@@ -135,7 +141,7 @@
           '.p5-dropdown-menu a[href="Finances.html"], .p5-dropdown-menu a[href="Groceries.html"], .p5-finance-subnav a'
         ),
         nonLinks: nav.querySelectorAll(
-          'a[href="../index.html"], a[href="I-Belieeevee-We-Can-Flyyy-Up-In-The-Sky.html"], a[href="You%27ll-Never-See-It-Comiiingggg.html"], a[href="settings.html"], a[href="mementos-requests.html"], a[href="Time-To-Retake-Your-Desires.html"]'
+          'a[href="../index.html"], a[href="I-Belieeevee-We-Can-Flyyy-Up-In-The-Sky.html"], a[href="You%27ll-Never-See-It-Comiiingggg.html"], a[href="settings.html"], a[href="mementos-requests.html"], a[href="Time-To-Retake-Your-Desires.html"], a[href="Persona-Persona-Come-To-Me.html"], a[href="Persona-Cmere.html"]'
         ),
         collapsedClass: "finance-subnav-collapsed",
       });
@@ -249,13 +255,7 @@
       });
 
       document.body.insertAdjacentElement("afterbegin", nav);
-          // Ensure body padding is set after navbar injection
-          // Default padding for main navbar
-          document.body.style.paddingTop = "52px";
-
-          // If stat or finance subnav is visible, increase padding
-          if (document.body.classList.contains("has-stat-subnav") || document.body.classList.contains("has-finance-subnav")) {
-            document.body.style.paddingTop = "98px";
-          }
+      updateBodyPadding();
+      window.addEventListener("resize", updateBodyPadding);
     });
 })();
