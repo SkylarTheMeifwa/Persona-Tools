@@ -29,6 +29,7 @@ let currentPage = Number(localStorage.getItem("currentPage")) || 0;
 let lastFlipDirection = "next";
 let isFlipping = false;
 let scrollProtectionTimeout = null;
+let isCardFlipped = false;
 
 const titleEl = document.getElementById("pageTitle");
 const contentEl = document.getElementById("pageContent");
@@ -109,10 +110,15 @@ function renderPage() {
 
   if (!page) return;
 
-  isFlipping = true;
-  const flipClass = lastFlipDirection === "prev" ? "flipping-prev" : "flipping-next";
-
-  bookPageEl.classList.add(flipClass);
+  // Determine if card should be flipped based on page parity
+  const shouldBeFlipped = currentPage % 2 === 1;
+  
+  // Only animate if the state needs to change
+  if (shouldBeFlipped !== isCardFlipped) {
+    isFlipping = true;
+    bookPageEl.classList.toggle("flipped");
+    isCardFlipped = shouldBeFlipped;
+  }
 
   setTimeout(() => {
     titleEl.textContent = `${page.id} - ${page.title}`;
@@ -141,7 +147,6 @@ function renderPage() {
     updateSidebarActiveState();
     updateProgressBars();
 
-    bookPageEl.classList.remove("flipping-next", "flipping-prev");
     isFlipping = false;
     window.scrollTo(0, 0);
   }, 600);
