@@ -27,6 +27,8 @@ async function loadGuide() {
 let pages = [];
 let currentPage = Number(localStorage.getItem("currentPage")) || 0;
 let lastFlipDirection = "next";
+let isFlipping = false;
+let scrollProtectionTimeout = null;
 
 const titleEl = document.getElementById("pageTitle");
 const contentEl = document.getElementById("pageContent");
@@ -64,6 +66,11 @@ function updateSidebarActiveState() {
   });
 }
 
+function getChapterNumber(pageId) {
+  const match = String(pageId).match(/^(\d+)/);
+  return match ? match[1] : null;
+}
+
 function updateProgressBars() {
   if (!pages.length) return;
 
@@ -72,26 +79,27 @@ function updateProgressBars() {
   document.getElementById("overallBar").style.width = `${overallProgress}%`;
   document.getElementById("overallPercent").textContent = `${Math.floor(overallProgress)}%`;
 
-  updateChapterProgress("4.", "chapter4Bar", "chapter4Percent");
-  updateChapterProgress("5.", "chapter5Bar", "chapter5Percent");
+  updateCurrentChapterProgress();
 }
 
-function updateChapterProgress(chapterPrefix, barId, percentId) {
-  const chapterPages = pages.filter(page => String(page.id).startsWith(chapterPrefix));
+function updateCurrentChapterProgress() {
   const currentPageData = pages[currentPage];
 
   if (!currentPageData) return;
 
+  const currentChapterNum = getChapterNumber(currentPageData.id);
+  const chapterPages = pages.filter(page => getChapterNumber(page.id) === currentChapterNum);
+
+  if (chapterPages.length === 0) return;
+
   const currentChapterIndex = chapterPages.findIndex(page => page.id === currentPageData.id);
+  const progress = currentChapterIndex >= 0 
+    ? ((currentChapterIndex + 1) / chapterPages.length) * 100
+    : 0;
 
-  let progress = 0;
-
-  if (currentChapterIndex >= 0 && chapterPages.length > 0) {
-    progress = ((currentChapterIndex + 1) / chapterPages.length) * 100;
-  }
-
-  document.getElementById(barId).style.width = `${progress}%`;
-  document.getElementById(percentId).textContent = `${Math.floor(progress)}%`;
+  document.getElementById("currentChapterLabel").textContent = `Chapter ${currentChapterNum} Progress`;
+  document.getElementById("currentChapterBar").style.width = `${progress}%`;
+  document.getElementById("currentChapterPercent").textContent = `${Math.floor(progress)}%`;
 }
 
 function renderPage() {
@@ -99,6 +107,7 @@ function renderPage() {
 
   if (!page) return;
 
+  isFlipping = true;
   const flipClass = lastFlipDirection === "prev" ? "flipping-prev" : "flipping-next";
 
   bookPageEl.classList.add(flipClass);
@@ -117,8 +126,9 @@ function renderPage() {
     updateProgressBars();
 
     bookPageEl.classList.remove("flipping-next", "flipping-prev");
+    isFlipping = false;
     window.scrollTo(0, 0);
-  }, 200);
+  }, 500);
 }
 
 function goToNextPage() {
@@ -163,6 +173,37 @@ document.addEventListener("keydown", event => {
   if (event.key === "ArrowRight") goToNextPage();
   if (event.key === "ArrowLeft") goToPreviousPage();
 });
+
+// Prevent accidental page flips on scroll
+window.addEventListener("wheel", event => {
+  if (isFlipping) return;
+  
+  // Only trigger on very specific scroll patterns to avoid accidental flips
+  // Don't flip just from normal scrolling
+  scrollProtectionTimeout && clearTimeout(scrollProtectionTimeout);
+  scrollProtectionTimeout = setTimeout(() => {
+    isFlipping = false;
+  }, 100);
+});
+
+// Mobile sidebar toggle
+const sidebarToggle = document.getElementById("sidebarToggle");
+const sidebar = document.getElementById("sidebar");
+
+if (sidebarToggle) {
+  sidebarToggle.addEventListener("click", () => {
+    sidebar.classList.toggle("open");
+  });
+
+  // Close sidebar when a chapter is selected on mobile
+  document.addEventListener("click", event => {
+    if (event.target.classList.contains("sidebar-item")) {
+      if (window.innerWidth <= 768) {
+        sidebar.classList.remove("open");
+      }
+    }
+  });
+}
 
 let touchStartX = 0;
 let touchEndX = 0;

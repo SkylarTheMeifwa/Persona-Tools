@@ -10,6 +10,7 @@
 </head>
 <body>
 
+  <button class="sidebar-toggle" id="sidebarToggle">☰ TOC</button>
   <div class="layout">
     <aside class="sidebar" id="sidebar">
       <h2>Table of Contents</h2>
@@ -31,21 +32,11 @@
 
         <div class="progress-section">
           <div class="progress-label">
-            Chapter 4 Progress
-            <span id="chapter4Percent">0%</span>
+            <span id="currentChapterLabel">Chapter Progress</span>
+            <span id="currentChapterPercent">0%</span>
           </div>
           <div class="progress-bar">
-            <div id="chapter4Bar" class="progress-fill"></div>
-          </div>
-        </div>
-
-        <div class="progress-section">
-          <div class="progress-label">
-            Chapter 5 Progress
-            <span id="chapter5Percent">0%</span>
-          </div>
-          <div class="progress-bar">
-            <div id="chapter5Bar" class="progress-fill"></div>
+            <div id="currentChapterBar" class="progress-fill"></div>
           </div>
         </div>
       </div>
