@@ -121,8 +121,6 @@ body {
   transform: rotateY(0deg);
   transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   min-height: 400px;
-  max-height: 90vh;
-  overflow-y: auto;
 }
 
 .page-front {
@@ -132,16 +130,13 @@ body {
 
 .page-back {
   backface-visibility: hidden;
-  transform: rotateY(180deg);
   position: absolute;
   width: 100%;
-  height: 100%;
   top: 0;
   left: 0;
   padding: 50px;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
 }
 
 #pageTitle {
@@ -305,7 +300,6 @@ button:disabled {
   .book-page {
     width: 100%;
     min-height: 300px;
-    max-height: 80vh;
     padding: 30px 20px;
   }
 
