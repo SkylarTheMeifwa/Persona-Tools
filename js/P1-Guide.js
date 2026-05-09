@@ -52,8 +52,15 @@ function buildSidebar() {
     item.textContent = `${page.id} - ${page.title}`;
 
     item.onclick = () => {
+      if (isFlipping) return;
+      
       lastFlipDirection = index > currentPage ? "next" : "prev";
       currentPage = index;
+      
+      // Update back page to show the target page
+      backTitleEl.textContent = `${page.id} - ${page.title}`;
+      backContentEl.innerHTML = page.content || "";
+      
       renderPage();
     };
 
@@ -106,10 +113,6 @@ function updateCurrentChapterProgress() {
 }
 
 function renderPage() {
-  const page = pages[currentPage];
-
-  if (!page) return;
-
   isFlipping = true;
   
   // Increment rotation by 180 degrees
@@ -117,23 +120,11 @@ function renderPage() {
   bookPageEl.style.transform = `rotateY(${currentRotation}deg) scaleX(1.05)`;
 
   setTimeout(() => {
+    // Update front page to show current page (now visible after flip)
+    const page = pages[currentPage];
     titleEl.textContent = `${page.id} - ${page.title}`;
     contentEl.innerHTML = page.content || "";
     indicatorEl.textContent = `${currentPage + 1} / ${pages.length}`;
-
-    // Update back page based on flip direction
-    if (lastFlipDirection === "next" && currentPage < pages.length - 1) {
-      const nextPage = pages[currentPage + 1];
-      backTitleEl.textContent = `${nextPage.id} - ${nextPage.title}`;
-      backContentEl.innerHTML = nextPage.content || "";
-    } else if (lastFlipDirection === "prev" && currentPage > 0) {
-      const prevPage = pages[currentPage - 1];
-      backTitleEl.textContent = `${prevPage.id} - ${prevPage.title}`;
-      backContentEl.innerHTML = prevPage.content || "";
-    } else {
-      backTitleEl.textContent = "End of guide";
-      backContentEl.innerHTML = "";
-    }
 
     localStorage.setItem("currentPage", currentPage);
 
@@ -154,6 +145,12 @@ function goToNextPage() {
   if (currentPage < pages.length - 1) {
     lastFlipDirection = "next";
     currentPage++;
+    
+    // Update back page to show the new current page (which will be visible after flip)
+    const page = pages[currentPage];
+    backTitleEl.textContent = `${page.id} - ${page.title}`;
+    backContentEl.innerHTML = page.content || "";
+    
     renderPage();
   }
 }
@@ -162,6 +159,12 @@ function goToPreviousPage() {
   if (currentPage > 0) {
     lastFlipDirection = "prev";
     currentPage--;
+    
+    // Update back page to show the new current page (which will be visible after flip)
+    const page = pages[currentPage];
+    backTitleEl.textContent = `${page.id} - ${page.title}`;
+    backContentEl.innerHTML = page.content || "";
+    
     renderPage();
   }
 }
@@ -182,6 +185,12 @@ goBookmarkBtn.onclick = () => {
   if (!Number.isNaN(savedBookmark) && pages[savedBookmark]) {
     lastFlipDirection = savedBookmark > currentPage ? "next" : "prev";
     currentPage = savedBookmark;
+    
+    // Update back page to show the bookmarked page
+    const page = pages[currentPage];
+    backTitleEl.textContent = `${page.id} - ${page.title}`;
+    backContentEl.innerHTML = page.content || "";
+    
     renderPage();
   } else {
     alert("No bookmark saved yet.");
@@ -258,8 +267,22 @@ async function initializeBook() {
       currentPage = 0;
     }
 
+    // Set initial front page content
+    const initialPage = pages[currentPage];
+    titleEl.textContent = `${initialPage.id} - ${initialPage.title}`;
+    contentEl.innerHTML = initialPage.content || "";
+    indicatorEl.textContent = `${currentPage + 1} / ${pages.length}`;
+    
+    // Back page starts empty
+    backTitleEl.textContent = "";
+    backContentEl.innerHTML = "";
+
     buildSidebar();
-    renderPage();
+    updateSidebarActiveState();
+    updateProgressBars();
+    
+    prevBtn.disabled = currentPage === 0;
+    nextBtn.disabled = currentPage === pages.length - 1;
   } catch (error) {
     titleEl.textContent = "Error";
 
