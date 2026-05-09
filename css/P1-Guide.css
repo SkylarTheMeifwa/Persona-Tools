@@ -111,20 +111,18 @@ body {
 
 .book-page {
   width: 900px;
-  min-height: 90vh;
   background: #efe4c8;
   color: #111;
   padding: 50px;
   border-radius: 10px;
   box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
-  transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   transform-style: preserve-3d;
   position: relative;
   transform: rotateY(0deg);
-}
-
-.book-page.flipped {
-  transform: rotateY(180deg) scaleX(1.05);
+  transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  min-height: 400px;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 .page-front {
@@ -239,9 +237,9 @@ button:disabled {
 .sidebar-toggle {
   display: none;
   position: fixed;
-  top: 20px;
+  top: 60px;
   left: 20px;
-  z-index: 1000;
+  z-index: 999;
   background: #a80fff;
   border: none;
   color: white;
@@ -306,7 +304,8 @@ button:disabled {
 
   .book-page {
     width: 100%;
-    min-height: 60vh;
+    min-height: 300px;
+    max-height: 80vh;
     padding: 30px 20px;
   }
 

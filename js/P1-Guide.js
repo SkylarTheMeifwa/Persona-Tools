@@ -29,7 +29,7 @@ let currentPage = Number(localStorage.getItem("currentPage")) || 0;
 let lastFlipDirection = "next";
 let isFlipping = false;
 let scrollProtectionTimeout = null;
-let isCardFlipped = false;
+let currentRotation = 0;
 
 const titleEl = document.getElementById("pageTitle");
 const contentEl = document.getElementById("pageContent");
@@ -110,15 +110,11 @@ function renderPage() {
 
   if (!page) return;
 
-  // Determine if card should be flipped based on page parity
-  const shouldBeFlipped = currentPage % 2 === 1;
+  isFlipping = true;
   
-  // Only animate if the state needs to change
-  if (shouldBeFlipped !== isCardFlipped) {
-    isFlipping = true;
-    bookPageEl.classList.toggle("flipped");
-    isCardFlipped = shouldBeFlipped;
-  }
+  // Increment rotation by 180 degrees
+  currentRotation += 180;
+  bookPageEl.style.transform = `rotateY(${currentRotation}deg) scaleX(1.05)`;
 
   setTimeout(() => {
     titleEl.textContent = `${page.id} - ${page.title}`;
@@ -147,9 +143,11 @@ function renderPage() {
     updateSidebarActiveState();
     updateProgressBars();
 
+    // Reset scale after animation
+    bookPageEl.style.transform = `rotateY(${currentRotation}deg)`;
     isFlipping = false;
     window.scrollTo(0, 0);
-  }, 600);
+  }, 300);
 }
 
 function goToNextPage() {
