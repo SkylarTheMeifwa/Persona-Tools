@@ -29,12 +29,9 @@ let currentPage = Number(localStorage.getItem("currentPage")) || 0;
 let lastFlipDirection = "next";
 let isFlipping = false;
 let scrollProtectionTimeout = null;
-let currentRotation = 0;
 
 const titleEl = document.getElementById("pageTitle");
 const contentEl = document.getElementById("pageContent");
-const backTitleEl = document.getElementById("pageBackTitle");
-const backContentEl = document.getElementById("pageBackContent");
 const indicatorEl = document.getElementById("pageIndicator");
 const bookPageEl = document.getElementById("bookPage");
 const tocListEl = document.getElementById("tocList");
@@ -56,11 +53,6 @@ function buildSidebar() {
       
       lastFlipDirection = index > currentPage ? "next" : "prev";
       currentPage = index;
-      
-      // Update back page to show the target page
-      backTitleEl.textContent = `${page.id} - ${page.title}`;
-      backContentEl.innerHTML = page.content || "";
-      
       renderPage();
     };
 
@@ -113,15 +105,17 @@ function updateCurrentChapterProgress() {
 }
 
 function renderPage() {
+  const page = pages[currentPage];
+
+  if (!page) return;
+
   isFlipping = true;
   
-  // Increment rotation by 180 degrees
-  currentRotation += 180;
-  bookPageEl.style.transform = `rotateY(${currentRotation}deg) scaleX(1.05)`;
+  // Fade out current content
+  bookPageEl.classList.add("fade-out");
 
   setTimeout(() => {
-    // Update front page to show current page (now visible after flip)
-    const page = pages[currentPage];
+    // Update content while faded out
     titleEl.textContent = `${page.id} - ${page.title}`;
     contentEl.innerHTML = page.content || "";
     indicatorEl.textContent = `${currentPage + 1} / ${pages.length}`;
@@ -134,23 +128,17 @@ function renderPage() {
     updateSidebarActiveState();
     updateProgressBars();
 
-    // Reset scale after animation
-    bookPageEl.style.transform = `rotateY(${currentRotation}deg)`;
+    // Fade back in
+    bookPageEl.classList.remove("fade-out");
     isFlipping = false;
     window.scrollTo(0, 0);
-  }, 300);
+  }, 150);
 }
 
 function goToNextPage() {
   if (currentPage < pages.length - 1) {
     lastFlipDirection = "next";
     currentPage++;
-    
-    // Update back page to show the new current page (which will be visible after flip)
-    const page = pages[currentPage];
-    backTitleEl.textContent = `${page.id} - ${page.title}`;
-    backContentEl.innerHTML = page.content || "";
-    
     renderPage();
   }
 }
@@ -159,12 +147,6 @@ function goToPreviousPage() {
   if (currentPage > 0) {
     lastFlipDirection = "prev";
     currentPage--;
-    
-    // Update back page to show the new current page (which will be visible after flip)
-    const page = pages[currentPage];
-    backTitleEl.textContent = `${page.id} - ${page.title}`;
-    backContentEl.innerHTML = page.content || "";
-    
     renderPage();
   }
 }
@@ -185,12 +167,6 @@ goBookmarkBtn.onclick = () => {
   if (!Number.isNaN(savedBookmark) && pages[savedBookmark]) {
     lastFlipDirection = savedBookmark > currentPage ? "next" : "prev";
     currentPage = savedBookmark;
-    
-    // Update back page to show the bookmarked page
-    const page = pages[currentPage];
-    backTitleEl.textContent = `${page.id} - ${page.title}`;
-    backContentEl.innerHTML = page.content || "";
-    
     renderPage();
   } else {
     alert("No bookmark saved yet.");
@@ -267,15 +243,11 @@ async function initializeBook() {
       currentPage = 0;
     }
 
-    // Set initial front page content
+    // Set initial page content
     const initialPage = pages[currentPage];
     titleEl.textContent = `${initialPage.id} - ${initialPage.title}`;
     contentEl.innerHTML = initialPage.content || "";
     indicatorEl.textContent = `${currentPage + 1} / ${pages.length}`;
-    
-    // Back page starts empty
-    backTitleEl.textContent = "";
-    backContentEl.innerHTML = "";
 
     buildSidebar();
     updateSidebarActiveState();
