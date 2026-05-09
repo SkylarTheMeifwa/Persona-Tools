@@ -32,6 +32,8 @@ let scrollProtectionTimeout = null;
 
 const titleEl = document.getElementById("pageTitle");
 const contentEl = document.getElementById("pageContent");
+const backTitleEl = document.getElementById("pageBackTitle");
+const backContentEl = document.getElementById("pageBackContent");
 const indicatorEl = document.getElementById("pageIndicator");
 const bookPageEl = document.getElementById("bookPage");
 const tocListEl = document.getElementById("tocList");
@@ -117,6 +119,20 @@ function renderPage() {
     contentEl.innerHTML = page.content || "";
     indicatorEl.textContent = `${currentPage + 1} / ${pages.length}`;
 
+    // Update back page based on flip direction
+    if (lastFlipDirection === "next" && currentPage < pages.length - 1) {
+      const nextPage = pages[currentPage + 1];
+      backTitleEl.textContent = `${nextPage.id} - ${nextPage.title}`;
+      backContentEl.innerHTML = nextPage.content || "";
+    } else if (lastFlipDirection === "prev" && currentPage > 0) {
+      const prevPage = pages[currentPage - 1];
+      backTitleEl.textContent = `${prevPage.id} - ${prevPage.title}`;
+      backContentEl.innerHTML = prevPage.content || "";
+    } else {
+      backTitleEl.textContent = "End of guide";
+      backContentEl.innerHTML = "";
+    }
+
     localStorage.setItem("currentPage", currentPage);
 
     prevBtn.disabled = currentPage === 0;
@@ -128,7 +144,7 @@ function renderPage() {
     bookPageEl.classList.remove("flipping-next", "flipping-prev");
     isFlipping = false;
     window.scrollTo(0, 0);
-  }, 500);
+  }, 600);
 }
 
 function goToNextPage() {

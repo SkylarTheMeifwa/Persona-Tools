@@ -106,7 +106,7 @@ body {
   display: flex;
   justify-content: center;
   padding: 40px;
-  perspective: 1200px;
+  perspective: 1500px;
 }
 
 .book-page {
@@ -117,18 +117,36 @@ body {
   padding: 50px;
   border-radius: 10px;
   box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
-  transition: transform 0.5s ease, opacity 0.5s ease;
-  transform-origin: left center;
+  transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  transform-style: preserve-3d;
+  position: relative;
+}
+
+.page-front {
+  backface-visibility: hidden;
+  width: 100%;
+}
+
+.page-back {
+  backface-visibility: hidden;
+  transform: rotateY(180deg);
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  padding: 50px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
 }
 
 .book-page.flipping-next {
-  transform: rotateY(-180deg);
-  opacity: 0;
+  transform: rotateY(-180deg) scaleX(1.05);
 }
 
 .book-page.flipping-prev {
-  transform: rotateY(180deg);
-  opacity: 0;
+  transform: rotateY(180deg) scaleX(1.05);
 }
 
 #pageTitle {
@@ -148,6 +166,23 @@ body {
   margin-bottom: 1.2em;
 }
 
+#pageBackTitle {
+  font-size: 2rem;
+  margin-bottom: 30px;
+  border-bottom: 2px solid #222;
+  padding-bottom: 10px;
+}
+
+#pageBackContent {
+  line-height: 1.8;
+  font-size: 1.05rem;
+  font-family: 'Open Sans', sans-serif;
+}
+
+#pageBackContent p {
+  margin-bottom: 1.2em;
+}
+
 .enemy-box,
 .boss-box,
 .treasure-box,
@@ -164,6 +199,10 @@ body {
 
 .enemy-box {
   border-left-color: #333;
+}
+
+ul {
+  padding-left: 25px;
 }
 
 ul {
