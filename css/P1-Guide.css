@@ -243,6 +243,23 @@ button:disabled {
   text-align: center;
 }
 
+@media (min-width: 1200px) {
+  #pageTitle {
+    font-size: 2.5rem;
+  }
+
+  #pageContent {
+    font-size: 1.2rem;
+  }
+
+  .boss-box,
+  .enemy-box,
+  .treasure-box,
+  .note-box {
+    font-size: 1.1rem;
+  }
+}
+
 @media (max-width: 768px) {
   .sidebar-toggle {
     display: block;

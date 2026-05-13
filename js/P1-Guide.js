@@ -32,13 +32,11 @@ let scrollProtectionTimeout = null;
 
 const titleEl = document.getElementById("pageTitle");
 const contentEl = document.getElementById("pageContent");
-const indicatorEl = document.getElementById("pageIndicator");
+const indicatorEls = document.querySelectorAll(".pageIndicator");
 const bookPageEl = document.getElementById("bookPage");
 const tocListEl = document.getElementById("tocList");
-const prevBtn = document.getElementById("prevBtn");
-const nextBtn = document.getElementById("nextBtn");
-const bookmarkBtn = document.getElementById("bookmarkBtn");
-const goBookmarkBtn = document.getElementById("goBookmarkBtn");
+const prevBtns = document.querySelectorAll(".prevBtn");
+const nextBtns = document.querySelectorAll(".nextBtn");
 
 function buildSidebar() {
   tocListEl.innerHTML = "";
@@ -118,12 +116,20 @@ function renderPage() {
     // Update content while faded out
     titleEl.textContent = `${page.id} - ${page.title}`;
     contentEl.innerHTML = page.content || "";
-    indicatorEl.textContent = `${currentPage + 1} / ${pages.length}`;
+    
+    // Update all page indicators
+    indicatorEls.forEach(el => {
+      el.textContent = `${currentPage + 1} / ${pages.length}`;
+    });
 
     localStorage.setItem("currentPage", currentPage);
 
-    prevBtn.disabled = currentPage === 0;
-    nextBtn.disabled = currentPage === pages.length - 1;
+    // Update all button states
+    const isFirstPage = currentPage === 0;
+    const isLastPage = currentPage === pages.length - 1;
+    
+    prevBtns.forEach(btn => btn.disabled = isFirstPage);
+    nextBtns.forEach(btn => btn.disabled = isLastPage);
 
     updateSidebarActiveState();
     updateProgressBars();
@@ -151,27 +157,8 @@ function goToPreviousPage() {
   }
 }
 
-prevBtn.onclick = goToPreviousPage;
-nextBtn.onclick = goToNextPage;
-
-bookmarkBtn.onclick = () => {
-  if (!pages[currentPage]) return;
-
-  localStorage.setItem("bookmarkPage", currentPage);
-  alert(`Bookmark saved: ${pages[currentPage].id} - ${pages[currentPage].title}`);
-};
-
-goBookmarkBtn.onclick = () => {
-  const savedBookmark = Number(localStorage.getItem("bookmarkPage"));
-
-  if (!Number.isNaN(savedBookmark) && pages[savedBookmark]) {
-    lastFlipDirection = savedBookmark > currentPage ? "next" : "prev";
-    currentPage = savedBookmark;
-    renderPage();
-  } else {
-    alert("No bookmark saved yet.");
-  }
-};
+prevBtns.forEach(btn => btn.onclick = goToPreviousPage);
+nextBtns.forEach(btn => btn.onclick = goToNextPage);
 
 document.addEventListener("keydown", event => {
   if (event.key === "ArrowRight") goToNextPage();
@@ -209,24 +196,7 @@ if (sidebarToggle) {
   });
 }
 
-let touchStartX = 0;
-let touchEndX = 0;
 
-bookPageEl.addEventListener("touchstart", event => {
-  touchStartX = event.changedTouches[0].screenX;
-});
-
-bookPageEl.addEventListener("touchend", event => {
-  touchEndX = event.changedTouches[0].screenX;
-  handleSwipe();
-});
-
-function handleSwipe() {
-  const distance = touchEndX - touchStartX;
-
-  if (distance < -50) goToNextPage();
-  if (distance > 50) goToPreviousPage();
-}
 
 async function initializeBook() {
   try {
@@ -247,14 +217,22 @@ async function initializeBook() {
     const initialPage = pages[currentPage];
     titleEl.textContent = `${initialPage.id} - ${initialPage.title}`;
     contentEl.innerHTML = initialPage.content || "";
-    indicatorEl.textContent = `${currentPage + 1} / ${pages.length}`;
+    
+    // Update all page indicators
+    indicatorEls.forEach(el => {
+      el.textContent = `${currentPage + 1} / ${pages.length}`;
+    });
 
     buildSidebar();
     updateSidebarActiveState();
     updateProgressBars();
     
-    prevBtn.disabled = currentPage === 0;
-    nextBtn.disabled = currentPage === pages.length - 1;
+    // Update all button states
+    const isFirstPage = currentPage === 0;
+    const isLastPage = currentPage === pages.length - 1;
+    
+    prevBtns.forEach(btn => btn.disabled = isFirstPage);
+    nextBtns.forEach(btn => btn.disabled = isLastPage);
   } catch (error) {
     titleEl.textContent = "Error";
 
